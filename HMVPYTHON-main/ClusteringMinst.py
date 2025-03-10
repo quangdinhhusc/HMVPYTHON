@@ -851,7 +851,7 @@ def run_ClusteringMinst_app():
 
                 # 5) Nút bấm mở MLflow UI
                 st.subheader("Truy cập MLflow UI")
-                mlflow_url = "https://dagshub.com/Dung2204/HMVPython.mlflow"
+                mlflow_url = "https://dagshub.com/quangdinhhusc/HMVPYTHON.mlflow"
                 if st.button("Mở MLflow UI"):
                     st.markdown(f'**[Click để mở MLflow UI]({mlflow_url})**')
             else:
