@@ -211,13 +211,82 @@ def run_PcaTSNEMinst_app():
                     thành một tập hợp nhỏ hơn các thành phần chính, giữ lại phần lớn thông tin (phương sai) của dữ liệu gốc. "
                 - **PCA** hoạt động bằng cách tìm các hướng có phương sai lớn nhất và chiếu dữ liệu lên các hướng đó."
                 """)
+
+                np.random.seed(0)
+                mean = [0, 0]
+                cov = [[1, 0.5], [0.5, 1]]
+                data = np.random.multivariate_normal(mean, cov, 100)
+
                 st.markdown("---")
-                st.markdown("### Các bước thu gọn chiều với PCA")
-                st.write("1. **Chuẩn hóa dữ liệu**: Đưa dữ liệu về dạng chuẩn (trung bình = 0, phương sai = 1).")
-                st.write("2. **Tính ma trận hiệp phương sai**: Đánh giá sự tương quan giữa các biến.")
-                st.write("3. **Phân tích giá trị riêng và vector riêng**: Tìm các thành phần chính từ ma trận hiệp phương sai.")
-                st.write("4. **Chọn thành phần chính**: Sắp xếp theo giá trị riêng giảm dần và giữ lại số lượng mong muốn.")
-                st.write("5. **Chiếu dữ liệu**: Chuyển dữ liệu sang không gian mới ít chiều hơn.")
+                st.markdown("### Các bước thực hiện giảm chiều với PCA")
+                st.write("1. **Tính vector kỳ vọng của toàn bộ dữ liệu")
+                vector_ky_vong = np.mean(data, axis=0)
+                # Vẽ ảnh cho bước 1
+                plt.figure(figsize=(8, 6))
+                plt.scatter(data[:, 0], data[:, 1])
+                plt.scatter(vector_ky_vong[0], vector_ky_vong[1], color='red')
+                plt.title("Bước 1: Tính Vector Kỳ Vọng")
+                plt.show()
+
+                st.write("2. **Trừ mỗi điểm dữ liệu đi vector kỳ vọng của toàn bộ dữ liệu để được dữ liệu chuẩn hoá")
+                # Bước 2: Trừ Mỗi Điểm Dữ Liệu Đi Vector Kỳ Vọng của Toàn Bộ Dữ Liệu
+                data_tru = data - vector_ky_vong
+
+                # Vẽ ảnh cho bước 2
+                plt.figure(figsize=(8, 6))
+                plt.scatter(data_tru[:, 0], data_tru[:, 1])
+                plt.title("Bước 2: Trừ Vector Kỳ Vọng")
+                plt.show()
+                st.write("3. **Tính ma trận hiệp phương sai")
+                # Bước 3: Tính Ma Trận Hiệp Phương Sai
+                ma_tran_hiep_phuong_sai = np.cov(data_tru, rowvar=False)
+
+                # Vẽ ảnh cho bước 3
+                plt.figure(figsize=(8, 6))
+                plt.imshow(ma_tran_hiep_phuong_sai, cmap='hot', interpolation='nearest')
+                plt.title("Bước 3: Tính Ma Trận Hiệp Phương Sai")
+                plt.show()
+                st.write("4. **Tính các vector riêng và giá trị riêng của ma trận hiệp phương sai, sắp xếp chúng theo thứ tự giảm dần của trị riêng.")
+                # Bước 4: Tính Các Vector Riêng và Giá Trị Riêng của Ma Trận Hiệp Phương Sai
+                vector_rieng, gia_tri_rieng = np.linalg.eig(ma_tran_hiep_phuong_sai)
+
+                # Sắp xếp các vector riêng và giá trị riêng theo thứ tự giảm dần của trị riêng
+                index = np.argsort(gia_tri_rieng)[::-1]
+                vector_rieng = vector_rieng[:, index]
+                gia_tri_rieng = gia_tri_rieng[index]
+                # Vẽ ảnh cho bước 4
+                plt.figure(figsize=(8, 6))
+                plt.bar(range(len(gia_tri_rieng)), gia_tri_rieng)
+                plt.title("Bước 4: Tính Vector Riêng và Giá Trị Riêng")
+                plt.show()
+                st.write("5. **Chọn K vector riêng ứng với K trị riêng lớn nhất để xây dựng ma trận UK có các cột tạo thành một hệ trực giao. Tạo thành một không gian con gần với phân bố của dữ liệu ban đầu đã chuẩn hoá.")
+                # Bước 5: Chọn K Vector Riêng Ứng với K Trị Riêng Lớn Nhất
+                k = 1
+                vector_rieng_chon = vector_rieng[:, :k]
+
+                # Vẽ ảnh cho bước 5
+                plt.figure(figsize=(8, 6))
+                plt.bar(range(len(gia_tri_rieng[:k])), gia_tri_rieng[:k])
+                plt.title("Bước 5: Chọn Vector Riêng")
+                plt.show()
+                st.write("6. **Chiếu dữ liệu vào không gian con đã chọn")
+                # Bước 6: Chiếu Dữ Liệu vào Không Gian Con Đã Chọn
+                data_chieu = np.dot(data_tru, vector_rieng_chon)
+
+                # Vẽ ảnh cho bước 6
+                plt.figure(figsize=(8, 6))
+                plt.scatter(data_chieu[:, 0], np.zeros(data_chieu.shape[0]))
+                plt.title("Bước 6: Chiếu Dữ Liệu")
+                plt.show()
+                st.write("7. **Lấy dữ liệu đã chiếu trong không gian con đã chọn làm dữ liệu mới")
+                # Bước 7: Lấy Dữ Liệu Đã Chiếu trong Không Gian Con Đã Chọn Làm Dữ Liệu Mới
+                data_moi = data_chieu
+
+                # Vẽ ảnh cho bước 7
+                plt.figure(figsize=(8, 6))
+                plt.scatter(data_moi[:, 0], np.zeros(data_moi.shape[0]))
+                plt.title("Bước 7: Lấy Dữ Liệu Mới")
+                plt.show()
                 st.markdown("---")
                 
                 st.markdown("### Công thức toán học")
