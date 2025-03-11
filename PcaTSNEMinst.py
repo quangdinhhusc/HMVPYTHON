@@ -563,7 +563,7 @@ def run_PcaTSNEMinst_app():
             X_train_subset = X_train_scaled[:n_samples, :]  # Lấy một tập con của dữ liệu huấn luyện
 
             # Chọn phương pháp giảm chiều
-            dim_reduction_method = st.selectbox("**Chọn phương pháp thu gọn chiều:**", ["PCA", "t-SNE"])
+            dim_reduction_method = st.radio("**Chọn phương pháp thu gọn chiều:**", ["PCA", "t-SNE"])
 
             if dim_reduction_method == "PCA":
                 # Tham số của PCA
