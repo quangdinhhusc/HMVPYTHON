@@ -732,7 +732,8 @@ def run_LinearRegression_app():
                 input_array = np.array(input_values).reshape(1, -1)
                 prediction = st.session_state.model.predict(input_array)[0]
                 result = "Sống" if prediction >= 0.5 else "Không sống"
-                st.write(f"**Dự đoán:** {result}")
+                st.write(f"**Kết quả dự đoán:** {result}")
+                st.write(f"**Xác suất sống:** {prediction:.2f}")
         else:
             st.warning("Vui lòng huấn luyện mô hình trước.")
 
