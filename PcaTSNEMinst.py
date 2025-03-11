@@ -390,8 +390,7 @@ def run_PcaTSNEMinst_app():
 
                 st.markdown("---")
                 st.markdown("### Hình ảnh minh họa kết quả sau khi thực hiện giảm chiều dữ liệu với phương pháp PCA")
-                st.image("imgpca/figpca.png",use_container_width ="auto", caption="Hình ảnh minh họa kết quả sau khi thực hiện giảm chiều dữ liệu với phương pháp PCA")
-                st.markdown("---")
+                st.image("imgpca/figpca.png",use_container_width ="auto", caption="Hình ảnh minh họa")
 
                 st.markdown("---")
                 st.markdown("### Ưu điểm & Nhược điểm của PCA")
