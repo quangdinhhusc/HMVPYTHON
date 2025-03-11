@@ -264,129 +264,134 @@ def run_PcaTSNEMinst_app():
                 st.markdown("---")
                 
 
-                X, y = make_classification(
-                    n_features=6,
-                    n_classes=3,
-                    n_samples=1500,
-                    n_informative=2,
-                    random_state=42,  # Thay đổi random_state để tạo phân bố phù hợp
-                    n_clusters_per_class=1
-                )
+                # X, y = make_classification(
+                #     n_features=6,
+                #     n_classes=3,
+                #     n_samples=1500,
+                #     n_informative=2,
+                #     random_state=42,  # Thay đổi random_state để tạo phân bố phù hợp
+                #     n_clusters_per_class=1
+                # )
 
-                # Áp dụng PCA để giảm chiều xuống 2D (vì hình ảnh trông giống 2D)
-                pca = PCA(n_components=2)
-                X_pca = pca.fit_transform(X)
+                # # Áp dụng PCA để giảm chiều xuống 2D (vì hình ảnh trông giống 2D)
+                # pca = PCA(n_components=2)
+                # X_pca = pca.fit_transform(X)
 
-                # Tiêu đề và đường phân cách
-                X, y = make_classification(
-                    n_features=6,
-                    n_classes=3,
-                    n_samples=1500,
-                    n_informative=2,
-                    random_state=42,  # Thay đổi random_state để tạo phân bố phù hợp
-                    n_clusters_per_class=1
-                )
+                # # Tiêu đề và đường phân cách
+                # X, y = make_classification(
+                #     n_features=6,
+                #     n_classes=3,
+                #     n_samples=1500,
+                #     n_informative=2,
+                #     random_state=42,  # Thay đổi random_state để tạo phân bố phù hợp
+                #     n_clusters_per_class=1
+                # )
 
-                # Áp dụng PCA để giảm chiều xuống 3D (hỗ trợ cả 2D và 3D)
-                pca = PCA(n_components=3)  # Giảm xuống 3 thành phần chính để hỗ trợ cả 2D và 3D
-                X_pca = pca.fit_transform(X)
+                # # Áp dụng PCA để giảm chiều xuống 3D (hỗ trợ cả 2D và 3D)
+                # pca = PCA(n_components=3)  # Giảm xuống 3 thành phần chính để hỗ trợ cả 2D và 3D
+                # X_pca = pca.fit_transform(X)
 
-                # Tiêu đề và đường phân cách
-                # st.markdown("---")
-                st.markdown("### Biểu đồ PCA với Đường Xu hướng")
+                # # Tiêu đề và đường phân cách
+                # # st.markdown("---")
+                # st.markdown("### Biểu đồ PCA với Đường Xu hướng")
 
-                # Cho phép người dùng chọn loại biểu đồ (2D hoặc 3D)
-                chart_type = st.selectbox("Chọn loại biểu đồ:", ["2D", "3D"])
+                # # Cho phép người dùng chọn loại biểu đồ (2D hoặc 3D)
+                # chart_type = st.selectbox("Chọn loại biểu đồ:", ["2D", "3D"])
 
-                # Hiển thị thông tin về dữ liệu
-                st.markdown("**Thông tin dữ liệu:**")
-                st.write(f"- Số mẫu (n_samples): {X.shape[0]}")
-                st.write(f"- Số đặc trưng (n_features): {X.shape[1]}")
-                st.write(f"- Số lớp (n_classes): {len(np.unique(y))}")
+                # # Hiển thị thông tin về dữ liệu
+                # st.markdown("**Thông tin dữ liệu:**")
+                # st.write(f"- Số mẫu (n_samples): {X.shape[0]}")
+                # st.write(f"- Số đặc trưng (n_features): {X.shape[1]}")
+                # st.write(f"- Số lớp (n_classes): {len(np.unique(y))}")
 
-                # Hiển thị tỷ lệ phương sai được giải thích bởi PCA
-                st.markdown("**Tỷ lệ phương sai được giải thích bởi các thành phần chính:**")
-                explained_variance_ratio = pca.explained_variance_ratio_
-                st.write(f"- Thành phần 1 (PC1): {explained_variance_ratio[0]:.4f}")
-                st.write(f"- Thành phần 2 (PC2): {explained_variance_ratio[1]:.4f}")
-                st.write(f"- Thành phần 3 (PC3): {explained_variance_ratio[2]:.4f}")
-                st.write(f"- Tổng phương sai được giữ lại: {sum(explained_variance_ratio):.4f}")
+                # # Hiển thị tỷ lệ phương sai được giải thích bởi PCA
+                # st.markdown("**Tỷ lệ phương sai được giải thích bởi các thành phần chính:**")
+                # explained_variance_ratio = pca.explained_variance_ratio_
+                # st.write(f"- Thành phần 1 (PC1): {explained_variance_ratio[0]:.4f}")
+                # st.write(f"- Thành phần 2 (PC2): {explained_variance_ratio[1]:.4f}")
+                # st.write(f"- Thành phần 3 (PC3): {explained_variance_ratio[2]:.4f}")
+                # st.write(f"- Tổng phương sai được giữ lại: {sum(explained_variance_ratio):.4f}")
 
-                # Tạo và hiển thị biểu đồ dựa trên lựa chọn của người dùng
-                if chart_type == "3D":
-                    # Biểu đồ 3D
-                    fig = px.scatter_3d(
-                        x=X_pca[:, 0],  # Thành phần chính 1 (PC1) cho trục x
-                        y=X_pca[:, 1],  # Thành phần chính 2 (PC2) cho trục y
-                        z=X_pca[:, 2],  # Thành phần chính 3 (PC3) cho trục z
-                        color=y,        # Màu sắc dựa trên nhãn lớp (y)
-                        opacity=0.6,    # Độ trong suốt để giống hình ảnh
-                        title="Biểu đồ PCA 3D với Đường Xu hướng"
-                    )
+                # # Tạo và hiển thị biểu đồ dựa trên lựa chọn của người dùng
+                # if chart_type == "3D":
+                #     # Biểu đồ 3D
+                #     fig = px.scatter_3d(
+                #         x=X_pca[:, 0],  # Thành phần chính 1 (PC1) cho trục x
+                #         y=X_pca[:, 1],  # Thành phần chính 2 (PC2) cho trục y
+                #         z=X_pca[:, 2],  # Thành phần chính 3 (PC3) cho trục z
+                #         color=y,        # Màu sắc dựa trên nhãn lớp (y)
+                #         opacity=0.6,    # Độ trong suốt để giống hình ảnh
+                #         title="Biểu đồ PCA 3D với Đường Xu hướng"
+                #     )
 
-                    # Sắp xếp dữ liệu theo PC1 (x) để đảm bảo tăng dần cho đường xu hướng (chỉ sử dụng 2D cho đường xu hướng)
-                    sort_indices = np.argsort(X_pca[:, 0])
-                    x_sorted = X_pca[sort_indices, 0]  # PC1 đã sắp xếp
-                    y_sorted = X_pca[sort_indices, 1]  # PC2 tương ứng với PC1 đã sắp xếp
+                #     # Sắp xếp dữ liệu theo PC1 (x) để đảm bảo tăng dần cho đường xu hướng (chỉ sử dụng 2D cho đường xu hướng)
+                #     sort_indices = np.argsort(X_pca[:, 0])
+                #     x_sorted = X_pca[sort_indices, 0]  # PC1 đã sắp xếp
+                #     y_sorted = X_pca[sort_indices, 1]  # PC2 tương ứng với PC1 đã sắp xếp
 
-                    # Tạo đường xu hướng bằng UnivariateSpline với dữ liệu đã sắp xếp (chỉ sử dụng PC1 và PC2)
-                    x_smooth = np.linspace(x_sorted.min(), x_sorted.max(), 100)
-                    y_smooth = UnivariateSpline(x_sorted, y_sorted, k=3, s=0)(x_smooth)  # Đặt s=0 để tránh lỗi
+                #     # Tạo đường xu hướng bằng UnivariateSpline với dữ liệu đã sắp xếp (chỉ sử dụng PC1 và PC2)
+                #     x_smooth = np.linspace(x_sorted.min(), x_sorted.max(), 100)
+                #     y_smooth = UnivariateSpline(x_sorted, y_sorted, k=3, s=0)(x_smooth)  # Đặt s=0 để tránh lỗi
 
-                    # Thêm đường cong xanh lá cây vào biểu đồ 3D (dự đoán z=0 cho đơn giản)
-                    fig.add_trace(
-                        go.Scatter3d(
-                            x=x_smooth,
-                            y=y_smooth,
-                            z=np.zeros_like(x_smooth),  # Giả định z=0 cho đường xu hướng trong 3D
-                            mode='lines',
-                            line=dict(color='green', width=2),
-                            name='Đường xu hướng'
-                        )
-                    )
+                #     # Thêm đường cong xanh lá cây vào biểu đồ 3D (dự đoán z=0 cho đơn giản)
+                #     fig.add_trace(
+                #         go.Scatter3d(
+                #             x=x_smooth,
+                #             y=y_smooth,
+                #             z=np.zeros_like(x_smooth),  # Giả định z=0 cho đường xu hướng trong 3D
+                #             mode='lines',
+                #             line=dict(color='green', width=2),
+                #             name='Đường xu hướng'
+                #         )
+                #     )
 
-                    st.markdown("### Biểu đồ 3D:")
-                    st.plotly_chart(fig, use_container_width=True)
-                else:
-                    # Biểu đồ 2D
-                    fig = px.scatter(
-                        x=X_pca[:, 0],  # Thành phần chính 1 (PC1) cho trục x
-                        y=X_pca[:, 1],  # Thành phần chính 2 (PC2) cho trục y
-                        color=y,        # Màu sắc dựa trên nhãn lớp (y)
-                        opacity=0.6,    # Độ trong suốt để giống hình ảnh
-                        title="Biểu đồ PCA 2D với Đường Xu hướng"
-                    )
+                #     st.markdown("### Biểu đồ 3D:")
+                #     st.plotly_chart(fig, use_container_width=True)
+                # else:
+                #     # Biểu đồ 2D
+                #     fig = px.scatter(
+                #         x=X_pca[:, 0],  # Thành phần chính 1 (PC1) cho trục x
+                #         y=X_pca[:, 1],  # Thành phần chính 2 (PC2) cho trục y
+                #         color=y,        # Màu sắc dựa trên nhãn lớp (y)
+                #         opacity=0.6,    # Độ trong suốt để giống hình ảnh
+                #         title="Biểu đồ PCA 2D với Đường Xu hướng"
+                #     )
 
-                    # Sắp xếp dữ liệu theo PC1 (x) để đảm bảo tăng dần
-                    sort_indices = np.argsort(X_pca[:, 0])
-                    x_sorted = X_pca[sort_indices, 0]  # PC1 đã sắp xếp
-                    y_sorted = X_pca[sort_indices, 1]  # PC2 tương ứng với PC1 đã sắp xếp
+                #     # Sắp xếp dữ liệu theo PC1 (x) để đảm bảo tăng dần
+                #     sort_indices = np.argsort(X_pca[:, 0])
+                #     x_sorted = X_pca[sort_indices, 0]  # PC1 đã sắp xếp
+                #     y_sorted = X_pca[sort_indices, 1]  # PC2 tương ứng với PC1 đã sắp xếp
 
-                    # Tạo đường xu hướng bằng UnivariateSpline với dữ liệu đã sắp xếp
-                    x_smooth = np.linspace(x_sorted.min(), x_sorted.max(), 100)
-                    y_smooth = UnivariateSpline(x_sorted, y_sorted, k=3, s=0)(x_smooth)  # Đặt s=0 để tránh lỗi
+                #     # Tạo đường xu hướng bằng UnivariateSpline với dữ liệu đã sắp xếp
+                #     x_smooth = np.linspace(x_sorted.min(), x_sorted.max(), 100)
+                #     y_smooth = UnivariateSpline(x_sorted, y_sorted, k=3, s=0)(x_smooth)  # Đặt s=0 để tránh lỗi
 
-                    # Thêm đường cong xanh lá cây vào biểu đồ 2D
-                    fig.add_trace(
-                        go.Scatter(
-                            x=x_smooth,
-                            y=y_smooth,
-                            mode='lines',
-                            line=dict(color='green', width=2),
-                            name='Đường xu hướng'
-                        )
-                    )
+                #     # Thêm đường cong xanh lá cây vào biểu đồ 2D
+                #     fig.add_trace(
+                #         go.Scatter(
+                #             x=x_smooth,
+                #             y=y_smooth,
+                #             mode='lines',
+                #             line=dict(color='green', width=2),
+                #             name='Đường xu hướng'
+                #         )
+                #     )
 
-                    st.markdown("### Biểu đồ 2D:")
-                    st.plotly_chart(fig, use_container_width=True)
+                #     st.markdown("### Biểu đồ 2D:")
+                #     st.plotly_chart(fig, use_container_width=True)
 
-                # Cập nhật layout cho cả 2D và 3D (nền trắng, font đen)
-                fig.update_layout(
-                    plot_bgcolor='white',
-                    paper_bgcolor='white',
-                    font_color='black',
-                    showlegend=True
-                )
+                # # Cập nhật layout cho cả 2D và 3D (nền trắng, font đen)
+                # fig.update_layout(
+                #     plot_bgcolor='white',
+                #     paper_bgcolor='white',
+                #     font_color='black',
+                #     showlegend=True
+                # )
+
+                st.markdown("---")
+                st.markdown("### Hình ảnh minh họa kết quả sau khi thực hiện giảm chiều dữ liệu với phương pháp PCA")
+                st.image("imgpca/figpca.png",use_container_width ="auto", caption="Hình ảnh minh họa kết quả sau khi thực hiện giảm chiều dữ liệu với phương pháp PCA")
+                st.markdown("---")
 
                 st.markdown("---")
                 st.markdown("### Ưu điểm & Nhược điểm của PCA")
