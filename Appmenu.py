@@ -12,7 +12,7 @@ st.set_page_config(page_title="Multi-App", layout="wide")
 
 # Sidebar chứa menu ứng dụng
 st.sidebar.title("Home page")
-app_choice = st.sidebar.selectbox(
+app_choice = st.sidebar.radio(
     "Chọn ứng dụng:",
     ["Linear Regression", "Classification", "Clustering","PCA_T-SNE"]
 )
