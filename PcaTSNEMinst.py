@@ -130,8 +130,12 @@ def run_PcaTSNEMinst_app():
                 **MNIST** là phiên bản được chỉnh sửa từ bộ dữ liệu **NIST gốc** của Viện Tiêu chuẩn và Công nghệ Quốc gia Hoa Kỳ.  
                 Bộ dữ liệu ban đầu gồm các chữ số viết tay từ **nhân viên bưu điện** và **học sinh trung học**.  
 
+                Đây là một bộ dữ liệu kinh điển và được sử dụng rộng rãi trong lĩnh vực học máy, đặc biệt là trong việc phát triển và đánh giá các mô hình phân loại hình ảnh.
+
                 Các nhà nghiên cứu **Yann LeCun, Corinna Cortes, và Christopher Burges** đã xử lý, chuẩn hóa và chuyển đổi bộ dữ liệu này thành **MNIST**  
                 để dễ dàng sử dụng hơn cho các bài toán nhận dạng chữ số viết tay.
+
+                
                 '''
             )
             # Đặc điểm của bộ dữ liệu
