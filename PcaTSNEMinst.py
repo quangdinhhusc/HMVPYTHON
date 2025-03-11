@@ -219,13 +219,25 @@ def run_PcaTSNEMinst_app():
 
                 st.markdown("---")
                 st.markdown("### Các bước thực hiện giảm chiều với PCA")
+                
                 st.write("**1**. Tính vector kỳ vọng của toàn bộ dữ liệu")
+                st.image("imgpca/b1.png",use_container_width ="auto")
+                
                 st.write("**2**. Trừ mỗi điểm dữ liệu đi vector kỳ vọng của toàn bộ dữ liệu để được dữ liệu chuẩn hoá")
+                st.image("imgpca/b2.png",use_container_width ="auto")
+                
                 st.write("**3**. Tính ma trận hiệp phương sai")
+
                 st.write("**4**. Tính các vector riêng và giá trị riêng của ma trận hiệp phương sai, sắp xếp chúng theo thứ tự giảm dần của trị riêng.")
                 st.write("**5**. Chọn K vector riêng ứng với K trị riêng lớn nhất để xây dựng ma trận UK có các cột tạo thành một hệ trực giao. Tạo thành một không gian con gần với phân bố của dữ liệu ban đầu đã chuẩn hoá.")
+                st.image("imgpca/b5.png",use_container_width ="auto")
+
                 st.write("**6**. Chiếu dữ liệu vào không gian con đã chọn")
+                st.image("imgpca/b6.png",use_container_width ="auto")
+
                 st.write("**7**. Lấy dữ liệu đã chiếu trong không gian con đã chọn làm dữ liệu mới")
+                st.image("imgpca/b7.png",use_container_width ="auto")
+
                 st.markdown("---")
                 
                 st.markdown("### Công thức toán học")
