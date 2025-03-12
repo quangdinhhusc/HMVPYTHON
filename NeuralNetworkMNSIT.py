@@ -25,7 +25,7 @@ from sklearn.model_selection import KFold
 from collections import Counter
 from mlflow.tracking import MlflowClient
 from streamlit_drawable_canvas import st_canvas
-from tensorflow.keras import layers, models, callbacks
+from tensorflow.keras import layers, models, callbacks, optimizers
 
 def preprocess_canvas_image(canvas_result):
     if canvas_result.image_data is not None:
@@ -339,15 +339,15 @@ def run_NeuralNetwork_app():
 
             # Compile mô hình
             if optimizer == "adam":
-                cnn.compile(optimizer=optimizer.Adam(learning_rate=learning_rate_init, beta_1=beta_1, beta_2=beta_2, epsilon=epsilon),
+                cnn.compile(optimizer=optimizers.Adam(learning_rate=learning_rate_init, beta_1=beta_1, beta_2=beta_2, epsilon=epsilon),
                             loss='sparse_categorical_crossentropy',
                             metrics=['accuracy'])
             elif optimizer == "sgd":
-                cnn.compile(optimizer=optimizer.SGD(learning_rate=learning_rate_init, momentum=momentum, nesterov=nesterovs_momentum),
+                cnn.compile(optimizer=optimizers.SGD(learning_rate=learning_rate_init, momentum=momentum, nesterov=nesterovs_momentum),
                             loss='sparse_categorical_crossentropy',
                             metrics=['accuracy'])
             elif optimizer == "lbfgs":
-                cnn.compile(optimizer=optimizer.LBFGS(learning_rate=learning_rate_init),
+                cnn.compile(optimizer=optimizers.LBFGS(learning_rate=learning_rate_init),
                             loss='sparse_categorical_crossentropy',
                             metrics=['accuracy'])
 
