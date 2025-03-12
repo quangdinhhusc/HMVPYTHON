@@ -271,7 +271,7 @@ def run_NeuralNetwork_app():
 
             batch_size = st.slider("Kích thước batch", 5, 50, 10)
 
-            learning_rate = st.slider("Tốc độ học", 0.001, 0.1, 0.01, format="%.3f")
+            learning_rate = st.slider("Tốc độ học", 0.001, 0.1, 0.01, sep = 0.001, format="%.3f")
 
             cnn= MLPClassifier(hidden_layer_sizes=(hidden_layer_size), max_iter=epochs, batch_size=batch_size, learning_rate_init=learning_rate)
 
