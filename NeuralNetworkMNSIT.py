@@ -23,6 +23,15 @@ from PIL import Image
 from sklearn.model_selection import KFold
 from collections import Counter
 from mlflow.tracking import MlflowClient
+from streamlit_drawable_canvas import st_canvas
+
+def preprocess_canvas_image(canvas_result):
+    if canvas_result.image_data is not None:
+        img = Image.fromarray(canvas_result.image_data[:, :, 0].astype(np.uint8))
+        img = img.resize((28, 28)).convert("L")  # Resize và chuyển thành grayscale
+        img = np.array(img, dtype=np.float32) / 255.0  # Chuẩn hóa về [0, 1]
+        return img.reshape(1, -1)  # Chuyển thành vector 1D
+    return None
 
 def run_NeuralNetwork_app():
     @st.cache_data  # Lưu cache để tránh load lại dữ liệu mỗi lần chạy lại Streamlit
@@ -83,10 +92,11 @@ def run_NeuralNetwork_app():
         "Xử lí dữ liệu",
         "Huấn luyện mô hình",
         "Demo dự đoán",
+        "Test Demo",
         "Thông tin & Mlflow",
     ])
     # tab_info, tab_load, tab_preprocess, tab_split,  tab_demo, tab_log_info = tabs
-    tab_info,tab_note,tab_load, tab_preprocess,  tab_demo ,tab_mlflow= tabs
+    tab_info,tab_note,tab_load, tab_preprocess,  tab_demo, tab_demo_2 ,tab_mlflow= tabs
 
     # with st.expander("🖼️ Dữ liệu ban đầu", expanded=True):
     with tab_info:
@@ -342,22 +352,6 @@ def run_NeuralNetwork_app():
                 # st.write(f"✅ Độ chính xác trên tập kiểm tra: `{st.session_state.get('test_accuracy', 'N/A'):.4f}`")
 
                 # Lấy các tham số từ session_state để hiển thị
-                if best_model_name == "Decision Tree":
-                    criterion = st.session_state.get("dt_criterion", "entropy")
-                    max_depth = st.session_state.get("dt_max_depth", 5)  # Giá trị mặc định là 5
-                    n_folds = st.session_state.get("n_folds", 5)  # Giá trị mặc định là 5
-                    st.write("🔹 **Tham số mô hình Decision Tree:**")
-                    st.write(f"- **Tiêu chí phân nhánh**: `{criterion}`")
-                    st.write(f"- **Độ sâu tối đa**: `{max_depth}`")
-                    st.write(f"- **Số folds trong Cross-Validation**: `{n_folds}`")
-                elif best_model_name == "SVM":
-                    kernel = st.session_state.get("svm_kernel", "linear")
-                    C = st.session_state.get("svm_C", 1.0)
-                    n_folds = st.session_state.get("n_folds", 5)  # Giá trị mặc định là 5
-                    st.write("🔹 **Tham số mô hình SVM:**")
-                    st.write(f"- **Kernel**: `{kernel}`")
-                    st.write(f"- **C (Regularization)**: `{C}`")
-                    st.write(f"- **Số folds trong Cross-Validation**: `{n_folds}`")
 
                 # Cho phép người dùng tải lên ảnh
                 uploaded_file = st.file_uploader("📂 Chọn một ảnh để dự đoán", type=["png", "jpg", "jpeg"])
@@ -386,6 +380,59 @@ def run_NeuralNetwork_app():
                             st.error(f"🚨 Ảnh không có số đặc trưng đúng ({image.shape[1]} thay vì {X_train_shape}). Hãy kiểm tra lại dữ liệu đầu vào!")
                     else:
                         st.error("🚨 Dữ liệu huấn luyện không tìm thấy. Hãy huấn luyện mô hình trước khi dự đoán.")
+
+    with tab_demo_2:   
+        with st.expander("**Dự đoán kết quả**", expanded=True):
+            st.write("**Dự đoán trên ảnh do người dùng tải lên**")
+
+            # Kiểm tra xem mô hình đã được huấn luyện và lưu kết quả chưa
+            if "selected_model_type" not in st.session_state or "trained_model" not in st.session_state:
+                st.warning("⚠️ Chưa có mô hình nào được huấn luyện. Vui lòng huấn luyện mô hình trước khi dự đoán.")
+            else:
+                best_model_name = st.session_state.selected_model_type
+                best_model = st.session_state.trained_model
+
+                st.write(f"🎯 Mô hình đang sử dụng: `{best_model_name}`")
+                # st.write(f"✅ Độ chính xác trên tập kiểm tra: `{st.session_state.get('test_accuracy', 'N/A'):.4f}`")
+
+                # 🆕 Cập nhật key cho canvas khi nhấn "Tải lại"
+                if "key_value" not in st.session_state:
+                    st.session_state.key_value = str(random.randint(0, 1000000))
+
+                if st.button("🔄 Tải lại"):
+                    try:
+                        st.session_state.key_value = str(random.randint(0, 1000000))
+                    except Exception as e:
+                        st.error(f"Cập nhật key không thành công: {str(e)}")
+                        st.stop()
+
+                # ✍️ Vẽ dữ liệu
+                canvas_result = st_canvas(
+                    fill_color="black",
+                    stroke_width=10,
+                    stroke_color="white",
+                    background_color="black",
+                    height=150,
+                    width=150,
+                    drawing_mode="freedraw",
+                    key=st.session_state.key_value,
+                    update_streamlit=True
+                ) 
+
+                if st.button("Dự đoán cụm"):
+                    img = preprocess_canvas_image(canvas_result)
+
+                    if img is not None:
+                        X_train = st.session_state["X_train"]
+                        # Hiển thị ảnh sau xử lý
+                        st.image(Image.fromarray((img.reshape(28, 28) * 255).astype(np.uint8)), caption="Ảnh sau xử lý", width=100)
+
+                        # Dự đoán
+                        prediction = best_model.predict(img)[0]
+                        st.success(f"Dự đoán: {prediction}")
+
+                    else:
+                        st.error("⚠️ Hãy vẽ một số trước khi bấm Dự đoán!")
 
     with tab_mlflow:
         st.header("Thông tin Huấn luyện & MLflow UI")
@@ -478,7 +525,7 @@ def run_NeuralNetwork_app():
         except Exception as e:
             st.error(f"Không thể kết nối với MLflow: {e}")
 
-
+    
 
 
 if __name__ == "__main__":
