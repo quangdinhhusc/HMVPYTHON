@@ -5,6 +5,7 @@ from ClusteringMinst import run_ClusteringMinst_app
 from ClassificationMinst import run_ClassificationMinst_app
 from LinearRegression import run_LinearRegression_app  
 from PcaTSNEMinst import run_PcaTSNEMinst_app
+from NeuralNetwork import run_NeuralNetwork_app
 
 
 # Cấu hình trang chính - phải được gọi ngay đầu file
@@ -14,7 +15,7 @@ st.set_page_config(page_title="Multi-App", layout="wide")
 st.sidebar.title("Home page")
 app_choice = st.sidebar.radio(
     "Chọn ứng dụng:",
-    ["Linear Regression", "Classification", "Clustering","PCA_T-SNE"]
+    ["Linear Regression", "Classification", "Clustering","PCA_T-SNE", "Neural Network"]
 )
 
 # Nội dung chính của trang
@@ -29,3 +30,5 @@ elif app_choice == "Clustering":
     run_ClusteringMinst_app()
 elif app_choice == "PCA_T-SNE":
     run_PcaTSNEMinst_app()
+elif app_choice == "Neural Network":
+    run_NeuralNetwork_app()
