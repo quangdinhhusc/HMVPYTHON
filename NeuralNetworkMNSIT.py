@@ -95,8 +95,8 @@ def run_NeuralNetwork_app():
         "Thông tin",
         "Xử lí dữ liệu",
         "Huấn luyện mô hình",
-        "Demo dự đoán",
-        "Test Demo",
+        "Demo dự đoán file ảnh",
+        "Demo dự đoán Viết Tay",
         "Thông tin & Mlflow",
     ])
     # tab_info, tab_load, tab_preprocess, tab_split,  tab_demo, tab_log_info = tabs
