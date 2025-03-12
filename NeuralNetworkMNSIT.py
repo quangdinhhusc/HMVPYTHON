@@ -243,7 +243,7 @@ def run_NeuralNetwork_app():
                         trained_samples += len(X_train)
                         # bar.progress(trained_samples / (total_samples * epochs))
                         bar.progress((i) / epochs)
-                        st.write(f"Đang huấn luyện {epochs}: {(i+1)/epochs*100:.2f}%")
+                        st.write(f"Đang huấn luyện {epochs}: {(i)/epochs*100:.2f}%")
                         i += 1
                         # st.write(f"Đang huấn luyện... {i+1}/{epochs} - {trained_samples}/{total_samples * epochs} mẫu")
                     end_time = time.time()
