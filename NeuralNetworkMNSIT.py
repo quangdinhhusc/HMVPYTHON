@@ -279,11 +279,12 @@ def run_NeuralNetwork_app():
 
             epochs = st.slider("Số lần lặp tối đa", 2, 50, 5)
 
-            batch_size = st.slider("Kích thước batch", 5, 50, 10)
+            # batch_size = st.slider("Kích thước batch", 5, 50, 10)
 
             learning_rate = st.slider("Tốc độ học", 0.001, 0.1, 0.01, step = 0.001, format="%.3f")
 
-            cnn= MLPClassifier(hidden_layer_sizes=(hidden_layer_size), max_iter=epochs, batch_size=batch_size, learning_rate_init=learning_rate)
+            # cnn= MLPClassifier(hidden_layer_sizes=(hidden_layer_size), max_iter=epochs, batch_size=batch_size, learning_rate_init=learning_rate)
+            cnn= MLPClassifier(hidden_layer_sizes=(hidden_layer_size), max_iter=epochs, learning_rate_init=learning_rate)
 
             if st.button("Huấn luyện mô hình"):
                 with st.spinner("Đang huấn luyện..."):
