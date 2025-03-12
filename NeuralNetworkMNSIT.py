@@ -550,7 +550,7 @@ def run_NeuralNetwork_app():
                     update_streamlit=True
                 ) 
 
-                if st.button("Dự đoán cụm"):
+                if st.button("Dự đoán "):
                     img = preprocess_canvas_image(canvas_result)
 
                     if img is not None:
