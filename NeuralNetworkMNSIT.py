@@ -284,7 +284,7 @@ def run_NeuralNetwork_app():
             st.write("Kích thước batch")
             col1, col2, col3, col4 = st.columns(4)
             with col1:
-                if st.button("32"):
+                if st.button("32", help="Mặc định"):
                     batch_size = 32
             with col2:
                 if st.button("64"):
