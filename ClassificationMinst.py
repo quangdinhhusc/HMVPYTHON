@@ -402,7 +402,11 @@ def run_ClassificationMinst_app():
                             kf = KFold(n_splits=n_folds, shuffle=True, random_state=42)
                             cv_scores = []
 
-                            for train_index, val_index in kf.split(X_train):
+                            progress_bar = st.progress(0)  # Khởi tạo thanh trạng thái ở 0%
+                            progress_text = st.empty()  # Tạo một vùng trống để hiển thị % tiến trình
+                            total_folds = n_folds
+
+                            for i, (train_index, val_index) in kf.split(X_train):
                                 X_train_fold, X_val_fold = X_train[train_index], X_train[val_index]
                                 y_train_fold, y_val_fold = y_train[train_index], y_train[val_index]
 
@@ -412,6 +416,11 @@ def run_ClassificationMinst_app():
                                 y_val_pred_fold = dt_model.predict(X_val_fold)
                                 fold_accuracy = accuracy_score(y_val_fold, y_val_pred_fold)
                                 cv_scores.append(fold_accuracy)
+
+                                # Cập nhật thanh trạng thái và hiển thị phần trăm
+                                progress = (i + 1) / total_folds  # Tính phần trăm hoàn thành
+                                progress_bar.progress(progress)  # Cập nhật thanh trạng thái
+                                progress_text.text(f"Tiến trình huấn luyện: {int(progress * 100)}%")  # Hiển thị % cụ thể
 
                             # Tính độ chính xác trung bình từ cross-validation
                             mean_cv_accuracy = np.mean(cv_scores)
