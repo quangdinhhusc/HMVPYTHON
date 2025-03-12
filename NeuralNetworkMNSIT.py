@@ -26,6 +26,7 @@ from collections import Counter
 from mlflow.tracking import MlflowClient
 from streamlit_drawable_canvas import st_canvas
 from tensorflow.keras import layers, models, callbacks, optimizers
+from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint
 
 def preprocess_canvas_image(canvas_result):
     if canvas_result.image_data is not None:
@@ -389,12 +390,15 @@ def run_NeuralNetwork_app():
                                 st.write(f"Loss: {logs['loss']:.4f}, Accuracy: {logs['accuracy']:.4f}")
 
                         # Huấn luyện mô hình
+                        early_stopping = EarlyStopping(monitor='val_loss', patience=5, min_delta=0.001)
+                        model_checkpoint = ModelCheckpoint('best_model.h5', monitor='val_loss', save_best_only=True, mode='min')
                         history = cnn.fit(X_train, y_train,
                                         epochs=epochs,
                                         batch_size=batch_size,
                                         validation_data=(X_val, y_val),
                                         verbose=1,
-                                        callbacks=[ProgressCallback()])
+                                        callbacks=[ProgressCallback(), early_stopping, model_checkpoint])
+
 
                         # Hoàn thành progress bar
                         progress_bar.progress(100)
@@ -414,7 +418,6 @@ def run_NeuralNetwork_app():
 
                         y_pred = cnn.predict(X_test)
                         y_pred_class = np.argmax(y_pred, axis=1)
-                        report = classification_report(y_test, y_pred_class, output_dict=True)
                         accuracy = accuracy_score(y_test, y_pred_class)
 
                 st.success("Huấn luyện hoàn tất!")
@@ -429,10 +432,6 @@ def run_NeuralNetwork_app():
                 st.session_state.selected_model_type = "Neural Network"
                 st.session_state.trained_model = cnn
                 st.session_state['history'] = history
-
-                # # Hiển thị báo cáo phân loại
-                st.subheader("Báo cáo phân loại:")
-                st.json(report)
 
                 st.markdown("---")
                 st.markdown("#### ✅**Biểu đồ Accuracy và Loss**")
@@ -454,20 +453,8 @@ def run_NeuralNetwork_app():
                 ax2.set_xlabel('Epoch')
                 ax2.set_ylabel('Accuracy')
                 ax2.legend()
+
                 st.pyplot(fig)
-
-                # (Tùy chọn) Hiển thị một số dự đoán mẫu
-                st.subheader("Dự đoán mẫu:")
-                mnist = fetch_openml('mnist_784', version=1, as_frame=False)
-                X, y = mnist["data"], mnist["target"]
-                X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-                X_test = X_test / 255.0
-                predictions = cnn.predict(X_test[:10])
-
-                for i in range(10):
-                    st.write(f"Dự đoán: {np.argmax(predictions[i])},  Xác suất: {np.max(predictions[i]):.2f}, Nhãn thực tế: {y_test[i]}")
-                    image = X_test[i].reshape(28, 28)
-                    st.image(image, caption=f"Mẫu {i+1}", width=100)
 
     with tab_demo:   
         with st.expander("**Dự đoán kết quả**", expanded=True):
