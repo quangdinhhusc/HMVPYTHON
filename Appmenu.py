@@ -5,7 +5,7 @@ from ClusteringMinst import run_ClusteringMinst_app
 from ClassificationMinst import run_ClassificationMinst_app
 from LinearRegression import run_LinearRegression_app  
 from PcaTSNEMinst import run_PcaTSNEMinst_app
-from NeuralNetwork import run_NeuralNetwork_app
+from NeuralNetworkMNSIT import run_NeuralNetwork_app
 
 
 # Cấu hình trang chính - phải được gọi ngay đầu file
