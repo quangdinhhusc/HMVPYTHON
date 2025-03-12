@@ -474,7 +474,7 @@ def run_NeuralNetwork_app():
                 best_model_name = st.session_state.selected_model_type
                 best_model = st.session_state.trained_model
 
-                st.write(f"🎯 Mô hình đang sử dụng: `{best_model_name}`")
+                st.write(f"Mô hình đang sử dụng: `{best_model_name}`")
                 # st.write(f"✅ Độ chính xác trên tập kiểm tra: `{st.session_state.get('test_accuracy', 'N/A'):.4f}`")
 
                 # Lấy các tham số từ session_state để hiển thị
@@ -504,9 +504,9 @@ def run_NeuralNetwork_app():
                             
                             st.success(f"Dự đoán: {np.argmax(prediction)} với xác suất {np.max(prediction):.2f}")
                         else:
-                            st.error(f"🚨 Ảnh không có số đặc trưng đúng ({image.shape[1]} thay vì {X_train_shape}). Hãy kiểm tra lại dữ liệu đầu vào!")
+                            st.error(f"Ảnh không có số đặc trưng đúng ({image.shape[1]} thay vì {X_train_shape}). Hãy kiểm tra lại dữ liệu đầu vào!")
                     else:
-                        st.error("🚨 Dữ liệu huấn luyện không tìm thấy. Hãy huấn luyện mô hình trước khi dự đoán.")
+                        st.error("Dữ liệu huấn luyện không tìm thấy. Hãy huấn luyện mô hình trước khi dự đoán.")
 
     with tab_demo_2:   
         with st.expander("**Dự đoán kết quả**", expanded=True):
@@ -519,7 +519,7 @@ def run_NeuralNetwork_app():
                 best_model_name = st.session_state.selected_model_type
                 best_model = st.session_state.trained_model
 
-                st.write(f"🎯 Mô hình đang sử dụng: `{best_model_name}`")
+                st.write(f"Mô hình đang sử dụng: `{best_model_name}`")
                 # st.write(f"✅ Độ chính xác trên tập kiểm tra: `{st.session_state.get('test_accuracy', 'N/A'):.4f}`")
 
                 # 🆕 Cập nhật key cho canvas khi nhấn "Tải lại"
