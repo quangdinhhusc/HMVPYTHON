@@ -313,6 +313,7 @@ def run_NeuralNetwork_app():
             ])
 
             # 📊 Tạo hàm tối ưu
+            
             # Compile mô hình
             if optimizer == "adam":
                 cnn.compile(optimizer=optimizer.Adam(learning_rate=learning_rate_init, beta_1=beta_1, beta_2=beta_2, epsilon=epsilon),
