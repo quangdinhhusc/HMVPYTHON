@@ -447,6 +447,7 @@ def run_NeuralNetwork_app():
                 ax2.set_ylabel('Accuracy')
                 ax2.legend()
                 st.pyplot(fig)
+                
                 # (Tùy chọn) Hiển thị một số dự đoán mẫu
                 st.subheader("Dự đoán mẫu:")
                 mnist = fetch_openml('mnist_784', version=1, as_frame=False)
