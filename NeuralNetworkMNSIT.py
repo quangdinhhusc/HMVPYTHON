@@ -1,4 +1,3 @@
-from sklearn.neural_network import MLPClassifier
 import streamlit as st
 import os
 import cv2
@@ -22,6 +21,13 @@ from PIL import Image
 from sklearn.model_selection import KFold
 from collections import Counter
 from mlflow.tracking import MlflowClient
+from sklearn.neural_network import MLPClassifier
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Dense, Conv2D, MaxPooling2D, Flatten
+from tensorflow.keras.optimizers import Adam
+from tensorflow.keras.regularizers import l1, l2
+from tensorflow.keras.layers import Dropout
+
 
 def run_NeuralNetwork_app():
     @st.cache_data  # Lưu cache để tránh load lại dữ liệu mỗi lần chạy lại Streamlit
@@ -215,12 +221,29 @@ def run_NeuralNetwork_app():
     with tab_preprocess:
         with st.expander("**Huấn luyện Neural Network**", expanded=True):
             # Lựa chọn tham số huấn luyện
-            hidden_layer_size = st.slider("Kích thước lớp ẩn", 50, 200, 100)
-            max_iterations = st.slider("Số lần lặp tối đa", 5, 50, 10)
+            hidden_layer_size = st.slider("Kích thước lớp ẩn", 50, 200, 100, step=10)
+            max_iterations = st.slider("Số lần lặp tối đa", 5, 50, 10, step=5)
+            batch_size = st.slider("Kích thước batch", 32, 256, 128, step=32)
+            learning_rate = st.slider("Tốc độ học", 0.001, 0.1, 0.01, step=0.001)
+            dropout = st.slider("Tỷ lệ dropout", 0.0, 0.5, 0.2, step=0.1)
+            regularization = st.selectbox("Phương pháp regular hóa", ["L1", "L2"])
+            activation = st.selectbox("Hàm kích hoạt", ["relu", "sigmoid", "tanh"])
+
+            cnn = Sequential()
+            cnn.add(Conv2D(32, (3, 3), activation=activation, input_shape=(28, 28, 1)))
+            cnn.add(MaxPooling2D((2, 2)))
+            cnn.add(Flatten())
+            cnn.add(Dense(hidden_layer_size, activation=activation))
+            cnn.add(Dropout(dropout))
+            if regularization == "L1":
+                cnn.add(Dense(10, activation='softmax', kernel_regularizer=l1(0.01)))
+            elif regularization == "L2":
+                cnn.add(Dense(10, activation='softmax', kernel_regularizer=l2(0.01)))
+            cnn.compile(optimizer=Adam(lr=learning_rate), loss='sparse_categorical_crossentropy', metrics=['accuracy'])
 
             if st.button("Huấn luyện mô hình"):
                 with st.spinner("Đang huấn luyện..."):
-                    cnn= MLPClassifier(hidden_layer_sizes=(hidden_layer_size,), max_iter=max_iterations)
+                    cnn.fit(X_train, y_train, epochs=max_iterations, batch_size=batch_size, validation_data=(X_test, y_test))
                     bar = st.progress(0)
                     for i in range(max_iterations):
                         cnn.fit(X_train, y_train)
