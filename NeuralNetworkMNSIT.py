@@ -229,7 +229,8 @@ def run_NeuralNetwork_app():
                 st.write(f"Độ chính xác: {accuracy:.4f}")
 
                 # Lưu model đã huấn luyện vào st.session_state
-                st.session_state.cnn = cnn
+                st.session_state.selected_model_type = "Neural Network"
+                st.session_state.trained_model = cnn
 
                 # Hiển thị báo cáo phân loại
                 st.subheader("Báo cáo phân loại:")
