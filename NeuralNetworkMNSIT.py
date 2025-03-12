@@ -1,6 +1,7 @@
 import time
 from sklearn.neural_network import MLPClassifier
 import streamlit as st
+import tensorflow as tf
 import os
 import cv2
 import numpy as np
@@ -279,42 +280,108 @@ def run_NeuralNetwork_app():
 
             epochs = st.slider("Số lần lặp tối đa", 2, 50, 5)
 
-            # batch_size = st.slider("Kích thước batch", 5, 50, 10)
+            batch_size = st.slider("Kích thước batch", 5, 50, 10)
+
+            optimizer = st.selectbox("Chọn hàm tối ưu", ["adam", "sgd", "lbfgs"])
 
             learning_rate = st.slider("Tốc độ học", 0.001, 0.1, 0.01, step = 0.001, format="%.3f")
 
+            # 📊 Chọn tham số cho hàm tối ưu
+            if optimizer == "adam":
+                learning_rate_init = st.slider("Tốc độ học", 0.001, 0.1, 0.01, step=0.001, format="%.3f")
+                beta_1 = st.slider("Beta 1", 0.1, 0.9, 0.9, step=0.1, format="%.1f")
+                beta_2 = st.slider("Beta 2", 0.1, 0.9, 0.999, step=0.1, format="%.3f")
+                epsilon = st.slider("Epsilon", 1e-8, 1e-6, 1e-8, step=1e-8, format="%.1e")
+            elif optimizer == "sgd":
+                learning_rate_init = st.slider("Tốc độ học", 0.001, 0.1, 0.01, step=0.001, format="%.3f")
+                momentum = st.slider("Động lượng", 0.1, 0.9, 0.9, step=0.1, format="%.1f")
+                nesterovs_momentum = st.checkbox("Sử dụng động lượng Nesterov")
+            elif optimizer == "lbfgs":
+                learning_rate_init = st.slider("Tốc độ học", 0.001, 0.1, 0.01, step=0.001, format="%.3f")
+                max_iter = st.slider("Số lần lặp tối đa", 100, 1000, 500, step=100)
+
+            # 📊 Tạo hàm tối ưu
+            if optimizer == "adam":
+                optimizer = "adam"
+                learning_rate_init = learning_rate_init
+                beta_1 = beta_1
+                beta_2 = beta_2
+                epsilon = epsilon
+            elif optimizer == "sgd":
+                optimizer = "sgd"
+                learning_rate_init = learning_rate_init
+                momentum = momentum
+                nesterovs_momentum = nesterovs_momentum
+            elif optimizer == "lbfgs":
+                optimizer = "lbfgs"
+                learning_rate_init = learning_rate_init
+                max_iter = max_iter
+
+
             # cnn= MLPClassifier(hidden_layer_sizes=(hidden_layer_size), max_iter=epochs, batch_size=batch_size, learning_rate_init=learning_rate)
             
-            cnn= MLPClassifier(hidden_layer_sizes=(hidden_layer_size), max_iter=epochs, learning_rate_init=learning_rate)
+            cnn= MLPClassifier(hidden_layer_sizes=(hidden_layer_size), max_iter=epochs, learning_rate_init=learning_rate, solver=optimizer)
 
             if st.button("Huấn luyện mô hình"):
                 with st.spinner("Đang huấn luyện..."):
-                    
-                    progress_bar = st.progress(0)
-                    progress_text = st.empty()
-                    total_folds = len(X_train)
-                    
-                    trained_samples = 0
-                    start_time = time.time()
-                    for i in range(epochs):
-                        for j in range(len(X_train)):
-                            cnn.fit(X_train, y_train)
-                            trained_samples += 1
-                            progress = trained_samples / total_folds  # Tính phần trăm hoàn thành
-                            progress_bar.progress(progress)  # Cập nhật thanh trạng thái
-                            progress_text.text(f"Tiến trình huấn luyện {i+1}/{epochs}, mẫu {j+1}/{len(X_train)}: {int(progress * 100)}%")
-                        # bar.progress(trained_samples / (total_samples * epochs))
-                        # bar.progress((i) / epochs)
-                        # st.write(f"Đang huấn luyện {epochs}: {(i)/epochs*100:.2f}%")
-                        # i += 1
-                        # st.write(f"Đang huấn luyện... {i+1}/{epochs} - {trained_samples}/{total_samples * epochs} mẫu")
-                    end_time = time.time()
-                    training_time = end_time - start_time
-                    st.write(f"Thời gian huấn luyện: {training_time:.2f} giây")
-                    
-                    y_pred = cnn.predict(X_test)
-                    report = classification_report(y_test, y_pred, output_dict=True)
-                    accuracy = accuracy_score(y_test, y_pred)
+                    with mlflow.start_run():
+                        # progress_bar = st.progress(0)
+                        # progress_text = st.empty()
+                        # total_folds = len(X_train)
+                        
+                        # trained_samples = 0
+                        # start_time = time.time()
+                        # for i in range(epochs):
+                        #     for j in range(len(X_train)):
+                        #         cnn.fit(X_train, y_train)
+                        #         trained_samples += 1
+                        #         progress = trained_samples / total_folds  # Tính phần trăm hoàn thành
+                        #         progress_bar.progress(progress)  # Cập nhật thanh trạng thái
+                        #         progress_text.text(f"Tiến trình huấn luyện {i+1}/{epochs}, mẫu {j+1}/{len(X_train)}: {int(progress * 100)}%")
+                        #     # bar.progress(trained_samples / (total_samples * epochs))
+                        #     # bar.progress((i) / epochs)
+                        #     # st.write(f"Đang huấn luyện {epochs}: {(i)/epochs*100:.2f}%")
+                        #     # i += 1
+                        #     # st.write(f"Đang huấn luyện... {i+1}/{epochs} - {trained_samples}/{total_samples * epochs} mẫu")
+                        # end_time = time.time()
+                        # training_time = end_time - start_time
+                        # st.write(f"Thời gian huấn luyện: {training_time:.2f} giây")
+                        
+                        
+
+                        progress_bar = st.progress(0)
+                        history = None
+
+                        # Huấn luyện mô hình với callback để cập nhật progress bar
+                        class ProgressCallback(tf.keras.callbacks.Callback):
+                            def on_epoch_end(self, epoch, logs=None):
+                                progress = (epoch + 1) / epochs * 100
+                                progress_bar.progress(int(progress))
+
+                        # Huấn luyện mô hình
+                        history = cnn.fit(X_train, y_train,
+                                        epochs=epochs,
+                                        batch_size=batch_size,
+                                        validation_data=(X_val, y_val),
+                                        verbose=1,
+                                        callbacks=[ProgressCallback()])
+
+                        # Hoàn thành progress bar
+                        progress_bar.progress(100)
+
+                        # Ghi log với MLflow
+                        mlflow.log_param("epochs", epochs)
+                        mlflow.log_param("batch_size", batch_size)
+                        mlflow.log_param("optimizer", optimizer)
+                        mlflow.log_metric("train_accuracy", history.history['accuracy'][-1])
+                        mlflow.log_metric("val_accuracy", history.history['val_accuracy'][-1])
+                        mlflow.log_metric("final_train_loss", history.history['loss'][-1])
+                        mlflow.log_metric("final_val_loss", history.history['val_loss'][-1])
+
+                        y_pred = cnn.predict(X_test)
+                        report = classification_report(y_test, y_pred, output_dict=True)
+                        accuracy = accuracy_score(y_test, y_pred)
+
                 st.success("Huấn luyện hoàn tất!")
                 st.write(f"Độ chính xác: {accuracy:.4f}")
 
