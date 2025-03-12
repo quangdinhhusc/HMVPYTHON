@@ -215,8 +215,8 @@ def run_NeuralNetwork_app():
     with tab_preprocess:
         with st.expander("**Huấn luyện Neural Network**", expanded=True):
             # Lựa chọn tham số huấn luyện
-            hidden_layer_size = st.sidebar.slider("Kích thước lớp ẩn", 50, 200, 100)
-            max_iterations = st.sidebar.slider("Số lần lặp tối đa", 5, 50, 10)
+            hidden_layer_size = st.slider("Kích thước lớp ẩn", 50, 200, 100)
+            max_iterations = st.slider("Số lần lặp tối đa", 5, 50, 10)
 
             if st.button("Huấn luyện mô hình"):
                 with st.spinner("Đang huấn luyện..."):
