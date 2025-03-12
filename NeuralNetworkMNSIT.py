@@ -1,3 +1,4 @@
+from sklearn.neural_network import MLPClassifier
 import streamlit as st
 import os
 import cv2
@@ -21,12 +22,6 @@ from PIL import Image
 from sklearn.model_selection import KFold
 from collections import Counter
 from mlflow.tracking import MlflowClient
-from sklearn.neural_network import MLPClassifier
-from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Dense, Conv2D, MaxPooling2D, Flatten
-from tensorflow.keras.optimizers import Adam
-
-
 
 def run_NeuralNetwork_app():
     @st.cache_data  # Lưu cache để tránh load lại dữ liệu mỗi lần chạy lại Streamlit
@@ -220,30 +215,21 @@ def run_NeuralNetwork_app():
     with tab_preprocess:
         with st.expander("**Huấn luyện Neural Network**", expanded=True):
             # Lựa chọn tham số huấn luyện
-            hidden_layer_size = st.slider("Kích thước lớp ẩn", 50, 200, 100, step=10)
-            max_iterations = st.slider("Số lần lặp tối đa", 5, 50, 10, step=5)
-            batch_size = st.slider("Kích thước batch", 32, 256, 128, step=32)
-            learning_rate = st.slider("Tốc độ học", 0.001, 0.1, 0.001, step=0.001)
-            
+            hidden_layer_size = st.slider("Kích thước lớp ẩn", 50, 200, 100)
+            max_iterations = st.slider("Số lần lặp tối đa", 5, 50, 10)
+            epochs = st.slider("Số lần lặp tối đa", 5, 50, 10)
+            learning_rate = st.slider("Tốc độ học", 0.001, 0.1, 0.01)
 
-            # Tạo mô hình Neural Network
-            cnn = Sequential()
-            cnn.add(Conv2D(32, (3, 3), activation='relu', input_shape=(28, 28, 1)))
-            cnn.add(MaxPooling2D((2, 2)))
-            cnn.add(Flatten())
-            cnn.add(Dense(hidden_layer_size, activation='relu'))
-            cnn.add(Dense(10, activation='softmax'))
-            cnn.compile(optimizer=Adam(learning_rate=learning_rate), loss='sparse_categorical_crossentropy', metrics=['accuracy'])
+            cnn= MLPClassifier(hidden_layer_sizes=(hidden_layer_size), epochs=epochs,max_iter=max_iterations, learning_rate_init=learning_rate)
 
             if st.button("Huấn luyện mô hình"):
                 with st.spinner("Đang huấn luyện..."):
-                    cnn.fit(X_train, y_train, epochs=max_iterations, batch_size=batch_size)
-                    # bar = st.progress(0)
-                    # for i in range(max_iterations):
-                        
-                    #     accuracy = cnn.score(X_test, y_test)
-                    #     bar.progress((i+1)/max_iterations)
-                    #     st.write(f"Đang huấn luyện... {i+1}/{max_iterations} ({accuracy*100:.2f}%)")
+                    bar = st.progress(0)
+                    for i in range(max_iterations):
+                        cnn.fit(X_train, y_train)
+                        accuracy = cnn.score(X_test, y_test)
+                        bar.progress((i+1)/max_iterations)
+                        st.write(f"Đang huấn luyện... {i+1}/{max_iterations} ({accuracy*100:.2f}%)")
                     y_pred = cnn.predict(X_test)
                     report = classification_report(y_test, y_pred, output_dict=True)
                     accuracy = accuracy_score(y_test, y_pred)
