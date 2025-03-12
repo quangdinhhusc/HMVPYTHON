@@ -408,7 +408,7 @@ def run_NeuralNetwork_app():
                         y_pred = cnn.predict(X_test)
                         y_pred_class = np.argmax(y_pred, axis=1)
                         report = classification_report(y_test, y_pred_class, output_dict=True)
-                        accuracy = accuracy_score(y_test, y_pred)
+                        accuracy = accuracy_score(y_test, y_pred_class)
 
                 st.success("Huấn luyện hoàn tất!")
                 st.write(f"Độ chính xác: {accuracy:.4f}")
