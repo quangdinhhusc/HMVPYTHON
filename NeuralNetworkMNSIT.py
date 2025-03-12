@@ -501,7 +501,8 @@ def run_NeuralNetwork_app():
 
                             # Hiển thị ảnh và kết quả dự đoán
                             st.image(uploaded_file, caption="📷 Ảnh bạn đã tải lên", use_container_width=True)
-                            st.success(f"✅ **Dự đoán:** {prediction}")
+                            
+                            st.success(f"Dự đoán: {np.argmax(prediction)} với xác suất {np.max(prediction):.2f}")
                         else:
                             st.error(f"🚨 Ảnh không có số đặc trưng đúng ({image.shape[1]} thay vì {X_train_shape}). Hãy kiểm tra lại dữ liệu đầu vào!")
                     else:
@@ -555,7 +556,7 @@ def run_NeuralNetwork_app():
 
                         # Dự đoán
                         prediction = best_model.predict(img)[0]
-                        st.success(f"Dự đoán: {prediction}")
+                        
                         st.success(f"Dự đoán: {np.argmax(prediction)} với xác suất {np.max(prediction):.2f}")
 
                     else:
