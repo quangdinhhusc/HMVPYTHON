@@ -345,20 +345,19 @@ def run_NeuralNetwork_app():
                 layers.Dense(num_classes, activation='softmax')
             ])
 
-            # # Compile mô hình
-            # if optimizer == "adam":
-            #     cnn.compile(optimizer=optimizers.Adam(learning_rate=learning_rate_init),
-            #                 loss='sparse_categorical_crossentropy',
-            #                 metrics=['accuracy'])
-            # elif optimizer == "sgd":
-            #     cnn.compile(optimizer=optimizers.SGD(learning_rate=learning_rate_init),
-            #                 loss='sparse_categorical_crossentropy',
-            #                 metrics=['accuracy'])
-            # elif optimizer == "lbfgs":
-            #     cnn.compile(optimizer=optimizers.LBFGS(learning_rate=learning_rate_init),
-            #                 loss='sparse_categorical_crossentropy',
-            #                 metrics=['accuracy'])
-            cnn.compile(optimizer=optimizer, learning_rate=learning_rate_init, loss='sparse_categorical_crossentropy', metrics=['accuracy'])
+            # Compile mô hình
+            if optimizer == "adam":
+                cnn.compile(optimizer=optimizers.Adam(learning_rate=learning_rate_init),
+                            loss='sparse_categorical_crossentropy',
+                            metrics=['accuracy'])
+            elif optimizer == "sgd":
+                cnn.compile(optimizer=optimizers.SGD(learning_rate=learning_rate_init),
+                            loss='sparse_categorical_crossentropy',
+                            metrics=['accuracy'])
+            elif optimizer == "lbfgs":
+                cnn.compile(optimizer=optimizers.LBFGS(learning_rate=learning_rate_init),
+                            loss='sparse_categorical_crossentropy',
+                            metrics=['accuracy'])
 
             if st.button("Huấn luyện mô hình"):
                 with st.spinner("Đang huấn luyện..."):
