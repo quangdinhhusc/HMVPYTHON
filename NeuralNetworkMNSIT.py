@@ -347,9 +347,7 @@ def run_NeuralNetwork_app():
 
             # Compile mô hình
             # Biên dịch mô hình
-            cnn.compile(optimizer=optimizer, learning_rate_init=learning_rate_init, 
-                        loss='sparse_categorical_crossentropy', 
-                        metrics=['accuracy'])
+            cnn.compile(optimizer=optimizer, learning_rate=learning_rate_init, loss='sparse_categorical_crossentropy', metrics=['accuracy'])
 
             if st.button("Huấn luyện mô hình"):
                 with st.spinner("Đang huấn luyện..."):
