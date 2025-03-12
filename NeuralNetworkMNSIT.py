@@ -217,10 +217,9 @@ def run_NeuralNetwork_app():
             # Lựa chọn tham số huấn luyện
             hidden_layer_size = st.slider("Kích thước lớp ẩn", 50, 200, 100)
             max_iterations = st.slider("Số lần lặp tối đa", 5, 50, 10)
-            epochs = st.slider("Số lần lặp tối đa", 5, 50, 10)
             learning_rate = st.slider("Tốc độ học", 0.001, 0.1, 0.01)
 
-            cnn= MLPClassifier(hidden_layer_sizes=(hidden_layer_size), epochs=epochs,max_iter=max_iterations, learning_rate_init=learning_rate)
+            cnn= MLPClassifier(hidden_layer_sizes=(hidden_layer_size), max_iter=max_iterations, learning_rate_init=learning_rate)
 
             if st.button("Huấn luyện mô hình"):
                 with st.spinner("Đang huấn luyện..."):
