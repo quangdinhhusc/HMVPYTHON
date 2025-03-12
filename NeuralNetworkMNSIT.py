@@ -354,47 +354,51 @@ def run_NeuralNetwork_app():
             if st.button("Huấn luyện mô hình"):
                 with st.spinner("Đang huấn luyện..."):
                     with mlflow.start_run():
-                        # progress_bar = st.progress(0)
-                        # progress_text = st.empty()
-                        # total_folds = len(X_train)
-                        
-                        # trained_samples = 0
-                        # start_time = time.time()
-                        # for i in range(epochs):
-                        #     for j in range(len(X_train)):
-                        #         cnn.fit(X_train, y_train)
-                        #         trained_samples += 1
-                        #         progress = trained_samples / total_folds  # Tính phần trăm hoàn thành
-                        #         progress_bar.progress(progress)  # Cập nhật thanh trạng thái
-                        #         progress_text.text(f"Tiến trình huấn luyện {i+1}/{epochs}, mẫu {j+1}/{len(X_train)}: {int(progress * 100)}%")
-                        #     # bar.progress(trained_samples / (total_samples * epochs))
-                        #     # bar.progress((i) / epochs)
-                        #     # st.write(f"Đang huấn luyện {epochs}: {(i)/epochs*100:.2f}%")
-                        #     # i += 1
-                        #     # st.write(f"Đang huấn luyện... {i+1}/{epochs} - {trained_samples}/{total_samples * epochs} mẫu")
-                        # end_time = time.time()
-                        # training_time = end_time - start_time
-                        # st.write(f"Thời gian huấn luyện: {training_time:.2f} giây")
-                        
                         progress_bar = st.progress(0)
-                        history = None
-
-                        # Huấn luyện mô hình với callback để cập nhật progress bar
-                        class ProgressCallback(tf.keras.callbacks.Callback):
-                            def on_epoch_end(self, epoch, logs=None):
-                                progress = (epoch + 1) / epochs * 100
-                                progress_bar.progress(int(progress))
-
-                        # Huấn luyện mô hình
-                        history = cnn.fit(X_train, y_train,
+                        progress_text = st.empty()
+                        total_folds = len(X_train)
+                        
+                        trained_samples = 0
+                        start_time = time.time()
+                        for i in range(epochs):
+                            for j in range(len(X_train)):
+                                history = cnn.fit(X_train, y_train,
                                         epochs=epochs,
                                         batch_size=batch_size,
                                         validation_data=(X_val, y_val),
-                                        verbose=1,
-                                        callbacks=[ProgressCallback()])
+                                        verbose=1)
+                                trained_samples += 1
+                                progress = trained_samples / total_folds  # Tính phần trăm hoàn thành
+                                progress_bar.progress(progress)  # Cập nhật thanh trạng thái
+                                progress_text.text(f"Tiến trình huấn luyện {i+1}/{epochs}, mẫu {j+1}/{len(X_train)}: {int(progress * 100)}%")
+                            # bar.progress(trained_samples / (total_samples * epochs))
+                            # bar.progress((i) / epochs)
+                            # st.write(f"Đang huấn luyện {epochs}: {(i)/epochs*100:.2f}%")
+                            # i += 1
+                            # st.write(f"Đang huấn luyện... {i+1}/{epochs} - {trained_samples}/{total_samples * epochs} mẫu")
+                        end_time = time.time()
+                        training_time = end_time - start_time
+                        st.write(f"Thời gian huấn luyện: {training_time:.2f} giây")
+                        
+                        # progress_bar = st.progress(0)
+                        # history = None
 
-                        # Hoàn thành progress bar
-                        progress_bar.progress(100)
+                        # # Huấn luyện mô hình với callback để cập nhật progress bar
+                        # class ProgressCallback(tf.keras.callbacks.Callback):
+                        #     def on_epoch_end(self, epoch, logs=None):
+                        #         progress = (epoch + 1) / epochs * 100
+                        #         progress_bar.progress(int(progress))
+
+                        # # Huấn luyện mô hình
+                        # history = cnn.fit(X_train, y_train,
+                        #                 epochs=epochs,
+                        #                 batch_size=batch_size,
+                        #                 validation_data=(X_val, y_val),
+                        #                 verbose=1,
+                        #                 callbacks=[ProgressCallback()])
+
+                        # # Hoàn thành progress bar
+                        # progress_bar.progress(100)
 
                         # Ghi log với MLflow
                         mlflow.log_param("epochs", epochs)
@@ -423,8 +427,8 @@ def run_NeuralNetwork_app():
                 st.session_state['history'] = history
 
                 # # Hiển thị báo cáo phân loại
-                # st.subheader("Báo cáo phân loại:")
-                # st.json(report)
+                st.subheader("Báo cáo phân loại:")
+                st.json(report)
 
                 st.markdown("---")
                 st.markdown("#### ✅**Biểu đồ Accuracy và Loss**")
@@ -447,7 +451,7 @@ def run_NeuralNetwork_app():
                 ax2.set_ylabel('Accuracy')
                 ax2.legend()
                 st.pyplot(fig)
-                
+
                 # (Tùy chọn) Hiển thị một số dự đoán mẫu
                 st.subheader("Dự đoán mẫu:")
                 mnist = fetch_openml('mnist_784', version=1, as_frame=False)
@@ -457,7 +461,7 @@ def run_NeuralNetwork_app():
                 predictions = cnn.predict(X_test[:10])
 
                 for i in range(10):
-                    st.write(f"Dự đoán: {predictions[i]}, Nhãn thực tế: {y_test[i]}")
+                    st.write(f"Dự đoán: {np.max(predictions[i]):.2f}, Nhãn thực tế: {y_test[i]}")
                     image = X_test[i].reshape(28, 28)
                     st.image(image, caption=f"Mẫu {i+1}", width=100)
 
