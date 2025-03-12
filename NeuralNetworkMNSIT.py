@@ -228,6 +228,9 @@ def run_NeuralNetwork_app():
                 st.success("Huấn luyện hoàn tất!")
                 st.write(f"Độ chính xác: {accuracy:.4f}")
 
+                # Lưu model đã huấn luyện vào st.session_state
+                st.session_state.cnn = cnn
+
                 # Hiển thị báo cáo phân loại
                 st.subheader("Báo cáo phân loại:")
                 st.json(report)
