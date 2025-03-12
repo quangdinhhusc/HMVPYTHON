@@ -27,6 +27,7 @@ from mlflow.tracking import MlflowClient
 from streamlit_drawable_canvas import st_canvas
 from tensorflow.keras import layers, models, callbacks, optimizers
 from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint
+from tensorflow.keras.models import load_model
 
 def preprocess_canvas_image(canvas_result):
     if canvas_result.image_data is not None:
@@ -405,7 +406,8 @@ def run_NeuralNetwork_app():
 
                         end_time = time.time()
                         training_time = end_time - start_time
-                        
+
+                        best_model = load_model('best_model.h5')
 
                         # Ghi log với MLflow
                         mlflow.log_param("epochs", epochs)
@@ -416,7 +418,7 @@ def run_NeuralNetwork_app():
                         mlflow.log_metric("final_train_loss", history.history['loss'][-1])
                         mlflow.log_metric("final_val_loss", history.history['val_loss'][-1])
 
-                        y_pred = cnn.predict(X_test)
+                        y_pred = best_model.predict(X_test)
                         y_pred_class = np.argmax(y_pred, axis=1)
                         accuracy = accuracy_score(y_test, y_pred_class)
 
@@ -425,12 +427,12 @@ def run_NeuralNetwork_app():
                 st.write(f"Độ chính xác: {accuracy:.4f}")
 
                 # Đánh giá trên tập test
-                test_loss, test_accuracy = cnn.evaluate(X_test, y_test, verbose=0)
+                test_loss, test_accuracy = best_model.evaluate(X_test, y_test, verbose=0)
                 mlflow.log_metric("test_accuracy", test_accuracy)
 
                 # Lưu model đã huấn luyện vào st.session_state
                 st.session_state.selected_model_type = "Neural Network"
-                st.session_state.trained_model = cnn
+                st.session_state.trained_model = best_model
                 st.session_state['history'] = history
 
                 st.markdown("---")
