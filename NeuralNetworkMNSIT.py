@@ -363,8 +363,6 @@ def run_NeuralNetwork_app():
                         # training_time = end_time - start_time
                         # st.write(f"Thời gian huấn luyện: {training_time:.2f} giây")
                         
-                        
-
                         progress_bar = st.progress(0)
                         history = None
 
