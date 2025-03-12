@@ -237,12 +237,13 @@ def run_NeuralNetwork_app():
 
             if st.button("Huấn luyện mô hình"):
                 with st.spinner("Đang huấn luyện..."):
-                    bar = st.progress(0)
-                    for i in range(max_iterations):
-                        cnn.fit(X_train, y_train, epochs=max_iterations, batch_size=batch_size)
-                        accuracy = cnn.score(X_test, y_test)
-                        bar.progress((i+1)/max_iterations)
-                        st.write(f"Đang huấn luyện... {i+1}/{max_iterations} ({accuracy*100:.2f}%)")
+                    cnn.fit(X_train, y_train, epochs=max_iterations, batch_size=batch_size)
+                    # bar = st.progress(0)
+                    # for i in range(max_iterations):
+                        
+                    #     accuracy = cnn.score(X_test, y_test)
+                    #     bar.progress((i+1)/max_iterations)
+                    #     st.write(f"Đang huấn luyện... {i+1}/{max_iterations} ({accuracy*100:.2f}%)")
                     y_pred = cnn.predict(X_test)
                     report = classification_report(y_test, y_pred, output_dict=True)
                     accuracy = accuracy_score(y_test, y_pred)
