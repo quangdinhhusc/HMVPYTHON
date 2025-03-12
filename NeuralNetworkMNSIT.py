@@ -464,7 +464,7 @@ def run_NeuralNetwork_app():
                 predictions = cnn.predict(X_test[:10])
 
                 for i in range(10):
-                    st.write(f"Dự đoán: {np.max(predictions[i]):.2f}, Nhãn thực tế: {y_test[i]}")
+                    st.write(f"Dự đoán: {np.argmax(predictions[i])},  Xác suất: {np.max(predictions[i]):.2f}, Nhãn thực tế: {y_test[i]}")
                     image = X_test[i].reshape(28, 28)
                     st.image(image, caption=f"Mẫu {i+1}", width=100)
 
