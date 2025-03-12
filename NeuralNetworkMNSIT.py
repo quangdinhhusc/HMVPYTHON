@@ -295,6 +295,7 @@ def run_NeuralNetwork_app():
             with col4:
                 if st.button("256"):
                     batch_size = 256
+                    
 
             learning_rate_init = st.slider("Tốc độ học", 0.001, 0.1, 0.01, step = 0.001, format="%.3f")
 
