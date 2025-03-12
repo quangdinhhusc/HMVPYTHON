@@ -220,8 +220,11 @@ def run_NeuralNetwork_app():
 
             if st.button("Huấn luyện mô hình"):
                 with st.spinner("Đang huấn luyện..."):
-                    model, accuracy, report = MLPClassifier(hidden_layer_sizes=(hidden_layer_size,), max_iter=max_iterations)
-                    model.fit(X_train, y_train)
+                    cnn= MLPClassifier(hidden_layer_sizes=(hidden_layer_size,), max_iter=max_iterations)
+                    cnn.fit(X_train, y_train)
+                    y_pred = cnn.predict(X_test)
+                    report = classification_report(y_test, y_pred, output_dict=True)
+                    accuracy = accuracy_score(y_test, y_pred)
                 st.success("Huấn luyện hoàn tất!")
                 st.write(f"Độ chính xác: {accuracy:.4f}")
 
@@ -235,7 +238,7 @@ def run_NeuralNetwork_app():
                 X, y = mnist["data"], mnist["target"]
                 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
                 X_test = X_test / 255.0
-                predictions = model.predict(X_test[:10])
+                predictions = cnn.predict(X_test[:10])
 
                 for i in range(10):
                     st.write(f"Dự đoán: {predictions[i]}, Nhãn thực tế: {y_test[i]}")
