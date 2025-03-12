@@ -225,21 +225,16 @@ def run_NeuralNetwork_app():
             max_iterations = st.slider("Số lần lặp tối đa", 5, 50, 10, step=5)
             batch_size = st.slider("Kích thước batch", 32, 256, 128, step=32)
             learning_rate = st.slider("Tốc độ học", 0.001, 0.1, 0.01, step=0.001)
-            dropout = st.slider("Tỷ lệ dropout", 0.0, 0.5, 0.2, step=0.1)
-            regularization = st.selectbox("Phương pháp regular hóa", ["L1", "L2"])
-            activation = st.selectbox("Hàm kích hoạt", ["relu", "sigmoid", "tanh"])
+            
 
+            # Tạo mô hình Neural Network
             cnn = Sequential()
-            cnn.add(Conv2D(32, (3, 3), activation=activation, input_shape=(28, 28, 1)))
+            cnn.add(Conv2D(32, (3, 3), activation='relu', input_shape=(28, 28, 1)))
             cnn.add(MaxPooling2D((2, 2)))
             cnn.add(Flatten())
-            cnn.add(Dense(hidden_layer_size, activation=activation))
-            cnn.add(Dropout(dropout))
-            if regularization == "L1":
-                cnn.add(Dense(10, activation='softmax', kernel_regularizer=l1(0.01)))
-            elif regularization == "L2":
-                cnn.add(Dense(10, activation='softmax', kernel_regularizer=l2(0.01)))
-            cnn.compile(optimizer=Adam(lr=learning_rate), loss='sparse_categorical_crossentropy', metrics=['accuracy'])
+            cnn.add(Dense(hidden_layer_size, activation='relu'))
+            cnn.add(Dense(10, activation='softmax'))
+            cnn.compile(optimizer=Adam(learning_rate=learning_rate), loss='sparse_categorical_crossentropy', metrics=['accuracy'])
 
             if st.button("Huấn luyện mô hình"):
                 with st.spinner("Đang huấn luyện..."):
