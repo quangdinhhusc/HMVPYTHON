@@ -234,17 +234,22 @@ def run_NeuralNetwork_app():
             if st.button("Huấn luyện mô hình"):
                 with st.spinner("Đang huấn luyện..."):
                     
-                    bar = st.progress(0)
-                    total_samples = len(X_train)
+                    progress_bar = st.progress(0)
+                    progress_text = st.empty()
+                    total_folds = len(X_train)
+                    
                     trained_samples = 0
                     start_time = time.time()
                     for i in range(epochs):
                         cnn.fit(X_train, y_train)
                         trained_samples += len(X_train)
+                        progress = (i + 1) / total_folds  # Tính phần trăm hoàn thành
+                        progress_bar.progress(progress)  # Cập nhật thanh trạng thái
+                        progress_text.text(f"Tiến trình huấn luyện {epochs}: {int(progress * 100)}%")
                         # bar.progress(trained_samples / (total_samples * epochs))
-                        bar.progress((i) / epochs)
-                        st.write(f"Đang huấn luyện {epochs}: {(i)/epochs*100:.2f}%")
-                        i += 1
+                        # bar.progress((i) / epochs)
+                        # st.write(f"Đang huấn luyện {epochs}: {(i)/epochs*100:.2f}%")
+                        # i += 1
                         # st.write(f"Đang huấn luyện... {i+1}/{epochs} - {trained_samples}/{total_samples * epochs} mẫu")
                     end_time = time.time()
                     training_time = end_time - start_time
