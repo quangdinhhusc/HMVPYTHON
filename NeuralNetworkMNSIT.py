@@ -284,7 +284,7 @@ def run_NeuralNetwork_app():
 
             optimizer = st.selectbox("Chọn hàm tối ưu", ["adam", "sgd", "lbfgs"])
 
-            learning_rate = st.slider("Tốc độ học", 0.001, 0.1, 0.01, step = 0.001, format="%.3f")
+            # learning_rate = st.slider("Tốc độ học", 0.001, 0.1, 0.01, step = 0.001, format="%.3f")
 
             # 📊 Chọn tham số cho hàm tối ưu
             if optimizer == "adam":
@@ -320,7 +320,7 @@ def run_NeuralNetwork_app():
 
             # cnn= MLPClassifier(hidden_layer_sizes=(hidden_layer_size), max_iter=epochs, batch_size=batch_size, learning_rate_init=learning_rate)
             
-            cnn= MLPClassifier(hidden_layer_sizes=(hidden_layer_size), max_iter=epochs, learning_rate_init=learning_rate, solver=optimizer)
+            cnn= MLPClassifier(hidden_layer_sizes=(hidden_layer_size), max_iter=epochs, learning_rate_init=learning_rate_init, solver=optimizer)
 
             if st.button("Huấn luyện mô hình"):
                 with st.spinner("Đang huấn luyện..."):
@@ -360,7 +360,6 @@ def run_NeuralNetwork_app():
 
                         # Huấn luyện mô hình
                         history = cnn.fit(X_train, y_train,
-                                        epochs=epochs,
                                         batch_size=batch_size,
                                         validation_data=(X_val, y_val),
                                         verbose=1,
