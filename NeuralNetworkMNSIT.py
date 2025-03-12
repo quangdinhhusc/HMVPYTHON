@@ -406,7 +406,8 @@ def run_NeuralNetwork_app():
                         mlflow.log_metric("final_val_loss", history.history['val_loss'][-1])
 
                         y_pred = cnn.predict(X_test)
-                        report = classification_report(y_test, y_pred, output_dict=True)
+                        y_pred_class = np.argmax(y_pred, axis=1)
+                        report = classification_report(y_test, y_pred_class, output_dict=True)
                         accuracy = accuracy_score(y_test, y_pred)
 
                 st.success("Huấn luyện hoàn tất!")
@@ -419,6 +420,27 @@ def run_NeuralNetwork_app():
                 # Hiển thị báo cáo phân loại
                 st.subheader("Báo cáo phân loại:")
                 st.json(report)
+
+                st.markdown("---")
+                st.markdown("#### ✅**Biểu đồ Accuracy và Loss**")
+                # Vẽ biểu đồ (xóa các giá trị số)
+                fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 4))
+                
+                # Biểu đồ Loss
+                ax1.plot(history.history['loss'], label='Train Loss', color='blue')
+                ax1.plot(history.history['val_loss'], label='Val Loss', color='orange')
+                ax1.set_title('Loss')
+                ax1.set_xlabel('Epoch')
+                ax1.set_ylabel('Loss')
+                ax1.legend()
+                
+                # Biểu đồ Accuracy
+                ax2.plot(history.history['accuracy'], label='Train Accuracy', color='blue')
+                ax2.plot(history.history['val_accuracy'], label='Val Accuracy', color='orange')
+                ax2.set_title('Accuracy')
+                ax2.set_xlabel('Epoch')
+                ax2.set_ylabel('Accuracy')
+                ax2.legend()
 
                 # (Tùy chọn) Hiển thị một số dự đoán mẫu
                 st.subheader("Dự đoán mẫu:")
