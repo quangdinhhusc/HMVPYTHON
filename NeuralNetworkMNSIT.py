@@ -285,38 +285,38 @@ def run_NeuralNetwork_app():
 
             optimizer = st.selectbox("Chọn hàm tối ưu", ["adam", "sgd", "lbfgs"])
 
-            # learning_rate = st.slider("Tốc độ học", 0.001, 0.1, 0.01, step = 0.001, format="%.3f")
+            learning_rate_init = st.slider("Tốc độ học", 0.001, 0.1, 0.01, step = 0.001, format="%.3f")
 
             # 📊 Chọn tham số cho hàm tối ưu
-            if optimizer == "adam":
-                learning_rate_init = st.slider("Tốc độ học", 0.001, 0.1, 0.01, step=0.001, format="%.3f")
-                beta_1 = st.slider("Beta 1", 0.1, 0.9, 0.9, step=0.1, format="%.1f")
-                beta_2 = st.slider("Beta 2", 0.1, 0.9, 0.999, step=0.1, format="%.3f")
-                epsilon = st.slider("Epsilon", 1e-8, 1e-6, 1e-8, step=1e-8, format="%.1e")
-            elif optimizer == "sgd":
-                learning_rate_init = st.slider("Tốc độ học", 0.001, 0.1, 0.01, step=0.001, format="%.3f")
-                momentum = st.slider("Động lượng", 0.1, 0.9, 0.9, step=0.1, format="%.1f")
-                nesterovs_momentum = st.checkbox("Sử dụng động lượng Nesterov")
-            elif optimizer == "lbfgs":
-                learning_rate_init = st.slider("Tốc độ học", 0.001, 0.1, 0.01, step=0.001, format="%.3f")
-                max_iter = st.slider("Số lần lặp tối đa", 100, 1000, 500, step=100)
+            # if optimizer == "adam":
+            #     learning_rate_init = st.slider("Tốc độ học", 0.001, 0.1, 0.01, step=0.001, format="%.3f")
+            #     beta_1 = st.slider("Beta 1", 0.1, 0.9, 0.9, step=0.1, format="%.1f")
+            #     beta_2 = st.slider("Beta 2", 0.1, 0.9, 0.999, step=0.1, format="%.3f")
+            #     epsilon = st.slider("Epsilon", 1e-8, 1e-6, 1e-8, step=1e-8, format="%.1e")
+            # elif optimizer == "sgd":
+            #     learning_rate_init = st.slider("Tốc độ học", 0.001, 0.1, 0.01, step=0.001, format="%.3f")
+            #     momentum = st.slider("Động lượng", 0.1, 0.9, 0.9, step=0.1, format="%.1f")
+            #     nesterovs_momentum = st.checkbox("Sử dụng động lượng Nesterov")
+            # elif optimizer == "lbfgs":
+            #     learning_rate_init = st.slider("Tốc độ học", 0.001, 0.1, 0.01, step=0.001, format="%.3f")
+            #     max_iter = st.slider("Số lần lặp tối đa", 100, 1000, 500, step=100)
 
-            # 📊 Tạo hàm tối ưu
-            if optimizer == "adam":
-                optimizer = "adam"
-                learning_rate_init = learning_rate_init
-                beta_1 = beta_1
-                beta_2 = beta_2
-                epsilon = epsilon
-            elif optimizer == "sgd":
-                optimizer = "sgd"
-                learning_rate_init = learning_rate_init
-                momentum = momentum
-                nesterovs_momentum = nesterovs_momentum
-            elif optimizer == "lbfgs":
-                optimizer = "lbfgs"
-                learning_rate_init = learning_rate_init
-                max_iter = max_iter
+            # # 📊 Tạo hàm tối ưu
+            # if optimizer == "adam":
+            #     optimizer = "adam"
+            #     learning_rate_init = learning_rate_init
+            #     beta_1 = beta_1
+            #     beta_2 = beta_2
+            #     epsilon = epsilon
+            # elif optimizer == "sgd":
+            #     optimizer = "sgd"
+            #     learning_rate_init = learning_rate_init
+            #     momentum = momentum
+            #     nesterovs_momentum = nesterovs_momentum
+            # elif optimizer == "lbfgs":
+            #     optimizer = "lbfgs"
+            #     learning_rate_init = learning_rate_init
+            #     max_iter = max_iter
 
 
             # cnn= MLPClassifier(hidden_layer_sizes=(hidden_layer_size), max_iter=epochs, batch_size=batch_size, learning_rate_init=learning_rate)
@@ -339,11 +339,11 @@ def run_NeuralNetwork_app():
 
             # Compile mô hình
             if optimizer == "adam":
-                cnn.compile(optimizer=optimizers.Adam(learning_rate=learning_rate_init, beta_1=beta_1, beta_2=beta_2, epsilon=epsilon),
+                cnn.compile(optimizer=optimizers.Adam(learning_rate=learning_rate_init),
                             loss='sparse_categorical_crossentropy',
                             metrics=['accuracy'])
             elif optimizer == "sgd":
-                cnn.compile(optimizer=optimizers.SGD(learning_rate=learning_rate_init, momentum=momentum, nesterov=nesterovs_momentum),
+                cnn.compile(optimizer=optimizers.SGD(learning_rate=learning_rate_init),
                             loss='sparse_categorical_crossentropy',
                             metrics=['accuracy'])
             elif optimizer == "lbfgs":
