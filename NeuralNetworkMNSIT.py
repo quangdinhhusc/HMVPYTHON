@@ -224,7 +224,7 @@ def run_NeuralNetwork_app():
             # Lựa chọn tham số huấn luyện
             
             hidden_layer_size = st.slider("Kích thước lớp ẩn", 50, 200, 100)
-            
+
             epochs = st.slider("Số lần lặp tối đa", 2, 50, 5)
 
             learning_rate = st.slider("Tốc độ học", 0.001, 0.1, 0.01)
@@ -242,8 +242,9 @@ def run_NeuralNetwork_app():
                         cnn.fit(X_train, y_train)
                         trained_samples += len(X_train)
                         # bar.progress(trained_samples / (total_samples * epochs))
-                        bar.progress((i+1) / epochs)
+                        bar.progress((i) / epochs)
                         st.write(f"Đang huấn luyện {epochs}: {(i+1)/epochs*100:.2f}%")
+                        i += 1
                         # st.write(f"Đang huấn luyện... {i+1}/{epochs} - {trained_samples}/{total_samples * epochs} mẫu")
                     end_time = time.time()
                     training_time = end_time - start_time
