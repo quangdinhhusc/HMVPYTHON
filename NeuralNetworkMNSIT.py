@@ -360,6 +360,7 @@ def run_NeuralNetwork_app():
 
                         # Huấn luyện mô hình
                         history = cnn.fit(X_train, y_train,
+                                        epochs=epochs,
                                         batch_size=batch_size,
                                         validation_data=(X_val, y_val),
                                         verbose=1,
