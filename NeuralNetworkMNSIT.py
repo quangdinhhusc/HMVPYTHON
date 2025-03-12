@@ -223,7 +223,7 @@ def run_NeuralNetwork_app():
             hidden_layer_size = st.slider("Kích thước lớp ẩn", 50, 200, 100, step=10)
             max_iterations = st.slider("Số lần lặp tối đa", 5, 50, 10, step=5)
             batch_size = st.slider("Kích thước batch", 32, 256, 128, step=32)
-            learning_rate = st.slider("Tốc độ học", 0.001, 0.1, 0.01, step=0.001)
+            learning_rate = st.slider("Tốc độ học", 0.001, 0.1, 0.001, step=0.001)
             
 
             # Tạo mô hình Neural Network
