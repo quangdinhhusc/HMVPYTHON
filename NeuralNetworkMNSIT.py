@@ -301,6 +301,10 @@ def run_NeuralNetwork_app():
                 learning_rate_init = st.slider("Tốc độ học", 0.001, 0.1, 0.01, step=0.001, format="%.3f")
                 max_iter = st.slider("Số lần lặp tối đa", 100, 1000, 500, step=100)
 
+
+            # Xác định số lớp và input shape
+            num_classes = len(np.unique(y_train))
+            input_shape = X_train.shape[1]
             # Xây dựng mô hình
             cnn = models.Sequential([
                 layers.Input(shape=(input_shape,)),
@@ -313,7 +317,7 @@ def run_NeuralNetwork_app():
             ])
 
             # 📊 Tạo hàm tối ưu
-            
+
             # Compile mô hình
             if optimizer == "adam":
                 cnn.compile(optimizer=optimizer.Adam(learning_rate=learning_rate_init, beta_1=beta_1, beta_2=beta_2, epsilon=epsilon),
@@ -334,9 +338,7 @@ def run_NeuralNetwork_app():
             
             # cnn= MLPClassifier(hidden_layer_sizes=(hidden_layer_size), max_iter=epochs, learning_rate_init=learning_rate_init, solver=optimizer)
 
-            # Xác định số lớp và input shape
-            num_classes = len(np.unique(y_train))
-            input_shape = X_train.shape[1]
+            
 
             
 
