@@ -276,6 +276,11 @@ def run_NeuralNetwork_app():
             train_data_size = st.slider("Số lượng dữ liệu dùng để train model", 100, len(X_train), len(X_train), step=100)
             X_train = X_train[:train_data_size]
             y_train = y_train[:train_data_size]
+
+            # Chuẩn hóa dữ liệu
+            X_train = X_train / 255.0
+            X_val = X_val / 255.0
+            X_test = X_test / 255.0
             
             # Lựa chọn tham số huấn luyện
             
@@ -341,18 +346,10 @@ def run_NeuralNetwork_app():
             ])
 
             # Compile mô hình
-            if optimizer == "adam":
-                cnn.compile(optimizer=optimizers.Adam(learning_rate=learning_rate_init),
-                            loss='sparse_categorical_crossentropy',
-                            metrics=['accuracy'])
-            elif optimizer == "sgd":
-                cnn.compile(optimizer=optimizers.SGD(learning_rate=learning_rate_init),
-                            loss='sparse_categorical_crossentropy',
-                            metrics=['accuracy'])
-            elif optimizer == "lbfgs":
-                cnn.compile(optimizer=optimizers.LBFGS(learning_rate=learning_rate_init),
-                            loss='sparse_categorical_crossentropy',
-                            metrics=['accuracy'])
+            # Biên dịch mô hình
+            cnn.compile(optimizer=optimizer, learning_rate_init=learning_rate_init, 
+                        loss='sparse_categorical_crossentropy', 
+                        metrics=['accuracy'])
 
             if st.button("Huấn luyện mô hình"):
                 with st.spinner("Đang huấn luyện..."):
@@ -381,6 +378,7 @@ def run_NeuralNetwork_app():
                         
                         progress_bar = st.progress(0)
                         history = None
+
                         start_time = time.time()
                         # Huấn luyện mô hình với callback để cập nhật progress bar
                         class ProgressCallback(tf.keras.callbacks.Callback):
@@ -391,14 +389,14 @@ def run_NeuralNetwork_app():
                                 st.write(f"Loss: {logs['loss']:.4f}, Accuracy: {logs['accuracy']:.4f}")
 
                         # Huấn luyện mô hình
-                        early_stopping = EarlyStopping(monitor='val_loss', patience=5, min_delta=0.001)
-                        model_checkpoint = ModelCheckpoint('best_model.h5', monitor='val_loss', save_best_only=True, mode='min')
+                        # early_stopping = EarlyStopping(monitor='val_loss', patience=5, min_delta=0.001)
+                        # model_checkpoint = ModelCheckpoint('best_model.h5', monitor='val_loss', save_best_only=True, mode='min')
                         history = cnn.fit(X_train, y_train,
                                         epochs=epochs,
                                         batch_size=batch_size,
                                         validation_data=(X_val, y_val),
                                         verbose=1,
-                                        callbacks=[ProgressCallback(), early_stopping, model_checkpoint])
+                                        callbacks=[ProgressCallback()])
 
 
                         # Hoàn thành progress bar
@@ -407,7 +405,7 @@ def run_NeuralNetwork_app():
                         end_time = time.time()
                         training_time = end_time - start_time
 
-                        best_model = load_model('best_model.h5')
+                        # best_model = load_model('best_model.h5')
 
                         # Ghi log với MLflow
                         mlflow.log_param("epochs", epochs)
@@ -418,7 +416,7 @@ def run_NeuralNetwork_app():
                         mlflow.log_metric("final_train_loss", history.history['loss'][-1])
                         mlflow.log_metric("final_val_loss", history.history['val_loss'][-1])
 
-                        y_pred = best_model.predict(X_test)
+                        y_pred = cnn.predict(X_test)
                         y_pred_class = np.argmax(y_pred, axis=1)
                         accuracy = accuracy_score(y_test, y_pred_class)
 
@@ -427,12 +425,12 @@ def run_NeuralNetwork_app():
                 st.write(f"Độ chính xác: {accuracy:.4f}")
 
                 # Đánh giá trên tập test
-                test_loss, test_accuracy = best_model.evaluate(X_test, y_test, verbose=0)
+                test_loss, test_accuracy = cnn.evaluate(X_test, y_test, verbose=0)
                 mlflow.log_metric("test_accuracy", test_accuracy)
 
                 # Lưu model đã huấn luyện vào st.session_state
                 st.session_state.selected_model_type = "Neural Network"
-                st.session_state.trained_model = best_model
+                st.session_state.trained_model = cnn
                 st.session_state['history'] = history
 
                 st.markdown("---")
