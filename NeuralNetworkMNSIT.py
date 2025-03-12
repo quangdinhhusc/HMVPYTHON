@@ -301,6 +301,17 @@ def run_NeuralNetwork_app():
                 learning_rate_init = st.slider("Tốc độ học", 0.001, 0.1, 0.01, step=0.001, format="%.3f")
                 max_iter = st.slider("Số lần lặp tối đa", 100, 1000, 500, step=100)
 
+            # Xây dựng mô hình
+            cnn = models.Sequential([
+                layers.Input(shape=(input_shape,)),
+                layers.Dense(512, activation='relu'),
+                layers.Dropout(0.2),
+                layers.Dense(256, activation='relu'),
+                layers.Dropout(0.2),
+                layers.Dense(128, activation='relu'),
+                layers.Dense(num_classes, activation='softmax')
+            ])
+
             # 📊 Tạo hàm tối ưu
             # Compile mô hình
             if optimizer == "adam":
@@ -326,16 +337,7 @@ def run_NeuralNetwork_app():
             num_classes = len(np.unique(y_train))
             input_shape = X_train.shape[1]
 
-            # Xây dựng mô hình
-            cnn = models.Sequential([
-                layers.Input(shape=(input_shape,)),
-                layers.Dense(512, activation='relu'),
-                layers.Dropout(0.2),
-                layers.Dense(256, activation='relu'),
-                layers.Dropout(0.2),
-                layers.Dense(128, activation='relu'),
-                layers.Dense(num_classes, activation='softmax')
-            ])
+            
 
             if st.button("Huấn luyện mô hình"):
                 with st.spinner("Đang huấn luyện..."):
