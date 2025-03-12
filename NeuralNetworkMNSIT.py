@@ -167,9 +167,51 @@ def run_NeuralNetwork_app():
 
 
     with tab_note:
-        st.expander("**Thông tin mô hình**", expanded=True)
+        with st.expander("**Thông tin mô hình**", expanded=True):
         # Assume model_option1 is selected from somewhere in the app
-            
+            st.markdown("""
+                    ### Neural Network (NN)
+                    """) 
+            st.markdown("---")        
+            st.markdown("""            
+            ### Khái Niệm:  
+            **Neural Network (NN)**:
+            - Là một mô hình tính toán lấy cảm hứng từ cấu trúc và chức năng của mạng lưới thần kinh sinh học. Nó được tạo thành từ các nút kết nối với nhau, hay còn gọi là nơ-ron nhân tạo, được sắp xếp thành các lớp.
+            - Ý tưởng chính của **Neural Network** là tạo ra một mô hình tính toán có khả năng học hỏi và xử lý thông tin giống như bộ não con người.
+            """)
+
+            st.markdown("---")        
+                       
+            st.write("### Mô Hình Tổng Quát:")   
+            st.image("imgnn/modelnn.png",use_container_width ="auto")
+            st.markdown(""" 
+            - Layer đầu tiên là input layer, các layer ở giữa được gọi là hidden layer, layer cuối cùng được gọi là output layer. Các hình tròn được gọi là node.
+            - Mỗi mô hình luôn có 1 input layer, 1 output layer, có thể có hoặc không các hidden layer. Tổng số layer trong mô hình được quy ước là số layer - 1 (Không tính input layer).
+            - Mỗi node trong hidden layer và output layer :
+                - Liên kết với tất cả các node ở layer trước đó với các hệ số w riêng.
+                - Mỗi node có 1 hệ số bias b riêng.
+                - Diễn ra 2 bước: tính tổng linear và áp dụng activation function.
+            """)
+
+            st.markdown("---")          
+            st.markdown("""
+            ### Nguyên lý hoạt động:  
+            - Dữ liệu đầu vào được đưa vào lớp đầu vào.
+            - Mỗi nơ-ron trong lớp ẩn nhận tín hiệu từ các nơ-ron ở lớp trước đó, xử lý tín hiệu và chuyển tiếp kết quả đến các nơ-ron ở lớp tiếp theo.
+            - Quá trình này tiếp tục cho đến khi dữ liệu đến lớp đầu ra.
+            - Kết quả đầu ra được tạo ra dựa trên các tín hiệu nhận được từ lớp ẩn cuối cùng.
+            """)           
+            st.markdown("---")
+            st.markdown("""  
+            ### Áp dụng vào ngữ cảnh Neural Network với MNIST:  
+            - **MNIST (Modified National Institute of Standards and Technology database)** là một bộ dữ liệu kinh điển trong lĩnh vực học máy, đặc biệt là trong việc áp dụng mạng nơ-ron. Nó bao gồm 70.000 ảnh xám của chữ số viết tay (từ 0 đến 9), được chia thành 60.000 ảnh huấn luyện và 10.000 ảnh kiểm tra.
+            - Mục tiêu của bài toán là phân loại chính xác chữ số từ 0 đến 9 dựa trên ảnh đầu vào.
+            - Có nhiều cách để áp dụng mạng nơ-ron cho bài toán phân loại chữ số viết tay trên MNIST. Dưới đây là một số phương pháp phổ biến:
+                - **Multi-Layer Perceptron (MLP)**: Một mô hình mạng nơ-ron sâu với nhiều lớp ẩn.
+                - **Convolutional Neural Network (CNN)**: Một mô hình mạng nơ-ron sâu được thiết kế đặc biệt cho việc xử lý ảnh.
+                - **Recurrent Neural Network (RNN)**: Một mô hình mạng nơ-ron sâu được thiết kế cho dữ liệu chuỗi.
+            """)
+                
 
 
     with tab_load:
@@ -229,7 +271,7 @@ def run_NeuralNetwork_app():
 
             batch_size = st.slider("Kích thước batch", 5, 50, 10)
 
-            learning_rate = st.slider("Tốc độ học", 0.001, 0.1, 0.01)
+            learning_rate = st.slider("Tốc độ học", 0.001, 0.1, 0.01, format="%.3f")
 
             cnn= MLPClassifier(hidden_layer_sizes=(hidden_layer_size), max_iter=epochs, batch_size=batch_size, learning_rate_init=learning_rate)
 
