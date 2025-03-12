@@ -413,13 +413,18 @@ def run_NeuralNetwork_app():
                 st.success("Huấn luyện hoàn tất!")
                 st.write(f"Độ chính xác: {accuracy:.4f}")
 
+                # Đánh giá trên tập test
+                test_loss, test_accuracy = cnn.evaluate(X_test, y_test, verbose=0)
+                mlflow.log_metric("test_accuracy", test_accuracy)
+
                 # Lưu model đã huấn luyện vào st.session_state
                 st.session_state.selected_model_type = "Neural Network"
                 st.session_state.trained_model = cnn
+                st.session_state['history'] = history
 
-                # Hiển thị báo cáo phân loại
-                st.subheader("Báo cáo phân loại:")
-                st.json(report)
+                # # Hiển thị báo cáo phân loại
+                # st.subheader("Báo cáo phân loại:")
+                # st.json(report)
 
                 st.markdown("---")
                 st.markdown("#### ✅**Biểu đồ Accuracy và Loss**")
@@ -441,7 +446,7 @@ def run_NeuralNetwork_app():
                 ax2.set_xlabel('Epoch')
                 ax2.set_ylabel('Accuracy')
                 ax2.legend()
-
+                st.pyplot(fig)
                 # (Tùy chọn) Hiển thị một số dự đoán mẫu
                 st.subheader("Dự đoán mẫu:")
                 mnist = fetch_openml('mnist_784', version=1, as_frame=False)
