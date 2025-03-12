@@ -281,9 +281,8 @@ def run_NeuralNetwork_app():
 
             epochs = st.slider("Số lần lặp tối đa", 2, 50, 5)
 
-            st.write("Kích thước batch")
-            batch_size = st.selectbox("", [32, 64, 128, 256], index=0)
-
+            # batch_size = st.slider("Kích thước batch", 5, 50, 10)
+            batch_size = st.selectbox("Kích thước batch", [32, 64, 128, 256], index=0)
 
             learning_rate_init = st.slider("Tốc độ học", 0.001, 0.1, 0.01, step = 0.001, format="%.3f")
 
