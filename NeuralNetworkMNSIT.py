@@ -227,9 +227,11 @@ def run_NeuralNetwork_app():
 
             epochs = st.slider("Số lần lặp tối đa", 2, 50, 5)
 
+            batch_size = st.slider("Kích thước batch", 5, 50, 10)
+
             learning_rate = st.slider("Tốc độ học", 0.001, 0.1, 0.01)
 
-            cnn= MLPClassifier(hidden_layer_sizes=(hidden_layer_size), max_iter=epochs, learning_rate_init=learning_rate)
+            cnn= MLPClassifier(hidden_layer_sizes=(hidden_layer_size), max_iter=epochs, batch_size=batch_size, learning_rate_init=learning_rate)
 
             if st.button("Huấn luyện mô hình"):
                 with st.spinner("Đang huấn luyện..."):
@@ -241,11 +243,12 @@ def run_NeuralNetwork_app():
                     trained_samples = 0
                     start_time = time.time()
                     for i in range(epochs):
-                        cnn.fit(X_train, y_train)
-                        trained_samples += len(X_train)
-                        progress = (i + 1) / total_folds  # Tính phần trăm hoàn thành
-                        progress_bar.progress(progress)  # Cập nhật thanh trạng thái
-                        progress_text.text(f"Tiến trình huấn luyện {epochs}: {int(progress * 100)}%")
+                        for j in range(len(X_train)):
+                            cnn.fit(X_train, y_train)
+                            trained_samples += 1
+                            progress = trained_samples / total_folds  # Tính phần trăm hoàn thành
+                            progress_bar.progress(progress)  # Cập nhật thanh trạng thái
+                            progress_text.text(f"Tiến trình huấn luyện {i+1}/{epochs}, mẫu {j+1}/{len(X_train)}: {int(progress * 100)}%")
                         # bar.progress(trained_samples / (total_samples * epochs))
                         # bar.progress((i) / epochs)
                         # st.write(f"Đang huấn luyện {epochs}: {(i)/epochs*100:.2f}%")
