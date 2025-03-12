@@ -283,9 +283,9 @@ def run_NeuralNetwork_app():
 
             batch_size = st.slider("Kích thước batch", 5, 50, 10)
 
-            optimizer = st.selectbox("Chọn hàm tối ưu", ["adam", "sgd", "lbfgs"])
-
             learning_rate_init = st.slider("Tốc độ học", 0.001, 0.1, 0.01, step = 0.001, format="%.3f")
+
+            optimizer = st.selectbox("Chọn hàm tối ưu", ["adam", "sgd", "lbfgs"])
 
             # 📊 Chọn tham số cho hàm tối ưu
             # if optimizer == "adam":
