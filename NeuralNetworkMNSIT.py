@@ -320,22 +320,22 @@ def run_NeuralNetwork_app():
 
 
             # cnn= MLPClassifier(hidden_layer_sizes=(hidden_layer_size), max_iter=epochs, batch_size=batch_size, learning_rate_init=learning_rate)
-            # cnn= MLPClassifier(hidden_layer_sizes=(hidden_layer_size), max_iter=epochs, learning_rate_init=learning_rate_init, solver=optimizer)
+            cnn= MLPClassifier(hidden_layer_sizes=(hidden_layer_size), max_iter=epochs, learning_rate_init=learning_rate_init, solver=optimizer)
 
-            # Xác định số lớp và input shape
-            num_classes = len(np.unique(y_train))
-            input_shape = X_train.shape[1]
+            # # Xác định số lớp và input shape
+            # num_classes = len(np.unique(y_train))
+            # input_shape = X_train.shape[1]
 
-            # Xây dựng mô hình
-            cnn = models.Sequential([
-                layers.Input(shape=(input_shape,)),
-                layers.Dense(512, activation='relu'),
-                layers.Dropout(0.2),
-                layers.Dense(256, activation='relu'),
-                layers.Dropout(0.2),
-                layers.Dense(128, activation='relu'),
-                layers.Dense(num_classes, activation='softmax')
-            ])
+            # # Xây dựng mô hình
+            # cnn = models.Sequential([
+            #     layers.Input(shape=(input_shape,)),
+            #     layers.Dense(512, activation='relu'),
+            #     layers.Dropout(0.2),
+            #     layers.Dense(256, activation='relu'),
+            #     layers.Dropout(0.2),
+            #     layers.Dense(128, activation='relu'),
+            #     layers.Dense(num_classes, activation='softmax')
+            # ])
 
             # Compile mô hình
             if optimizer == "adam":
