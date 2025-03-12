@@ -187,6 +187,7 @@ def run_NeuralNetwork_app():
                 X = np.concatenate((train_images, test_images), axis=0)  # Gộp toàn bộ dữ liệu
                 y = np.concatenate((train_labels, test_labels), axis=0)
                 X = X.reshape(X.shape[0], -1)  # Chuyển thành vector 1 chiều
+
                 with mlflow.start_run():
 
                     # Cho phép người dùng chọn tỷ lệ validation và test
@@ -215,9 +216,15 @@ def run_NeuralNetwork_app():
     # 3️⃣ HUẤN LUYỆN MÔ HÌNH
     with tab_preprocess:
         with st.expander("**Huấn luyện Neural Network**", expanded=True):
+            
+            train_data_size = st.slider("Số lượng dữ liệu dùng để train model", 100, len(X_train), len(X_train), step=100)
+            X_train = X_train[:train_data_size]
+            y_train = y_train[:train_data_size]
+            
             # Lựa chọn tham số huấn luyện
+            
             hidden_layer_size = st.slider("Kích thước lớp ẩn", 50, 200, 100)
-            epochs = st.slider("Số lần lặp tối đa", 5, 50, 10)
+            epochs = st.slider("Số lần lặp tối đa", 2, 50, 5)
             learning_rate = st.slider("Tốc độ học", 0.001, 0.1, 0.01)
 
             cnn= MLPClassifier(hidden_layer_sizes=(hidden_layer_size), max_iter=epochs, learning_rate_init=learning_rate)
@@ -232,8 +239,10 @@ def run_NeuralNetwork_app():
                     for i in range(epochs):
                         cnn.fit(X_train, y_train)
                         trained_samples += len(X_train)
-                        bar.progress(trained_samples / (total_samples * epochs))
-                        st.write(f"Đang huấn luyện... {i+1}/{epochs} - {trained_samples}/{total_samples * epochs} mẫu")
+                        # bar.progress(trained_samples / (total_samples * epochs))
+                        bar.progress((i+1) / epochs)
+                        st.write(f"Đang huấn luyện {epochs}: {(i+1)/epochs*100:.2f}%")
+                        # st.write(f"Đang huấn luyện... {i+1}/{epochs} - {trained_samples}/{total_samples * epochs} mẫu")
                     end_time = time.time()
                     training_time = end_time - start_time
                     st.write(f"Thời gian huấn luyện: {training_time:.2f} giây")
