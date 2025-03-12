@@ -25,8 +25,7 @@ from sklearn.neural_network import MLPClassifier
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense, Conv2D, MaxPooling2D, Flatten
 from tensorflow.keras.optimizers import Adam
-from tensorflow.keras.regularizers import l1, l2
-from tensorflow.keras.layers import Dropout
+
 
 
 def run_NeuralNetwork_app():
