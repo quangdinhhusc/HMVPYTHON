@@ -1,3 +1,4 @@
+import time
 from sklearn.neural_network import MLPClassifier
 import streamlit as st
 import os
@@ -216,20 +217,27 @@ def run_NeuralNetwork_app():
         with st.expander("**Huấn luyện Neural Network**", expanded=True):
             # Lựa chọn tham số huấn luyện
             hidden_layer_size = st.slider("Kích thước lớp ẩn", 50, 200, 100)
-            max_iterations = st.slider("Số lần lặp tối đa", 5, 50, 10)
+            epochs = st.slider("Số lần lặp tối đa", 5, 50, 10)
             learning_rate = st.slider("Tốc độ học", 0.001, 0.1, 0.01)
 
-            cnn= MLPClassifier(hidden_layer_sizes=(hidden_layer_size), max_iter=max_iterations, learning_rate_init=learning_rate)
+            cnn= MLPClassifier(hidden_layer_sizes=(hidden_layer_size), max_iter=epochs, learning_rate_init=learning_rate)
 
             if st.button("Huấn luyện mô hình"):
                 with st.spinner("Đang huấn luyện..."):
-                    cnn.fit(X_train, y_train)
-                    # bar = st.progress(0)
-                    # for i in range(max_iterations):
-                        
-                    #     accuracy = cnn.score(X_test, y_test)
-                    #     bar.progress((i+1)/max_iterations)
-                    #     st.write(f"Đang huấn luyện... {i+1}/{max_iterations} ({accuracy*100:.2f}%)")
+                    
+                    bar = st.progress(0)
+                    total_samples = len(X_train)
+                    trained_samples = 0
+                    start_time = time.time()
+                    for i in range(epochs):
+                        cnn.fit(X_train, y_train)
+                        trained_samples += len(X_train)
+                        bar.progress(trained_samples / (total_samples * epochs))
+                        st.write(f"Đang huấn luyện... {i+1}/{epochs} - {trained_samples}/{total_samples * epochs} mẫu")
+                    end_time = time.time()
+                    training_time = end_time - start_time
+                    st.write(f"Thời gian huấn luyện: {training_time:.2f} giây")
+                    
                     y_pred = cnn.predict(X_test)
                     report = classification_report(y_test, y_pred, output_dict=True)
                     accuracy = accuracy_score(y_test, y_pred)
