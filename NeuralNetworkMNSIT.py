@@ -302,21 +302,20 @@ def run_NeuralNetwork_app():
                 max_iter = st.slider("Số lần lặp tối đa", 100, 1000, 500, step=100)
 
             # 📊 Tạo hàm tối ưu
+            # Compile mô hình
             if optimizer == "adam":
-                optimizer = "adam"
-                learning_rate_init = learning_rate_init
-                beta_1 = beta_1
-                beta_2 = beta_2
-                epsilon = epsilon
+                cnn.compile(optimizer=optimizer.Adam(learning_rate=learning_rate_init, beta_1=beta_1, beta_2=beta_2, epsilon=epsilon),
+                            loss='sparse_categorical_crossentropy',
+                            metrics=['accuracy'])
             elif optimizer == "sgd":
-                optimizer = "sgd"
-                learning_rate_init = learning_rate_init
-                momentum = momentum
-                nesterovs_momentum = nesterovs_momentum
+                cnn.compile(optimizer=optimizer.SGD(learning_rate=learning_rate_init, momentum=momentum, nesterov=nesterovs_momentum),
+                            loss='sparse_categorical_crossentropy',
+                            metrics=['accuracy'])
             elif optimizer == "lbfgs":
-                optimizer = "lbfgs"
-                learning_rate_init = learning_rate_init
-                max_iter = max_iter
+                cnn.compile(optimizer=optimizer.LBFGS(learning_rate=learning_rate_init),
+                            loss='sparse_categorical_crossentropy',
+                            metrics=['accuracy'])
+             
 
 
             # cnn= MLPClassifier(hidden_layer_sizes=(hidden_layer_size), max_iter=epochs, batch_size=batch_size, learning_rate_init=learning_rate)
