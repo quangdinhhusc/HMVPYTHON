@@ -320,7 +320,6 @@ def run_NeuralNetwork_app():
 
 
             # cnn= MLPClassifier(hidden_layer_sizes=(hidden_layer_size), max_iter=epochs, batch_size=batch_size, learning_rate_init=learning_rate)
-            
             # cnn= MLPClassifier(hidden_layer_sizes=(hidden_layer_size), max_iter=epochs, learning_rate_init=learning_rate_init, solver=optimizer)
 
             # Xác định số lớp và input shape
