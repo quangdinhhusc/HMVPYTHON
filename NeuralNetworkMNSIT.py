@@ -562,6 +562,7 @@ def run_NeuralNetwork_app():
                         # Dự đoán
                         prediction = best_model.predict(img)[0]
                         st.success(f"Dự đoán: {prediction}")
+                        st.success(f"Dự đoán: {np.argmax(prediction)} với xác suất {np.max(prediction):.2f}")
 
                     else:
                         st.error("⚠️ Hãy vẽ một số trước khi bấm Dự đoán!")
