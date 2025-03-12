@@ -406,7 +406,7 @@ def run_ClassificationMinst_app():
                             progress_text = st.empty()  # Tạo một vùng trống để hiển thị % tiến trình
                             total_folds = n_folds
 
-                            for i, (train_index, val_index) in kf.split(X_train):
+                            for i, (train_index, val_index) in enumerate(kf.split(X_train)):
                                 X_train_fold, X_val_fold = X_train[train_index], X_train[val_index]
                                 y_train_fold, y_val_fold = y_train[train_index], y_train[val_index]
 
@@ -479,7 +479,7 @@ def run_ClassificationMinst_app():
                             progress_text = st.empty()  # Tạo một vùng trống để hiển thị % tiến trình
                             total_folds = n_folds
 
-                            for i, (train_index, val_index) in kf.split(X_train):
+                            for i, (train_index, val_index) in enumerate(kf.split(X_train)):
                                 X_train_fold, X_val_fold = X_train[train_index], X_train[val_index]
                                 y_train_fold, y_val_fold = y_train[train_index], y_train[val_index]
 
