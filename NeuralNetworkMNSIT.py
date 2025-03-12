@@ -358,7 +358,7 @@ def run_NeuralNetwork_app():
             #     cnn.compile(optimizer=optimizers.LBFGS(learning_rate=learning_rate_init),
             #                 loss='sparse_categorical_crossentropy',
             #                 metrics=['accuracy'])
-            cnn.compile(optimizer=optimizers, learning_rate=learning_rate_init, loss='sparse_categorical_crossentropy', metrics=['accuracy'])
+            cnn.compile(optimizer=optimizer, learning_rate=learning_rate_init, loss='sparse_categorical_crossentropy', metrics=['accuracy'])
 
             if st.button("Huấn luyện mô hình"):
                 with st.spinner("Đang huấn luyện..."):
