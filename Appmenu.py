@@ -9,7 +9,7 @@ from NeuralNetworkMNSIT import run_NeuralNetwork_app
 
 
 # Cấu hình trang chính - phải được gọi ngay đầu file
-st.set_page_config(page_title="Multi-App", layout="wide")
+st.set_page_config(page_title="App Machine Learning", page_icon="💻", layout="wide")
 
 # Sidebar chứa menu ứng dụng
 st.sidebar.title("Home page")
