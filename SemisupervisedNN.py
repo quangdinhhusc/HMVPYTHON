@@ -254,31 +254,38 @@ def run_PseudoLabelling_app():
                     with mlflow.start_run():
 
                         # Phân chia dữ liệu
-                        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=test_size, random_state=42)
+                        X_train_data, X_test_data, y_train_data, y_test_data = train_test_split(X, y, test_size=test_size, random_state=42)
                         
                         # Lấy 1% số lượng ảnh cho mỗi class (0-9) để làm tập dữ liệu train ban đầu
                         train_indices = []
                         for i in range(10):
-                            class_indices = np.where(y_train == i)[0]
+                            class_indices = np.where(y_train_data == i)[0]
                             num_samples = int(0.01 * len(class_indices))
                             indices = np.random.choice(class_indices, num_samples, replace=False)
                             train_indices.extend(indices)
 
-                        X_train_initial = X_train[train_indices]
-                        y_train_initial = y_train[train_indices]
+                        X_train_initial = X_train_data[train_indices]
+                        y_train_initial = y_train_data[train_indices]
 
                         # Chuyển 99% còn lại sang tập val
-                        val_indices = np.setdiff1d(np.arange(len(X_train)), train_indices)
-                        X_val = X_train[val_indices]
-                        y_val = y_train[val_indices]
+                        val_indices = np.setdiff1d(np.arange(len(X_train_data)), train_indices)
+                        X_val_data = X_train_data[val_indices]
+                        y_val_data = y_train_data[val_indices]
 
 
                         # Tính tỷ lệ thực tế của từng tập
                         total_samples = X.shape[0]
-                        test_percent = (X_test.shape[0] / total_samples) * 100
+                        test_percent = (X_test_data.shape[0] / total_samples) * 100
                         train_percent = (X_train_initial.shape[0] / total_samples) * 100
-                        val_percent = (X_val.shape[0] / total_samples) * 100
+                        val_percent = (X_val_data.shape[0] / total_samples) * 100
 
+                        # Lưu dữ liệu vào session_state
+                        st.session_state.X_train = X_train_initial
+                        st.session_state.X_val = X_val_data
+                        st.session_state.X_test = X_test_data
+                        st.session_state.y_train = y_train_initial
+                        st.session_state.y_val = y_val_data
+                        st.session_state.y_test = y_test_data
 
                         # # Ghi log cho quá trình phân chia dữ liệu
                         # mlflow.log_param("test_size", test_size)
@@ -290,18 +297,25 @@ def run_PseudoLabelling_app():
                         st.write(f"📊 **Tỷ lệ phân chia**: Test={test_percent:.0f}%, Train={train_percent:.0f}%, Val={val_percent:.0f}%")
                         st.write("✅ Dữ liệu đã được xử lý và chia tách.")
                         st.write(f"🔹 Kích thước tập huấn luyện ban đầu: `{X_train_initial.shape}`")
-                        st.write(f"🔹 Kích thước tập kiểm tra: `{X_test.shape}`")
-                        st.write(f"🔹 Kích thước tập validation: `{X_val.shape}`")
+                        st.write(f"🔹 Kích thước tập kiểm tra: `{X_test_data.shape}`")
+                        st.write(f"🔹 Kích thước tập validation: `{X_val_data.shape}`")
             else:
                 st.error("🚨 Dữ liệu chưa được nạp. Hãy đảm bảo `train_images`, `train_labels` và `test_images` đã được tải trước khi chạy.")
-
 
             # # Chuẩn hóa dữ liệu
             # X_train_initial = np.array(X_train_initial) / 255.0 
             # X_val = X_val / 255.0
             # X_test = X_test / 255.0
             # Chuẩn hóa dữ liệu
-            X_train_initial = X_train_initial / 255.0
+            # Lấy dữ liệu từ session_state
+            X_train = st.session_state.X_train
+            X_val = st.session_state.X_val
+            X_test = st.session_state.X_test
+            y_train = st.session_state.y_train
+            y_val = st.session_state.y_val
+            y_test = st.session_state.y_test
+
+            X_train = X_train / 255.0
             X_val = X_val / 255.0
             X_test = X_test / 255.0
             
@@ -378,11 +392,11 @@ def run_PseudoLabelling_app():
                         
                         while len(X_val) > 0:
                             # Huấn luyện mô hình
-                            cnn = keras.Sequential([layers.Input(shape=(X_train_initial.shape[1],))] + [layers.Dense(num_neurons, activation=activation) for _ in range(num_layers)] + [layers.Dense(10, activation="softmax")])
+                            cnn = keras.Sequential([layers.Input(shape=(X_train.shape[1],))] + [layers.Dense(num_neurons, activation=activation) for _ in range(num_layers)] + [layers.Dense(10, activation="softmax")])
                             cnn.compile(optimizer=optimizer, loss=loss_fn, metrics=["accuracy"], learning_rate=learning_rate_init)
                             
                             start_time = time.time()
-                            history = cnn.fit(X_train_initial, y_train_initial, epochs=epochs, validation_data=(X_val, y_val), verbose=2)
+                            history = cnn.fit(X_train, y_train, epochs=epochs, validation_data=(X_val, y_val), verbose=2)
                             elapsed_time = time.time() - start_time
                             
                             # Dự đoán nhãn cho phần dữ liệu còn lại (99% của tập train ban đầu)
@@ -393,12 +407,12 @@ def run_PseudoLabelling_app():
                             pseudo_labels = np.where(y_pred.max(axis=1) >= threshold, y_pred_class, -1)
                             
                             # Tạo tập dữ liệu mới
-                            X_new = np.concatenate((X_train_initial, X_val[pseudo_labels != -1]), axis=0)
-                            y_new = np.concatenate((y_train_initial, pseudo_labels[pseudo_labels != -1]), axis=0)
+                            X_new = np.concatenate((X_train, X_val[pseudo_labels != -1]), axis=0)
+                            y_new = np.concatenate((y_train, pseudo_labels[pseudo_labels != -1]), axis=0)
                             
                             # Cập nhật tập dữ liệu
-                            X_train_initial = X_new
-                            y_train_initial = y_new
+                            X_train = X_new
+                            y_train = y_new
                             X_val = X_val[pseudo_labels == -1]
                             y_val = y_val[pseudo_labels == -1]
 
