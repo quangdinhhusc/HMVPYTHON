@@ -295,8 +295,9 @@ def run_PseudoLabelling_app():
             else:
                 st.error("🚨 Dữ liệu chưa được nạp. Hãy đảm bảo `train_images`, `train_labels` và `test_images` đã được tải trước khi chạy.")
 
+
             # Chuẩn hóa dữ liệu
-            X_train_initial = np.array(X_train_initial) / 255.0
+            X_train_initial = np.array(X_train_initial) / 255.0 
             X_val = X_val / 255.0
             X_test = X_test / 255.0
             
