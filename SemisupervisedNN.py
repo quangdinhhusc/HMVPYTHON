@@ -247,46 +247,56 @@ def run_PseudoLabelling_app():
                 X = X.reshape(X.shape[0], -1)  # Chuyển thành vector 1 chiều
 
                 # Cho phép người dùng chọn tỷ lệ validation và test
-                test_size = st.slider("🔹 Chọn % tỷ lệ tập test", min_value=10, max_value=50, value=20, step=5) / 100
-                val_size = st.slider("🔹 Chọn % tỷ lệ tập validation (trong phần train)", min_value=10, max_value=50, value=20, step=5) / 100
+                test_size = st.slider("🔹 Chọn % tỷ lệ tập test", min_value=10, max_value=50, value=20, step=1) / 100
 
                 # Tạo nút "Lưu Dữ Liệu"
                 if st.button("Lưu Dữ Liệu"):
                     with mlflow.start_run():
+
                         # Phân chia dữ liệu
-                        X_temp, X_test, y_temp, y_test = train_test_split(X, y, test_size=test_size, random_state=42)
-                        val_size_adjusted = val_size / (1 - test_size)  # Điều chỉnh tỷ lệ val cho phần còn lại
-                        X_train, X_val, y_train, y_val = train_test_split(X_temp, y_temp, test_size=val_size_adjusted, random_state=42)
+                        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=test_size, random_state=42)
+                        
+                        # Lấy 1% số lượng ảnh cho mỗi class (0-9) để làm tập dữ liệu train ban đầu
+                        train_indices = []
+                        for i in range(10):
+                            class_indices = np.where(y_train == i)[0]
+                            num_samples = int(0.01 * len(class_indices))
+                            indices = np.random.choice(class_indices, num_samples, replace=False)
+                            train_indices.extend(indices)
+
+                        X_train_initial = X_train[train_indices]
+                        y_train_initial = y_train[train_indices]
+
+                        # Chuyển 99% còn lại sang tập val
+                        val_indices = np.setdiff1d(np.arange(len(X_train)), train_indices)
+                        X_val = X_train[val_indices]
+                        y_val = y_train[val_indices]
+
 
                         # Tính tỷ lệ thực tế của từng tập
                         total_samples = X.shape[0]
                         test_percent = (X_test.shape[0] / total_samples) * 100
+                        train_percent = (X_train_initial.shape[0] / total_samples) * 100
                         val_percent = (X_val.shape[0] / total_samples) * 100
-                        train_percent = (X_train.shape[0] / total_samples) * 100
 
-                        # Ghi log cho quá trình phân chia dữ liệu
+
+                         # Ghi log cho quá trình phân chia dữ liệu
                         mlflow.log_param("test_size", test_size)
-                        mlflow.log_param("val_size", val_size)
                         mlflow.log_metric("test_percent", test_percent)
-                        mlflow.log_metric("val_percent", val_percent)
                         mlflow.log_metric("train_percent", train_percent)
+                        mlflow.log_metric("val_percent", val_percent)
 
                         # Hiển thị kết quả
-                        st.write(f"📊 **Tỷ lệ phân chia**: Test={test_percent:.0f}%, Validation={val_percent:.0f}%, Train={train_percent:.0f}%")
+                        st.write(f"📊 **Tỷ lệ phân chia**: Test={test_percent:.0f}%, Train={train_percent:.0f}%, Val={val_percent:.0f}%")
                         st.write("✅ Dữ liệu đã được xử lý và chia tách.")
-                        st.write(f"🔹 Kích thước tập huấn luyện: `{X_train.shape}`")
-                        st.write(f"🔹 Kích thước tập validation: `{X_val.shape}`")
+                        st.write(f"🔹 Kích thước tập huấn luyện ban đầu: `{X_train_initial.shape}`")
                         st.write(f"🔹 Kích thước tập kiểm tra: `{X_test.shape}`")
+                        st.write(f"🔹 Kích thước tập validation: `{X_val.shape}`")
             else:
                 st.error("🚨 Dữ liệu chưa được nạp. Hãy đảm bảo `train_images`, `train_labels` và `test_images` đã được tải trước khi chạy.")
 
-            
-            train_data_size = st.slider("Số lượng dữ liệu dùng để train model", 100, len(X_train), len(X_train), step=100)
-            X_train = X_train[:train_data_size]
-            y_train = y_train[:train_data_size]
-
             # Chuẩn hóa dữ liệu
-            X_train = X_train / 255.0
+            X_train_initial = X_train_initial / 255.0
             X_val = X_val / 255.0
             X_test = X_test / 255.0
             
@@ -299,6 +309,8 @@ def run_PseudoLabelling_app():
 
             learning_rate_init = st.slider("Tốc độ học", 0.001, 0.1, 0.01, step = 0.001, format="%.3f")
 
+            threshold = st.slider("Threshold", min_value=0.0, max_value=1.0, value=0.6, step=0.01)
+
             activation = st.selectbox("Hàm kích hoạt:", ["relu", "sigmoid", "tanh"])
 
             num_neurons = st.selectbox("Số neuron mỗi lớp:", [32, 64, 128, 256], index=0)
@@ -310,88 +322,85 @@ def run_PseudoLabelling_app():
             if st.button("⏹️ Huấn luyện mô hình"):
                 with st.spinner("🔄 Đang huấn luyện..."):
                     with mlflow.start_run():
-                        
-                        # progress_bar = st.progress(0)
-                        # history = None
-                        # start_time = time.time()
-                        # # Huấn luyện mô hình với callback để cập nhật progress bar
-                        # class ProgressCallback(tf.keras.callbacks.Callback):
-                        #     def on_epoch_end(self, epoch, logs=None):
-                        #         progress = (epoch + 1) / epochs * 100
-                        #         progress_bar.progress(int(progress))
-                        #         st.write(f"Epoch {epoch+1}/{epochs}: {int(progress)}% hoàn thành")
-                        #         st.write(f"Loss: {logs['loss']:.4f}, Accuracy: {logs['accuracy']:.4f}")
-
-                        # # Huấn luyện mô hình
-                        # # early_stopping = EarlyStopping(monitor='val_loss', patience=5, min_delta=0.001)
-                        # # model_checkpoint = ModelCheckpoint('best_model.h5', monitor='val_loss', save_best_only=True, mode='min')
-                        # history = cnn.fit(X_train, y_train,
-                        #                 epochs=epochs,
-                        #                 batch_size=batch_size,
-                        #                 validation_data=(X_val, y_val),
-                        #                 verbose=1,
-                        #                 callbacks=[ProgressCallback()])
-
-
-                        # # Hoàn thành progress bar
-                        # progress_bar.progress(100)
-
-                        # end_time = time.time()
-                        # training_time = end_time - start_time
-
-                        # # Ghi log với MLflow
-                        # mlflow.log_param("epochs", epochs)
-                        # mlflow.log_param("batch_size", batch_size)
-                        # mlflow.log_param("optimizer", optimizer)
-                        # mlflow.log_metric("train_accuracy", history.history['accuracy'][-1])
-                        # mlflow.log_metric("val_accuracy", history.history['val_accuracy'][-1])
-                        # mlflow.log_metric("final_train_loss", history.history['loss'][-1])
-                        # mlflow.log_metric("final_val_loss", history.history['val_loss'][-1])
-
-                        # y_pred = cnn.predict(X_test)
-                        # y_pred_class = np.argmax(y_pred, axis=1)
-                        # accuracy = accuracy_score(y_test, y_pred_class)
 
                         mlflow.log_params({"num_layers": num_layers, "num_neurons": num_neurons, "activation": activation, "optimizer": optimizer, "k_folds": k_folds})
                         
                         kf = StratifiedKFold(n_splits=k_folds, shuffle=True, random_state=42)
                         accuracies, losses = [], []
 
-                        progress_bar = st.progress(0)# Khởi tạo thanh trạng thái ở 0%
-                        progress_text = st.empty()# Tạo một vùng trống để hiển thị % tiến trình
+                        # progress_bar = st.progress(0)# Khởi tạo thanh trạng thái ở 0%
+                        # progress_text = st.empty()# Tạo một vùng trống để hiển thị % tiến trình
                         
-                        total_folds = k_folds
+                        # total_folds = k_folds
                         
-                        for i, (train_idx, val_idx) in enumerate(kf.split(X_train, y_train)):
-                            X_k_train, X_k_val = X_train[train_idx], X_train[val_idx]
-                            y_k_train, y_k_val = y_train[train_idx], y_train[val_idx]
+                        # for i, (train_idx, val_idx) in enumerate(kf.split(X_train_initial, y_train_initial)):
+                        #     X_k_train, X_k_val = X_train[train_idx], X_train[val_idx]
+                        #     y_k_train, y_k_val = y_train[train_idx], y_train[val_idx]
                             
-                            cnn = keras.Sequential([layers.Input(shape=(X_k_train.shape[1],))] + [layers.Dense(num_neurons, activation=activation) for _ in range(num_layers)] + [layers.Dense(10, activation="softmax")])
-                            cnn.compile(optimizer=optimizer, loss=loss_fn, metrics=["accuracy"])
-                            progress_bar_epoch = st.progress(0)
+                        #     cnn = keras.Sequential([layers.Input(shape=(X_k_train.shape[1],))] + [layers.Dense(num_neurons, activation=activation) for _ in range(num_layers)] + [layers.Dense(10, activation="softmax")])
+                        #     cnn.compile(optimizer=optimizer, loss=loss_fn, metrics=["accuracy"])
+                        #     progress_bar_epoch = st.progress(0)
                             
-                            class EpochCallback(keras.callbacks.Callback):
-                                def on_epoch_end(self, epoch, logs=None):
-                                    progress_epoch = (epoch + 1) / epochs * 100
-                                    progress_bar_epoch.progress(int(progress_epoch))
-                                    st.write(f"Folds {i+1}/{k_folds}: Epoch {epoch+1}/{epochs}: hoàn thành :               Loss: {logs['loss']:.4f} , Accuracy: {logs['accuracy']:.4f}")
+                        #     class EpochCallback(keras.callbacks.Callback):
+                        #         def on_epoch_end(self, epoch, logs=None):
+                        #             progress_epoch = (epoch + 1) / epochs * 100
+                        #             progress_bar_epoch.progress(int(progress_epoch))
+                        #             st.write(f"Folds {i+1}/{k_folds}: Epoch {epoch+1}/{epochs}: hoàn thành :               Loss: {logs['loss']:.4f} , Accuracy: {logs['accuracy']:.4f}")
 
+                        #     start_time = time.time()
+                        #     history = cnn.fit(X_k_train, y_k_train, epochs=epochs, validation_data=(X_k_val, y_k_val), verbose=2, callbacks=[EpochCallback()])
+                        #     # history = cnn.fit(X_k_train, y_k_train, epochs=epochs, validation_data=(X_k_val, y_k_val), verbose=2)
+                        #     elapsed_time = time.time() - start_time
+                            
+                        #     accuracies.append(history.history["val_accuracy"][-1])
+                        #     losses.append(history.history["val_loss"][-1])
+
+                        #     # Cập nhật thanh trạng thái và hiển thị phần trăm
+                        #     progress = (i + 1) / total_folds  # Tính phần trăm hoàn thành
+                        #     progress_bar.progress(progress)  # Cập nhật thanh trạng thái
+                        #     progress_text.text(f"️🎯Tiến trình huấn luyện: {int(progress * 100)}%")  # Hiển thị % cụ thể
+                            
+                        # avg_val_accuracy = np.mean(accuracies)
+                        # avg_val_loss = np.mean(losses)
+
+                        # # Dự đoán nhãn cho phần dữ liệu còn lại (99% của tập train ban đầu)
+                        # y_pred = cnn.predict(X_val)
+                        # y_pred_class = np.argmax(y_pred, axis=1)
+
+                        # # Lấy ngưỡng quyết định gán Pseudo Label cho mẫu
+                        # threshold = 0.6
+                        # pseudo_labels = np.where(y_pred.max(axis=1) >= threshold, y_pred_class, -1)
+                        
+                        while len(X_val) > 0:
+                            # Huấn luyện mô hình
+                            cnn = keras.Sequential([layers.Input(shape=(X_train_initial.shape[1],))] + [layers.Dense(num_neurons, activation=activation) for _ in range(num_layers)] + [layers.Dense(10, activation="softmax")])
+                            cnn.compile(optimizer=optimizer, loss=loss_fn, metrics=["accuracy"], learning_rate=learning_rate_init)
+                            
                             start_time = time.time()
-                            history = cnn.fit(X_k_train, y_k_train, epochs=epochs, validation_data=(X_k_val, y_k_val), verbose=2, callbacks=[EpochCallback()])
-                            # history = cnn.fit(X_k_train, y_k_train, epochs=epochs, validation_data=(X_k_val, y_k_val), verbose=2)
+                            history = cnn.fit(X_train_initial, y_train_initial, epochs=epochs, validation_data=(X_val, y_val), verbose=2)
                             elapsed_time = time.time() - start_time
                             
-                            accuracies.append(history.history["val_accuracy"][-1])
-                            losses.append(history.history["val_loss"][-1])
-
-                            # Cập nhật thanh trạng thái và hiển thị phần trăm
-                            progress = (i + 1) / total_folds  # Tính phần trăm hoàn thành
-                            progress_bar.progress(progress)  # Cập nhật thanh trạng thái
-                            progress_text.text(f"️🎯Tiến trình huấn luyện: {int(progress * 100)}%")  # Hiển thị % cụ thể
+                            # Dự đoán nhãn cho phần dữ liệu còn lại (99% của tập train ban đầu)
+                            y_pred = cnn.predict(X_val)
+                            y_pred_class = np.argmax(y_pred, axis=1)
                             
+                            # Lấy ngưỡng quyết định gán Pseudo Label cho mẫu
+                            pseudo_labels = np.where(y_pred.max(axis=1) >= threshold, y_pred_class, -1)
+                            
+                            # Tạo tập dữ liệu mới
+                            X_new = np.concatenate((X_train_initial, X_val[pseudo_labels != -1]), axis=0)
+                            y_new = np.concatenate((y_train_initial, pseudo_labels[pseudo_labels != -1]), axis=0)
+                            
+                            # Cập nhật tập dữ liệu
+                            X_train_initial = X_new
+                            y_train_initial = y_new
+                            X_val = X_val[pseudo_labels == -1]
+                            y_val = y_val[pseudo_labels == -1]
+
+
                         avg_val_accuracy = np.mean(accuracies)
                         avg_val_loss = np.mean(losses)
-                        
+
                         mlflow.log_metrics({"avg_val_accuracy": avg_val_accuracy, "avg_val_loss": avg_val_loss, "elapsed_time": elapsed_time})
                         
                         test_loss, test_accuracy = cnn.evaluate(X_test, y_test, verbose=0)
