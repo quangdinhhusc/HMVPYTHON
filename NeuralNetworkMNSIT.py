@@ -383,9 +383,9 @@ def run_NeuralNetwork_app():
 
                             class EpochCallback(keras.callbacks.Callback):
                                 def on_epoch_end(self, epoch, logs=None):
-                                    progress = (epoch + 1) / epochs  # Tính phần trăm hoàn thành
-                                    progress_bar.progress(progress)  # Cập nhật thanh trạng thái
-                                    progress_text.text(f"Tiến trình huấn luyện: {int(progress * 100)}%")
+                                    progress_epoch = (epoch + 1) / epochs  # Tính phần trăm hoàn thành
+                                    progress_bar.progress(progress_epoch)  # Cập nhật thanh trạng thái
+                                    progress_text.text(f"Tiến trình huấn luyện epochs: {int(progress_epoch * 100)}%")
                             
                             start_time = time.time()
                             history = cnn.fit(X_k_train, y_k_train, epochs=epochs, validation_data=(X_k_val, y_k_val), verbose=2, callbacks=[EpochCallback()])
