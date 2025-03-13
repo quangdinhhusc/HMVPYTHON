@@ -370,7 +370,8 @@ def run_NeuralNetwork_app():
                         kf = StratifiedKFold(n_splits=k_folds, shuffle=True, random_state=42)
                         accuracies, losses = [], []
 
-                        progress_bar = st.progress(0)  # Khởi tạo thanh trạng thái ở 0%
+                        progress_bar = st.progress(0)
+                        progress_bar_epoch = st.progress(0)  # Khởi tạo thanh trạng thái ở 0%
                         progress_text = st.empty()
                         progress_text_epoch = st.empty()  # Tạo một vùng trống để hiển thị % tiến trình
                         total_folds = k_folds
@@ -385,7 +386,7 @@ def run_NeuralNetwork_app():
                             class EpochCallback(keras.callbacks.Callback):
                                 def on_epoch_end(self, epoch, logs=None):
                                     progress_epoch = (epoch + 1) / epochs  # Tính phần trăm hoàn thành
-                                    progress_bar.progress(progress_epoch)  # Cập nhật thanh trạng thái
+                                    progress_bar_epoch.progress(progress_epoch)  # Cập nhật thanh trạng thái
                                     progress_text_epoch.text(f"Tiến trình huấn luyện epochs: {int(progress_epoch * 100)}%")
                             
                             start_time = time.time()
