@@ -40,7 +40,7 @@ def preprocess_canvas_image(canvas_result):
         return img.reshape(1, -1)  # Chuyển thành vector 1D
     return None
 
-def run_Semisupervised_app():
+def run_PseudoLabelling_app():
     @st.cache_data  # Lưu cache để tránh load lại dữ liệu mỗi lần chạy lại Streamlit
     def get_sampled_pixels(images, sample_size=100_000):
         return np.random.choice(images.flatten(), sample_size, replace=False)
@@ -641,7 +641,7 @@ def run_Semisupervised_app():
 
 
 if __name__ == "__main__":
-    run_Semisupervised_app()
+    run_PseudoLabelling_app()
     # st.write(f"MLflow Tracking URI: {mlflow.get_tracking_uri()}")
     # print("🎯 Kiểm tra trên DagsHub: https://dagshub.com/Dung2204/MINST.mlflow/")
     # # # cd "C:\Users\Dell\OneDrive\Pictures\Documents\Code\python\OpenCV\HMVPYTHON\App"
