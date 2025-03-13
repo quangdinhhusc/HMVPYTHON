@@ -322,7 +322,7 @@ def run_PseudoLabelling_app():
             # X_val = X_val / 255.0
             # X_test = X_test / 255.0
             
-            
+
             # Lựa chọn tham số huấn luyện
             k_folds = st.slider("Số fold cho Cross-Validation:", 3, 10, 5)
             
@@ -353,7 +353,7 @@ def run_PseudoLabelling_app():
                         start_time = time.time()
 
                         # Huấn luyện mô hình
-                        cnn = keras.Sequential([layers.Input(shape=(X_train.shape[1],))] + [layers.Dense(num_neurons, activation=activation) for _ in range(num_layers)] + [layers.Dense(10, activation="softmax")])
+                        cnn = keras.Sequential([layers.Input(shape=(X_train.shape[0],))] + [layers.Dense(num_neurons, activation=activation) for _ in range(num_layers)] + [layers.Dense(10, activation="softmax")])
                         cnn.compile(optimizer=optimizer, loss=loss_fn, metrics=["accuracy"], learning_rate=learning_rate_init)
                             
 
