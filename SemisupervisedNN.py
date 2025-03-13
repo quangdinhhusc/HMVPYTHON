@@ -351,17 +351,44 @@ def run_PseudoLabelling_app():
                         kf = StratifiedKFold(n_splits=k_folds, shuffle=True, random_state=42)
                         accuracies, losses = [], []
                         start_time = time.time()
-
-                        # Huấn luyện mô hình
-                        # cnn = keras.Sequential([layers.Input(shape=(X_train.shape[1],))] + [layers.Dense(num_neurons, activation=activation) for _ in range(num_layers)] + [layers.Dense(10, activation="softmax")])
-                        cnn = keras.Sequential([layers.Input(shape=(len(X_train[0]),))] + [layers.Dense(num_neurons, activation=activation) for _ in range(num_layers)] + [layers.Dense(10, activation="softmax")])
-                        cnn.compile(optimizer=optimizer, loss=loss_fn, metrics=["accuracy"], learning_rate=learning_rate_init)
                             
 
                         while len(X_val) > 0:
                             
-                            history = cnn.fit(X_train, y_train, epochs=epochs, validation_data=(X_val, y_val), verbose=2)
+                            kf = StratifiedKFold(n_splits=k_folds, shuffle=True, random_state=42)
+                            accuracies, losses = [], []
+
+                            progress_bar = st.progress(0)# Khởi tạo thanh trạng thái ở 0%
+                            progress_text = st.empty()# Tạo một vùng trống để hiển thị % tiến trình
                             
+                            total_folds = k_folds
+                            
+                            for i, (train_idx, val_idx) in enumerate(kf.split(X_train, y_train)):
+                                X_k_train, X_k_val = X_train[train_idx], X_train[val_idx]
+                                y_k_train, y_k_val = y_train[train_idx], y_train[val_idx]
+                                
+                                cnn = keras.Sequential([layers.Input(shape=(X_k_train.shape[1],))] + [layers.Dense(num_neurons, activation=activation) for _ in range(num_layers)] + [layers.Dense(10, activation="softmax")])
+                                cnn.compile(optimizer=optimizer, loss=loss_fn, metrics=["accuracy"])
+                                progress_bar_epoch = st.progress(0)
+                                
+                                class EpochCallback(keras.callbacks.Callback):
+                                    def on_epoch_end(self, epoch, logs=None):
+                                        progress_epoch = (epoch + 1) / epochs * 100
+                                        progress_bar_epoch.progress(int(progress_epoch))
+                                        st.write(f"Folds {i+1}/{k_folds}: Epoch {epoch+1}/{epochs}: hoàn thành :               Loss: {logs['loss']:.4f} , Accuracy: {logs['accuracy']:.4f}")
+
+                                start_time = time.time()
+                                history = cnn.fit(X_k_train, y_k_train, epochs=epochs, validation_data=(X_k_val, y_k_val), verbose=2, callbacks=[EpochCallback()])
+                                # history = cnn.fit(X_k_train, y_k_train, epochs=epochs, validation_data=(X_k_val, y_k_val), verbose=2)
+                                elapsed_time = time.time() - start_time
+                                
+                                accuracies.append(history.history["val_accuracy"][-1])
+                                losses.append(history.history["val_loss"][-1])
+
+                                # Cập nhật thanh trạng thái và hiển thị phần trăm
+                                progress = (i + 1) / total_folds  # Tính phần trăm hoàn thành
+                                progress_bar.progress(progress)  # Cập nhật thanh trạng thái
+                                progress_text.text(f"️🎯Tiến trình huấn luyện: {int(progress * 100)}%")          
                             # Dự đoán nhãn cho phần dữ liệu còn lại (99% của tập train ban đầu)
                             y_pred = cnn.predict(X_val)
                             y_pred_class = np.argmax(y_pred, axis=1)
