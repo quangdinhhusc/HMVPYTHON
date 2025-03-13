@@ -369,8 +369,12 @@ def run_NeuralNetwork_app():
                         
                         kf = StratifiedKFold(n_splits=k_folds, shuffle=True, random_state=42)
                         accuracies, losses = [], []
+
+                        progress_bar = st.progress(0)  # Khởi tạo thanh trạng thái ở 0%
+                        progress_text = st.empty()  # Tạo một vùng trống để hiển thị % tiến trình
+                        total_folds = k_folds
                         
-                        for train_idx, val_idx in kf.split(X_train, y_train):
+                        for i, (train_idx, val_idx) in enumerate(kf.split(X_train, y_train)):
                             X_k_train, X_k_val = X_train[train_idx], X_train[val_idx]
                             y_k_train, y_k_val = y_train[train_idx], y_train[val_idx]
                             
@@ -383,6 +387,11 @@ def run_NeuralNetwork_app():
                             
                             accuracies.append(history.history["val_accuracy"][-1])
                             losses.append(history.history["val_loss"][-1])
+
+                            # Cập nhật thanh trạng thái và hiển thị phần trăm
+                            progress = (i + 1) / total_folds  # Tính phần trăm hoàn thành
+                            progress_bar.progress(progress)  # Cập nhật thanh trạng thái
+                            progress_text.text(f"Tiến trình huấn luyện: {int(progress * 100)}%")  # Hiển thị % cụ thể
                             
                         avg_val_accuracy = np.mean(accuracies)
                         avg_val_loss = np.mean(losses)
@@ -396,8 +405,15 @@ def run_NeuralNetwork_app():
                         st.success(f"✅ Huấn luyện hoàn tất!")
                         st.write(f"📊 **Độ chính xác trung bình trên tập validation:** {avg_val_accuracy:.4f}")
                         st.write(f"📊 **Độ chính xác trên tập test:** {test_accuracy:.4f}")
-                        st.success(f"✅ Đã log dữ liệu cho **{st.session_state['run_name']}** đã được ghi nhận thành công trong MLflow (Neural_Network)! 🚀")
-                        st.markdown(f"🔗 [Truy cập MLflow UI]({st.session_state['mlflow_url']})")
+
+
+                        # Ghi log với MLflow
+                        mlflow.log_param("epochs", epochs)
+                        mlflow.log_param("optimizer", optimizer)
+                        mlflow.log_metric("train_accuracy", history.history['accuracy'][-1])
+                        mlflow.log_metric("val_accuracy", history.history['val_accuracy'][-1])
+                        mlflow.log_metric("final_train_loss", history.history['loss'][-1])
+                        mlflow.log_metric("final_val_loss", history.history['val_loss'][-1])
 
                 st.success("Huấn luyện hoàn tất!")
                 st.write(f"Thời gian huấn luyện: {elapsed_time:.2f} giây")
