@@ -248,7 +248,14 @@ def run_PseudoLabelling_app():
 
                 # Cho phép người dùng chọn tỷ lệ validation và test
                 test_size = st.slider("🔹 Chọn % tỷ lệ tập test", min_value=10, max_value=50, value=20, step=1) / 100
-
+                
+                # Tạo các biến để lưu dữ liệu
+                X_train = []
+                X_val = []
+                X_test = []
+                y_train = []
+                y_val = []
+                y_test = []
                 # Tạo nút "Lưu Dữ Liệu"
                 if st.button("Xác Nhận & Lưu Dữ Liệu"):
                     with mlflow.start_run():
@@ -280,12 +287,12 @@ def run_PseudoLabelling_app():
                         val_percent = (X_val_data.shape[0] / total_samples) * 100
 
                         # Lưu dữ liệu vào session_state
-                        st.session_state.X_train = X_train_initial
-                        st.session_state.X_val = X_val_data
-                        st.session_state.X_test = X_test_data
-                        st.session_state.y_train = y_train_initial
-                        st.session_state.y_val = y_val_data
-                        st.session_state.y_test = y_test_data
+                        X_train = X_train_initial
+                        X_val = X_val_data
+                        X_test  = X_test_data
+                        y_train = y_train_initial
+                        y_val = y_val_data
+                        y_test  = y_test_data
 
                         # # Ghi log cho quá trình phân chia dữ liệu
                         # mlflow.log_param("test_size", test_size)
@@ -302,20 +309,11 @@ def run_PseudoLabelling_app():
             else:
                 st.error("🚨 Dữ liệu chưa được nạp. Hãy đảm bảo `train_images`, `train_labels` và `test_images` đã được tải trước khi chạy.")
 
-            # Lấy dữ liệu từ session_state
-            X_train = st.session_state.X_train
-            X_val = st.session_state.X_val
-            X_test = st.session_state.X_test
-            y_train = st.session_state.y_train
-            y_val = st.session_state.y_val
-            y_test = st.session_state.y_test
+            
 
             # X_train = X_train / 255.0
             # X_val = X_val / 255.0
             # X_test = X_test / 255.0
-            X_val = np.array(X_val)
-            X_test = np.array(X_test)
-            X_train = np.array(X_train)
 
             st.write(len(X_val))
             
