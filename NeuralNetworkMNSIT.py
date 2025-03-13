@@ -371,9 +371,7 @@ def run_NeuralNetwork_app():
                         accuracies, losses = [], []
 
                         progress_bar = st.progress(0)
-                        progress_bar_epoch = st.progress(0)  # Khởi tạo thanh trạng thái ở 0%
-                        progress_text = st.empty()
-                        progress_text_epoch = st.empty()  # Tạo một vùng trống để hiển thị % tiến trình
+                        progress_bar_epoch = st.progress(0)  # Tạo một vùng trống để hiển thị % tiến trình
                         total_folds = k_folds
                         
                         for i, (train_idx, val_idx) in enumerate(kf.split(X_train, y_train)):
@@ -385,10 +383,12 @@ def run_NeuralNetwork_app():
 
                             class EpochCallback(keras.callbacks.Callback):
                                 def on_epoch_end(self, epoch, logs=None):
-                                    progress_epoch = (epoch + 1) / epochs  # Tính phần trăm hoàn thành
-                                    progress_bar_epoch.progress(progress_epoch)  # Cập nhật thanh trạng thái
-                                    progress_text_epoch.text(f"Tiến trình huấn luyện epochs: {int(progress_epoch * 100)}%")
-                            
+                                    progress_epoch = (epoch + 1) / epochs * 100
+                                    progress_bar_epoch.progress(int(progress_epoch))
+                                    st.write(f"Epoch {epoch+1}/{epochs}: {int(progress_epoch)}% hoàn thành")
+                                    st.write(f"Loss: {logs['loss']:.4f}, Accuracy: {logs['accuracy']:.4f}")
+
+
                             start_time = time.time()
                             history = cnn.fit(X_k_train, y_k_train, epochs=epochs, validation_data=(X_k_val, y_k_val), verbose=2, callbacks=[EpochCallback()])
                             # history = cnn.fit(X_k_train, y_k_train, epochs=epochs, validation_data=(X_k_val, y_k_val), verbose=2)
