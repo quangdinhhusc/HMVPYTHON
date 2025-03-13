@@ -347,17 +347,12 @@ def run_PseudoLabelling_app():
                     with mlflow.start_run():
 
                         mlflow.log_params({"num_layers": num_layers, "num_neurons": num_neurons, "activation": activation, "optimizer": optimizer, "k_folds": k_folds})
-                        
+                        test_loss, test_accuracy = 0
                         kf = StratifiedKFold(n_splits=k_folds, shuffle=True, random_state=42)
                         accuracies, losses = [], []
                         start_time = time.time()
-                            
 
                         while len(X_val) > 0:
-                            
-                            kf = StratifiedKFold(n_splits=k_folds, shuffle=True, random_state=42)
-                            accuracies, losses = [], []
-
                             progress_bar = st.progress(0)# Khởi tạo thanh trạng thái ở 0%
                             progress_text = st.empty()# Tạo một vùng trống để hiển thị % tiến trình
                             
