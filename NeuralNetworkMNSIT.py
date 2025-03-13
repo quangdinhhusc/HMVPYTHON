@@ -1,7 +1,6 @@
 import time
 from sklearn.neural_network import MLPClassifier
 import streamlit as st
-import tensorflow as tf
 import os
 import cv2
 import numpy as np
@@ -31,6 +30,7 @@ from tensorflow.keras.models import load_model
 from sklearn.model_selection import train_test_split, StratifiedKFold
 from mlflow.models.signature import infer_signature
 from tensorflow.keras.models import Sequential
+from tensorflow import keras
 
 def preprocess_canvas_image(canvas_result):
     if canvas_result.image_data is not None:
@@ -374,7 +374,7 @@ def run_NeuralNetwork_app():
                             X_k_train, X_k_val = X_train[train_idx], X_train[val_idx]
                             y_k_train, y_k_val = y_train[train_idx], y_train[val_idx]
                             
-                            cnn = tf.Sequential([layers.Input(shape=(X_k_train.shape[1],))] + [layers.Dense(num_neurons, activation=activation) for _ in range(num_layers)] + [layers.Dense(10, activation="softmax")])
+                            cnn = keras.Sequential([layers.Input(shape=(X_k_train.shape[1],))] + [layers.Dense(num_neurons, activation=activation) for _ in range(num_layers)] + [layers.Dense(10, activation="softmax")])
                             cnn.compile(optimizer=optimizer, loss=loss_fn, metrics=["accuracy"])
                             
                             start_time = time.time()
