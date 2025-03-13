@@ -356,6 +356,15 @@ def run_PseudoLabelling_app():
                 with st.spinner("🔄 Đang huấn luyện..."):
                     with mlflow.start_run():
 
+                        cnn = keras.Sequential([
+                            layers.Input(shape=(X_train.shape[1],)),
+                            # Các lớp ẩn của model
+                            *[layers.Dense(num_neurons, activation=activation) for _ in range(num_layers)],
+                            layers.Dense(10, activation="softmax")
+                        ])
+                        cnn.compile(optimizer=optimizer, loss=loss_fn, metrics=["accuracy"])
+                        cnn.optimizer.lr = learning_rate_init
+
                         mlflow.log_params({"num_layers": num_layers, "num_neurons": num_neurons, "activation": activation, "optimizer": optimizer, "k_folds": k_folds})
                         test_loss, test_accuracy = float("nan"), float("nan")
                         kf = StratifiedKFold(n_splits=k_folds, shuffle=True, random_state=42)
@@ -372,8 +381,6 @@ def run_PseudoLabelling_app():
                                 X_k_train, X_k_val = X_train[train_idx], X_train[val_idx]
                                 y_k_train, y_k_val = y_train[train_idx], y_train[val_idx]
                                 
-                                cnn = keras.Sequential([layers.Input(shape=(X_k_train.shape[1],))] + [layers.Dense(num_neurons, activation=activation) for _ in range(num_layers)] + [layers.Dense(10, activation="softmax")])
-                                cnn.compile(optimizer=optimizer, loss=loss_fn, metrics=["accuracy"])
                                 progress_bar_epoch = st.progress(0)
                                 
                                 class EpochCallback(keras.callbacks.Callback):
