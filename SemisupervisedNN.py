@@ -302,11 +302,6 @@ def run_PseudoLabelling_app():
             else:
                 st.error("🚨 Dữ liệu chưa được nạp. Hãy đảm bảo `train_images`, `train_labels` và `test_images` đã được tải trước khi chạy.")
 
-            # # Chuẩn hóa dữ liệu
-            # X_train_initial = np.array(X_train_initial) / 255.0 
-            # X_val = X_val / 255.0
-            # X_test = X_test / 255.0
-            # Chuẩn hóa dữ liệu
             # Lấy dữ liệu từ session_state
             X_train = st.session_state.X_train
             X_val = st.session_state.X_val
@@ -315,9 +310,9 @@ def run_PseudoLabelling_app():
             y_val = st.session_state.y_val
             y_test = st.session_state.y_test
 
-            X_train = X_train / 255.0
-            X_val = X_val / 255.0
-            X_test = X_test / 255.0
+            # X_train = X_train / 255.0
+            # X_val = X_val / 255.0
+            # X_test = X_test / 255.0
             
             # Lựa chọn tham số huấn luyện
             k_folds = st.slider("Số fold cho Cross-Validation:", 3, 10, 5)
