@@ -382,7 +382,7 @@ def run_NeuralNetwork_app():
                             cnn.compile(optimizer=optimizer, loss=loss_fn, metrics=["accuracy"])
                             
                             start_time = time.time()
-                            history = cnn.fit(X_k_train, y_k_train, epochs=epochs, validation_data=(X_k_val, y_k_val), verbose=0)
+                            history = cnn.fit(X_k_train, y_k_train, epochs=epochs, validation_data=(X_k_val, y_k_val), verbose=2)
                             elapsed_time = time.time() - start_time
                             
                             accuracies.append(history.history["val_accuracy"][-1])
