@@ -302,24 +302,6 @@ def run_NeuralNetwork_app():
 
             loss_fn = "sparse_categorical_crossentropy"
 
-            # # Xác định số lớp và input shape
-            # num_classes = len(np.unique(y_train))
-            # input_shape = X_train.shape[1]
-
-            # # Compile mô hình
-            # if optimizer == "adam":
-            #     cnn.compile(optimizer=optimizers.Adam(learning_rate=learning_rate_init),
-            #                 loss='sparse_categorical_crossentropy',
-            #                 metrics=['accuracy'])
-            # elif optimizer == "sgd":
-            #     cnn.compile(optimizer=optimizers.SGD(learning_rate=learning_rate_init),
-            #                 loss='sparse_categorical_crossentropy',
-            #                 metrics=['accuracy'])
-            # elif optimizer == "lbfgs":
-            #     cnn.compile(optimizer=optimizers.LBFGS(learning_rate=learning_rate_init),
-            #                 loss='sparse_categorical_crossentropy',
-            #                 metrics=['accuracy'])
-
             if st.button("⏹️ Huấn luyện mô hình"):
                 with st.spinner("🔄 Đang huấn luyện..."):
                     with mlflow.start_run():
@@ -372,7 +354,7 @@ def run_NeuralNetwork_app():
 
                         progress_bar = st.progress(0)# Khởi tạo thanh trạng thái ở 0%
                         progress_text = st.empty()# Tạo một vùng trống để hiển thị % tiến trình
-                        progress_bar_epoch = st.progress(0)
+                        
                         total_folds = k_folds
                         
                         for i, (train_idx, val_idx) in enumerate(kf.split(X_train, y_train)):
@@ -381,7 +363,8 @@ def run_NeuralNetwork_app():
                             
                             cnn = keras.Sequential([layers.Input(shape=(X_k_train.shape[1],))] + [layers.Dense(num_neurons, activation=activation) for _ in range(num_layers)] + [layers.Dense(10, activation="softmax")])
                             cnn.compile(optimizer=optimizer, loss=loss_fn, metrics=["accuracy"])
-
+                            progress_bar_epoch = st.progress(0)
+                            
                             class EpochCallback(keras.callbacks.Callback):
                                 def on_epoch_end(self, epoch, logs=None):
                                     progress_epoch = (epoch + 1) / epochs * 100
