@@ -381,7 +381,7 @@ def run_NeuralNetwork_app():
                             cnn = keras.Sequential([layers.Input(shape=(X_k_train.shape[1],))] + [layers.Dense(num_neurons, activation=activation) for _ in range(num_layers)] + [layers.Dense(10, activation="softmax")])
                             cnn.compile(optimizer=optimizer, loss=loss_fn, metrics=["accuracy"])
 
-                            class EpochCallback(tf.keras.callbacks.Callback):
+                            class EpochCallback(keras.callbacks.Callback):
                                 def on_epoch_end(self, epoch, logs=None):
                                     progress = (epoch + 1) / epochs  # Tính phần trăm hoàn thành
                                     progress_bar.progress(progress)  # Cập nhật thanh trạng thái
