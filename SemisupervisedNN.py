@@ -301,7 +301,6 @@ def run_PseudoLabelling_app():
                         y_val = y_val_data
                         y_test  = y_test_data
 
-
                         # # Ghi log cho quá trình phân chia dữ liệu
                         # mlflow.log_param("test_size", test_size)
                         # mlflow.log_metric("test_percent", test_percent)
@@ -322,6 +321,7 @@ def run_PseudoLabelling_app():
             # X_train = X_train / 255.0
             # X_val = X_val / 255.0
             # X_test = X_test / 255.0
+            
             
             # Lựa chọn tham số huấn luyện
             k_folds = st.slider("Số fold cho Cross-Validation:", 3, 10, 5)
