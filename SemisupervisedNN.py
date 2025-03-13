@@ -304,7 +304,7 @@ def run_PseudoLabelling_app():
                         y_train = y_train_initial
                         y_val = y_val_data
                         y_test  = y_test_data
-
+                        st.session_state.show_training_options = True
                         # Tạo vùng trống để hiển thị kết quả
                         result_placeholder = st.empty()
                         # # Ghi log cho quá trình phân chia dữ liệu
@@ -329,7 +329,7 @@ def run_PseudoLabelling_app():
                             ax.set_title('Phân phối số lượng dữ liệu trong tập train')
                             ax.set_xticks(unique_labels)
                             st.pyplot(fig)
-                        st.session_state.show_training_options = True
+                        
             else:
                 st.error("🚨 Dữ liệu chưa được nạp. Hãy đảm bảo `train_images`, `train_labels` và `test_images` đã được tải trước khi chạy.")
             
@@ -407,8 +407,6 @@ def run_PseudoLabelling_app():
                                     accuracies.append(history.history["val_accuracy"][-1])
                                     losses.append(history.history["val_loss"][-1])
 
-                                    st.write(f"**Lần lặp thứ {iteration_count}:**")
-
                                     # Cập nhật thanh trạng thái và hiển thị phần trăm
                                     progress = (i + 1) / total_folds  # Tính phần trăm hoàn thành
                                     progress_bar.progress(progress)  # Cập nhật thanh trạng thái
@@ -430,6 +428,7 @@ def run_PseudoLabelling_app():
                                 y_train = y_new
                                 X_val = X_val[pseudo_labels == -1]
                                 y_val = y_val[pseudo_labels == -1]
+                                st.write(f"**Lần lặp thứ {iteration_count}:**")
                             elapsed_time = time.time() - start_time
 
                             avg_val_accuracy = np.mean(accuracies)
