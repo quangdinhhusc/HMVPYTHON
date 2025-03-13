@@ -96,14 +96,13 @@ def run_PseudoLabelling_app():
     tabs = st.tabs([
         "Thông tin dữ liệu",
         "Thông tin",
-        "Xử lí dữ liệu",
         "Huấn luyện mô hình",
         "Demo dự đoán file ảnh",
         "Demo dự đoán Viết Tay",
         "Thông tin & Mlflow",
     ])
     # tab_info, tab_load, tab_preprocess, tab_split,  tab_demo, tab_log_info = tabs
-    tab_info,tab_note,tab_load, tab_preprocess,  tab_demo, tab_demo_2 ,tab_mlflow= tabs
+    tab_info,tab_note, tab_preprocess,  tab_demo, tab_demo_2 ,tab_mlflow= tabs
 
     # with st.expander("🖼️ Dữ liệu ban đầu", expanded=True):
     with tab_info:
@@ -310,12 +309,10 @@ def run_PseudoLabelling_app():
                 st.error("🚨 Dữ liệu chưa được nạp. Hãy đảm bảo `train_images`, `train_labels` và `test_images` đã được tải trước khi chạy.")
 
             
-
-            # X_train = X_train / 255.0
-            # X_val = X_val / 255.0
-            # X_test = X_test / 255.0
-
-            st.write(len(X_val))
+            # Chuyển dữ liệu về dạng số thực
+            X_train = X_train / 255.0
+            X_val = X_val / 255.0
+            X_test = X_test / 255.0
             
             # Lựa chọn tham số huấn luyện
             k_folds = st.slider("Số fold cho Cross-Validation:", 3, 10, 5)
