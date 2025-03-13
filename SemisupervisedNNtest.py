@@ -31,7 +31,7 @@ def load_mnist_labels(filename):
     with open(filename, 'rb') as f:
         magic, num = struct.unpack('>II', f.read(8))
         labels = np.fromfile(f, dtype=np.uint8)
-    return labels
+    return labels   
 
 # Hàm để lấy 1% dữ liệu ban đầu cho mỗi class
 def get_initial_train_data(x_train, y_train, percent=0.01):
@@ -118,7 +118,7 @@ def pseudo_labelling(x_train, y_train, x_test, y_test, threshold, max_iter):
     st.write(f"Độ chính xác trên tập test: {test_acc:.4f}")
 
 # Giao diện Streamlit
-def main():
+def run_PseudoLabellingt_app():
     # Định nghĩa đường dẫn đến các file MNIST
     dataset_path = os.path.dirname(os.path.abspath(__file__)) 
     train_images_path = os.path.join(dataset_path, "train-images.idx3-ubyte")
@@ -154,4 +154,4 @@ def main():
 
 # Chạy ứng dụng Streamlit
 if __name__ == "__main__":
-    main()
+    run_PseudoLabellingt_app()
