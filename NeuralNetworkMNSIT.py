@@ -320,8 +320,8 @@ def run_NeuralNetwork_app():
             #                 loss='sparse_categorical_crossentropy',
             #                 metrics=['accuracy'])
 
-            if st.button("Huấn luyện mô hình"):
-                with st.spinner("Đang huấn luyện..."):
+            if st.button("⏹️ Huấn luyện mô hình"):
+                with st.spinner("🔄 Đang huấn luyện..."):
                     with mlflow.start_run():
                         
                         # progress_bar = st.progress(0)
@@ -380,9 +380,16 @@ def run_NeuralNetwork_app():
                             
                             cnn = keras.Sequential([layers.Input(shape=(X_k_train.shape[1],))] + [layers.Dense(num_neurons, activation=activation) for _ in range(num_layers)] + [layers.Dense(10, activation="softmax")])
                             cnn.compile(optimizer=optimizer, loss=loss_fn, metrics=["accuracy"])
+
+                            class EpochCallback(tf.keras.callbacks.Callback):
+                                def on_epoch_end(self, epoch, logs=None):
+                                    progress = (epoch + 1) / epochs  # Tính phần trăm hoàn thành
+                                    progress_bar.progress(progress)  # Cập nhật thanh trạng thái
+                                    progress_text.text(f"Tiến trình huấn luyện: {int(progress * 100)}%")
                             
                             start_time = time.time()
-                            history = cnn.fit(X_k_train, y_k_train, epochs=epochs, validation_data=(X_k_val, y_k_val), verbose=2)
+                            history = cnn.fit(X_k_train, y_k_train, epochs=epochs, validation_data=(X_k_val, y_k_val), verbose=2, callbacks=[EpochCallback()])
+                            # history = cnn.fit(X_k_train, y_k_train, epochs=epochs, validation_data=(X_k_val, y_k_val), verbose=2)
                             elapsed_time = time.time() - start_time
                             
                             accuracies.append(history.history["val_accuracy"][-1])
@@ -391,7 +398,7 @@ def run_NeuralNetwork_app():
                             # Cập nhật thanh trạng thái và hiển thị phần trăm
                             progress = (i + 1) / total_folds  # Tính phần trăm hoàn thành
                             progress_bar.progress(progress)  # Cập nhật thanh trạng thái
-                            progress_text.text(f"Tiến trình huấn luyện: {int(progress * 100)}%")  # Hiển thị % cụ thể
+                            progress_text.text(f"️🎯Tiến trình huấn luyện: {int(progress * 100)}%")  # Hiển thị % cụ thể
                             
                         avg_val_accuracy = np.mean(accuracies)
                         avg_val_loss = np.mean(losses)
@@ -430,7 +437,7 @@ def run_NeuralNetwork_app():
                 st.session_state['history'] = history
 
                 st.markdown("---")
-                st.markdown("#### ✅**Biểu đồ Accuracy và Loss**")
+                st.markdown("#### 📈**Biểu đồ Accuracy và Loss**")
                 # Vẽ biểu đồ (xóa các giá trị số)
                 fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 4))
                 
@@ -545,8 +552,8 @@ def run_NeuralNetwork_app():
 
                         # Dự đoán
                         prediction = best_model.predict(img)[0]
-                        
-                        st.success(f"Dự đoán: {np.argmax(prediction)} với xác suất {np.max(prediction):.2f}")
+
+                        st.success(f"Dự đoán: {np.argmax(prediction)} với xác suất {np.max(prediction)*100:.2f}%")
                     else:
                         st.error("⚠️ Hãy vẽ một số trước khi bấm Dự đoán!")
 
