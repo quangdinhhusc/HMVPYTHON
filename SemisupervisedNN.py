@@ -337,7 +337,6 @@ def run_PseudoLabelling_app():
                 st.error("🚨 Dữ liệu chưa được nạp. Hãy đảm bảo `train_images`, `train_labels` và `test_images` đã được tải trước khi chạy.")
             
             if st.session_state.show_training_options:
-
                 # Cập nhật dữ liệu
                 X_train = st.session_state["X_train"]
                 X_val = st.session_state["X_val"]
@@ -447,7 +446,6 @@ def run_PseudoLabelling_app():
                             st.write(f"📊 **Độ chính xác trung bình trên tập validation:** {format(avg_val_accuracy, '.4f')}")
                             st.write(f"📊 **Độ chính xác trên tập test:** {test_accuracy:.4f}")
 
-
                             # Ghi log với MLflow
                             mlflow.log_param("epochs", epochs)
                             mlflow.log_param("optimizer", optimizer)
@@ -506,8 +504,6 @@ def run_PseudoLabelling_app():
 
                 st.write(f"Mô hình đang sử dụng: `{best_model_name}`")
                 # st.write(f"✅ Độ chính xác trên tập kiểm tra: `{st.session_state.get('test_accuracy', 'N/A'):.4f}`")
-
-                # Lấy các tham số từ session_state để hiển thị
 
                 # Cho phép người dùng tải lên ảnh
                 uploaded_file = st.file_uploader("📂 Chọn một ảnh để dự đoán", type=["png", "jpg", "jpeg"])
@@ -667,7 +663,6 @@ def run_PseudoLabelling_app():
                     "kernel": selected_run.data.metrics.get("kernel", "N/A"),
                     "C_value": selected_run.data.metrics.get("C_value", "N/A")
                 
-
                 }
                 st.json(metrics)
     
@@ -684,7 +679,6 @@ def run_PseudoLabelling_app():
 
     
 
-
 if __name__ == "__main__":
     run_PseudoLabelling_app()
     # st.write(f"MLflow Tracking URI: {mlflow.get_tracking_uri()}")
@@ -692,9 +686,6 @@ if __name__ == "__main__":
     # # # cd "C:\Users\Dell\OneDrive\Pictures\Documents\Code\python\OpenCV\HMVPYTHON\App"
     # ClassificationMinst.
     
-
-
-
     ## thay vì decision tree là gini và entropy thì -> chỉ còn entropy với chọn độ sâu của cây
     ## bổ sung thêm Chọn số folds (KFold Cross-Validation) ở cả 2 phần decsion tree và svms
     ## cập nhật lại phần demo , vì nó đang không sử dụng dữ liệu ở phần huấn luyện
