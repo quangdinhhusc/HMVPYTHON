@@ -412,7 +412,7 @@ def run_PseudoLabelling_app():
                         mlflow.end_run()
                         st.session_state["trained_model"] = cnn
                         st.success(f"✅ Huấn luyện hoàn tất!")
-                        st.write(f"📊 **Độ chính xác trung bình trên tập validation:** {avg_val_accuracy:.4f}")
+                        st.write(f"📊 **Độ chính xác trung bình trên tập validation:** {format(avg_val_accuracy, '.4f')}")
                         st.write(f"📊 **Độ chính xác trên tập test:** {test_accuracy:.4f}")
 
 
