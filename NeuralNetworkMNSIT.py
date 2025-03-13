@@ -30,6 +30,7 @@ from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint
 from tensorflow.keras.models import load_model
 from sklearn.model_selection import train_test_split, StratifiedKFold
 from mlflow.models.signature import infer_signature
+from tensorflow.keras.models import Sequential
 
 def preprocess_canvas_image(canvas_result):
     if canvas_result.image_data is not None:
@@ -405,6 +406,7 @@ def run_NeuralNetwork_app():
                 # Đánh giá trên tập test
                 test_loss, test_accuracy = cnn.evaluate(X_test, y_test, verbose=0)
                 mlflow.log_metric("test_accuracy", test_accuracy)
+                mlflow.log_metric("test_loss", test_loss)
 
                 # Lưu model đã huấn luyện vào st.session_state
                 st.session_state.selected_model_type = "Neural Network"
