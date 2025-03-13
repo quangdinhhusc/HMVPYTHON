@@ -250,7 +250,7 @@ def run_PseudoLabelling_app():
                 test_size = st.slider("🔹 Chọn % tỷ lệ tập test", min_value=10, max_value=50, value=20, step=1) / 100
 
                 # Tạo nút "Lưu Dữ Liệu"
-                if st.button("Lưu Dữ Liệu"):
+                if st.button("Xác Nhận & Lưu Dữ Liệu"):
                     with mlflow.start_run():
 
                         # Phân chia dữ liệu
@@ -300,6 +300,10 @@ def run_PseudoLabelling_app():
             # X_train_initial = np.array(X_train_initial) / 255.0 
             # X_val = X_val / 255.0
             # X_test = X_test / 255.0
+            # Chuẩn hóa dữ liệu
+            X_train_initial = X_train_initial / 255.0
+            X_val = X_val / 255.0
+            X_test = X_test / 255.0
             
             # Lựa chọn tham số huấn luyện
             k_folds = st.slider("Số fold cho Cross-Validation:", 3, 10, 5)
