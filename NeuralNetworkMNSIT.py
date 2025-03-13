@@ -386,9 +386,8 @@ def run_NeuralNetwork_app():
                                 def on_epoch_end(self, epoch, logs=None):
                                     progress_epoch = (epoch + 1) / epochs * 100
                                     progress_bar_epoch.progress(int(progress_epoch))
-                                    st.write(f"Epoch {epoch+1}/{epochs}: {int(progress_epoch)}% hoàn thành")
-                                    st.write(f"Loss: {logs['loss']:.4f}, Accuracy: {logs['accuracy']:.4f}")
-                                    
+                                    st.write(f"Folds {i+1}/{k_folds}: Epoch {epoch+1}/{epochs}: {int(progress_epoch)}% hoàn thành : Loss: {logs['loss']:.4f} , Accuracy: {logs['accuracy']:.4f}")
+
                             start_time = time.time()
                             history = cnn.fit(X_k_train, y_k_train, epochs=epochs, validation_data=(X_k_val, y_k_val), verbose=2, callbacks=[EpochCallback()])
                             # history = cnn.fit(X_k_train, y_k_train, epochs=epochs, validation_data=(X_k_val, y_k_val), verbose=2)
