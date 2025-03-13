@@ -313,6 +313,15 @@ def run_PseudoLabelling_app():
                         st.write(f"🔹 Kích thước tập huấn luyện ban đầu: `{X_train.shape}`")
                         st.write(f"🔹 Kích thước tập kiểm tra: `{X_test.shape}`")
                         st.write(f"🔹 Kích thước tập validation: `{X_val.shape}`")
+
+                        # Tạo biểu đồ số lượng dữ liệu của mỗi nhãn trong tập train
+                        unique_labels, counts = np.unique(y_train, return_counts=True)
+                        fig, ax = plt.subplots()
+                        ax.bar(unique_labels, counts)
+                        ax.set_xlabel('Nhãn')
+                        ax.set_ylabel('Số lượng')
+                        ax.set_title('Phân phối số lượng dữ liệu trong tập train')
+                        st.pyplot(fig)
             else:
                 st.error("🚨 Dữ liệu chưa được nạp. Hãy đảm bảo `train_images`, `train_labels` và `test_images` đã được tải trước khi chạy.")
 
