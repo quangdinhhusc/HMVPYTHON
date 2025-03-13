@@ -6,7 +6,7 @@ from ClassificationMinst import run_ClassificationMinst_app
 from LinearRegression import run_LinearRegression_app  
 from PcaTSNEMinst import run_PcaTSNEMinst_app
 from NeuralNetworkMNSIT import run_NeuralNetwork_app
-from SemisupervisedNN import run_PseudoLabellingt_app
+from SemisupervisedNN import run_PseudoLabelling_app
 
 # Cấu hình trang chính - phải được gọi ngay đầu file
 st.set_page_config(page_title="App Machine Learning", page_icon="💻", layout="wide")
@@ -34,4 +34,4 @@ elif app_choice == "PCA_T-SNE":
 elif app_choice == "Neural Network":
     run_NeuralNetwork_app()
 elif app_choice == "Pseudo Labelling":
-    run_PseudoLabellingt_app()
+    run_PseudoLabelling_app()
