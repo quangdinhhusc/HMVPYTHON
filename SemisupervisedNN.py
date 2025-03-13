@@ -265,58 +265,58 @@ def run_PseudoLabelling_app():
                 # Tạo nút "Lưu Dữ Liệu"
                 if st.button("Xác Nhận & Lưu Dữ Liệu"):
                     with mlflow.start_run():
-                        with result_placeholder:
                         
-                            # Phân chia dữ liệu
-                            X_train_data, X_test_data, y_train_data, y_test_data = train_test_split(X, y, test_size=test_size, random_state=42)
-                            
-                            # Lấy 1% số lượng ảnh cho mỗi class (0-9) để làm tập dữ liệu train ban đầu
-                            train_indices = []
-                            for i in range(10):
-                                class_indices = np.where(y_train_data == i)[0]
-                                num_samples = int(0.01 * len(class_indices))
-                                indices = np.random.choice(class_indices, num_samples, replace=False)
-                                train_indices.extend(indices)
+                        
+                        # Phân chia dữ liệu
+                        X_train_data, X_test_data, y_train_data, y_test_data = train_test_split(X, y, test_size=test_size, random_state=42)
+                        
+                        # Lấy 1% số lượng ảnh cho mỗi class (0-9) để làm tập dữ liệu train ban đầu
+                        train_indices = []
+                        for i in range(10):
+                            class_indices = np.where(y_train_data == i)[0]
+                            num_samples = int(0.01 * len(class_indices))
+                            indices = np.random.choice(class_indices, num_samples, replace=False)
+                            train_indices.extend(indices)
 
-                            X_train_initial = X_train_data[train_indices]
-                            y_train_initial = y_train_data[train_indices]
+                        X_train_initial = X_train_data[train_indices]
+                        y_train_initial = y_train_data[train_indices]
 
-                            # Chuyển 99% còn lại sang tập val
-                            val_indices = np.setdiff1d(np.arange(len(X_train_data)), train_indices)
-                            X_val_data = X_train_data[val_indices]
-                            y_val_data = y_train_data[val_indices]
+                        # Chuyển 99% còn lại sang tập val
+                        val_indices = np.setdiff1d(np.arange(len(X_train_data)), train_indices)
+                        X_val_data = X_train_data[val_indices]
+                        y_val_data = y_train_data[val_indices]
 
 
-                            # Tính tỷ lệ thực tế của từng tập
-                            total_samples = X.shape[0]
-                            test_percent = (X_test_data.shape[0] / total_samples) * 100
-                            train_percent = (X_train_initial.shape[0] / total_samples) * 100
-                            val_percent = (X_val_data.shape[0] / total_samples) * 100
+                        # Tính tỷ lệ thực tế của từng tập
+                        total_samples = X.shape[0]
+                        test_percent = (X_test_data.shape[0] / total_samples) * 100
+                        train_percent = (X_train_initial.shape[0] / total_samples) * 100
+                        val_percent = (X_val_data.shape[0] / total_samples) * 100
 
-                            # Lưu dữ liệu vào session_state
-                            st.session_state["X_train"] = X_train_initial
-                            st.session_state["y_train"] = y_train_initial
-                            st.session_state["X_val"] = X_val_data
-                            st.session_state["y_val"] = y_val_data
-                            st.session_state["X_test"] = X_test_data
-                            st.session_state["y_test"] = y_test_data
+                        # Lưu dữ liệu vào session_state
+                        st.session_state["X_train"] = X_train_initial
+                        st.session_state["y_train"] = y_train_initial
+                        st.session_state["X_val"] = X_val_data
+                        st.session_state["y_val"] = y_val_data
+                        st.session_state["X_test"] = X_test_data
+                        st.session_state["y_test"] = y_test_data
 
-                            # Cập nhật dữ liệu
-                            X_train = X_train_initial
-                            X_val = X_val_data
-                            X_test  = X_test_data
-                            y_train = y_train_initial
-                            y_val = y_val_data
-                            y_test  = y_test_data
-                            
-                            
-                            # # Ghi log cho quá trình phân chia dữ liệu
-                            # mlflow.log_param("test_size", test_size)
-                            # mlflow.log_metric("test_percent", test_percent)
-                            # mlflow.log_metric("train_percent", train_percent)
-                            # mlflow.log_metric("val_percent", val_percent)
-                            
-                            # Hiển thị kết quả
+                        # Cập nhật dữ liệu
+                        X_train = X_train_initial
+                        X_val = X_val_data
+                        X_test  = X_test_data
+                        y_train = y_train_initial
+                        y_val = y_val_data
+                        y_test  = y_test_data
+                        st.session_state.show_training_options = True
+                        
+                        # # Ghi log cho quá trình phân chia dữ liệu
+                        # mlflow.log_param("test_size", test_size)
+                        # mlflow.log_metric("test_percent", test_percent)
+                        # mlflow.log_metric("train_percent", train_percent)
+                        # mlflow.log_metric("val_percent", val_percent)
+                        with result_placeholder:
+                        # Hiển thị kết quả
                             st.write(f"📊 **Tỷ lệ phân chia**: Test={test_percent:.0f}%, Train={train_percent:.0f}%, Val={val_percent:.0f}%")
                             st.write("✅ Dữ liệu đã được xử lý và chia tách.")
                             st.write(f"🔹 Kích thước tập huấn luyện ban đầu: `{X_train.shape}`")
@@ -332,7 +332,6 @@ def run_PseudoLabelling_app():
                             ax.set_title('Phân phối số lượng dữ liệu trong tập train')
                             ax.set_xticks(unique_labels)
                             st.pyplot(fig)
-                            st.session_state.show_training_options = True                      
                         
             else:
                 st.error("🚨 Dữ liệu chưa được nạp. Hãy đảm bảo `train_images`, `train_labels` và `test_images` đã được tải trước khi chạy.")
