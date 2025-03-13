@@ -313,6 +313,9 @@ def run_PseudoLabelling_app():
             # X_train = X_train / 255.0
             # X_val = X_val / 255.0
             # X_test = X_test / 255.0
+            X_val = np.array(X_val)
+            X_test = np.array(X_test)
+            X_train = np.array(X_train)
             
             # Lựa chọn tham số huấn luyện
             k_folds = st.slider("Số fold cho Cross-Validation:", 3, 10, 5)
