@@ -280,11 +280,11 @@ def run_PseudoLabelling_app():
                         val_percent = (X_val.shape[0] / total_samples) * 100
 
 
-                         # Ghi log cho quá trình phân chia dữ liệu
-                        mlflow.log_param("test_size", test_size)
-                        mlflow.log_metric("test_percent", test_percent)
-                        mlflow.log_metric("train_percent", train_percent)
-                        mlflow.log_metric("val_percent", val_percent)
+                        # # Ghi log cho quá trình phân chia dữ liệu
+                        # mlflow.log_param("test_size", test_size)
+                        # mlflow.log_metric("test_percent", test_percent)
+                        # mlflow.log_metric("train_percent", train_percent)
+                        # mlflow.log_metric("val_percent", val_percent)
 
                         # Hiển thị kết quả
                         st.write(f"📊 **Tỷ lệ phân chia**: Test={test_percent:.0f}%, Train={train_percent:.0f}%, Val={val_percent:.0f}%")
