@@ -28,6 +28,8 @@ from streamlit_drawable_canvas import st_canvas
 from tensorflow.keras import layers, models, callbacks, optimizers
 from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint
 from tensorflow.keras.models import load_model
+from sklearn.model_selection import train_test_split, StratifiedKFold
+from mlflow.models.signature import infer_signature
 
 def preprocess_canvas_image(canvas_result):
     if canvas_result.image_data is not None:
@@ -283,153 +285,124 @@ def run_NeuralNetwork_app():
             X_test = X_test / 255.0
             
             # Lựa chọn tham số huấn luyện
+            k_folds = st.slider("Số fold cho Cross-Validation:", 3, 10, 5)
             
-            hidden_layer_size = st.slider("Kích thước lớp ẩn", 50, 200, 100)
+            num_layers = st.slider("Số lớp ẩn:", 1, 5, 2)
 
             epochs = st.slider("Số lần lặp tối đa", 2, 50, 5)
 
-            # batch_size = st.slider("Kích thước batch", 5, 50, 10)
-            batch_size = st.selectbox("Kích thước batch", [32, 64, 128, 256], index=0)
-
             learning_rate_init = st.slider("Tốc độ học", 0.001, 0.1, 0.01, step = 0.001, format="%.3f")
+
+            activation = st.selectbox("Hàm kích hoạt:", ["relu", "sigmoid", "tanh"])
+
+            num_neurons = st.selectbox("Số neuron mỗi lớp:", [32, 64, 128, 256], index=0)
 
             optimizer = st.selectbox("Chọn hàm tối ưu", ["adam", "sgd", "lbfgs"])
 
-            # 📊 Chọn tham số cho hàm tối ưu
+            loss_fn = "sparse_categorical_crossentropy"
+
+            # # Xác định số lớp và input shape
+            # num_classes = len(np.unique(y_train))
+            # input_shape = X_train.shape[1]
+
+            # # Compile mô hình
             # if optimizer == "adam":
-            #     learning_rate_init = st.slider("Tốc độ học", 0.001, 0.1, 0.01, step=0.001, format="%.3f")
-            #     beta_1 = st.slider("Beta 1", 0.1, 0.9, 0.9, step=0.1, format="%.1f")
-            #     beta_2 = st.slider("Beta 2", 0.1, 0.9, 0.999, step=0.1, format="%.3f")
-            #     epsilon = st.slider("Epsilon", 1e-8, 1e-6, 1e-8, step=1e-8, format="%.1e")
+            #     cnn.compile(optimizer=optimizers.Adam(learning_rate=learning_rate_init),
+            #                 loss='sparse_categorical_crossentropy',
+            #                 metrics=['accuracy'])
             # elif optimizer == "sgd":
-            #     learning_rate_init = st.slider("Tốc độ học", 0.001, 0.1, 0.01, step=0.001, format="%.3f")
-            #     momentum = st.slider("Động lượng", 0.1, 0.9, 0.9, step=0.1, format="%.1f")
-            #     nesterovs_momentum = st.checkbox("Sử dụng động lượng Nesterov")
+            #     cnn.compile(optimizer=optimizers.SGD(learning_rate=learning_rate_init),
+            #                 loss='sparse_categorical_crossentropy',
+            #                 metrics=['accuracy'])
             # elif optimizer == "lbfgs":
-            #     learning_rate_init = st.slider("Tốc độ học", 0.001, 0.1, 0.01, step=0.001, format="%.3f")
-            #     max_iter = st.slider("Số lần lặp tối đa", 100, 1000, 500, step=100)
-
-            # # 📊 Tạo hàm tối ưu
-            # if optimizer == "adam":
-            #     optimizer = "adam"
-            #     learning_rate_init = learning_rate_init
-            #     beta_1 = beta_1
-            #     beta_2 = beta_2
-            #     epsilon = epsilon
-            # elif optimizer == "sgd":
-            #     optimizer = "sgd"
-            #     learning_rate_init = learning_rate_init
-            #     momentum = momentum
-            #     nesterovs_momentum = nesterovs_momentum
-            # elif optimizer == "lbfgs":
-            #     optimizer = "lbfgs"
-            #     learning_rate_init = learning_rate_init
-            #     max_iter = max_iter
-
-
-            # cnn= MLPClassifier(hidden_layer_sizes=(hidden_layer_size), max_iter=epochs, batch_size=batch_size, learning_rate_init=learning_rate)
-            # cnn= MLPClassifier(hidden_layer_sizes=(hidden_layer_size), max_iter=epochs, learning_rate_init=learning_rate_init, solver=optimizer)
-
-            # Xác định số lớp và input shape
-            num_classes = len(np.unique(y_train))
-            input_shape = X_train.shape[1]
-
-            # Xây dựng mô hình
-            cnn = models.Sequential([
-                layers.Input(shape=(input_shape,)),
-                layers.Dense(512, activation='relu'),
-                layers.Dropout(0.2),
-                layers.Dense(256, activation='relu'),
-                layers.Dropout(0.2),
-                layers.Dense(128, activation='relu'),
-                layers.Dense(num_classes, activation='softmax')
-            ])
-
-            # Compile mô hình
-            if optimizer == "adam":
-                cnn.compile(optimizer=optimizers.Adam(learning_rate=learning_rate_init),
-                            loss='sparse_categorical_crossentropy',
-                            metrics=['accuracy'])
-            elif optimizer == "sgd":
-                cnn.compile(optimizer=optimizers.SGD(learning_rate=learning_rate_init),
-                            loss='sparse_categorical_crossentropy',
-                            metrics=['accuracy'])
-            elif optimizer == "lbfgs":
-                cnn.compile(optimizer=optimizers.LBFGS(learning_rate=learning_rate_init),
-                            loss='sparse_categorical_crossentropy',
-                            metrics=['accuracy'])
+            #     cnn.compile(optimizer=optimizers.LBFGS(learning_rate=learning_rate_init),
+            #                 loss='sparse_categorical_crossentropy',
+            #                 metrics=['accuracy'])
 
             if st.button("Huấn luyện mô hình"):
                 with st.spinner("Đang huấn luyện..."):
                     with mlflow.start_run():
-                        # progress_bar = st.progress(0)
-                        # progress_text = st.empty()
-                        # total_folds = len(X_train)
                         
-                        # trained_samples = 0
+                        # progress_bar = st.progress(0)
+                        # history = None
                         # start_time = time.time()
-                        # for i in range(epochs):
-                        #     for j in range(len(X_train)):
-                        #         cnn.fit(X_train, y_train)
-                        #         trained_samples += 1
-                        #         progress = trained_samples / total_folds  # Tính phần trăm hoàn thành
-                        #         progress_bar.progress(progress)  # Cập nhật thanh trạng thái
-                        #         progress_text.text(f"Tiến trình huấn luyện {i+1}/{epochs}, mẫu {j+1}/{len(X_train)}: {int(progress * 100)}%")
-                        #     # bar.progress(trained_samples / (total_samples * epochs))
-                        #     # bar.progress((i) / epochs)
-                        #     # st.write(f"Đang huấn luyện {epochs}: {(i)/epochs*100:.2f}%")
-                        #     # i += 1
-                        #     # st.write(f"Đang huấn luyện... {i+1}/{epochs} - {trained_samples}/{total_samples * epochs} mẫu")
+                        # # Huấn luyện mô hình với callback để cập nhật progress bar
+                        # class ProgressCallback(tf.keras.callbacks.Callback):
+                        #     def on_epoch_end(self, epoch, logs=None):
+                        #         progress = (epoch + 1) / epochs * 100
+                        #         progress_bar.progress(int(progress))
+                        #         st.write(f"Epoch {epoch+1}/{epochs}: {int(progress)}% hoàn thành")
+                        #         st.write(f"Loss: {logs['loss']:.4f}, Accuracy: {logs['accuracy']:.4f}")
+
+                        # # Huấn luyện mô hình
+                        # # early_stopping = EarlyStopping(monitor='val_loss', patience=5, min_delta=0.001)
+                        # # model_checkpoint = ModelCheckpoint('best_model.h5', monitor='val_loss', save_best_only=True, mode='min')
+                        # history = cnn.fit(X_train, y_train,
+                        #                 epochs=epochs,
+                        #                 batch_size=batch_size,
+                        #                 validation_data=(X_val, y_val),
+                        #                 verbose=1,
+                        #                 callbacks=[ProgressCallback()])
+
+
+                        # # Hoàn thành progress bar
+                        # progress_bar.progress(100)
+
                         # end_time = time.time()
                         # training_time = end_time - start_time
-                        # st.write(f"Thời gian huấn luyện: {training_time:.2f} giây")
-                        
-                        progress_bar = st.progress(0)
-                        history = None
-                        start_time = time.time()
-                        # Huấn luyện mô hình với callback để cập nhật progress bar
-                        class ProgressCallback(tf.keras.callbacks.Callback):
-                            def on_epoch_end(self, epoch, logs=None):
-                                progress = (epoch + 1) / epochs * 100
-                                progress_bar.progress(int(progress))
-                                st.write(f"Epoch {epoch+1}/{epochs}: {int(progress)}% hoàn thành")
-                                st.write(f"Loss: {logs['loss']:.4f}, Accuracy: {logs['accuracy']:.4f}")
-
-                        # Huấn luyện mô hình
-                        # early_stopping = EarlyStopping(monitor='val_loss', patience=5, min_delta=0.001)
-                        # model_checkpoint = ModelCheckpoint('best_model.h5', monitor='val_loss', save_best_only=True, mode='min')
-                        history = cnn.fit(X_train, y_train,
-                                        epochs=epochs,
-                                        batch_size=batch_size,
-                                        validation_data=(X_val, y_val),
-                                        verbose=1,
-                                        callbacks=[ProgressCallback()])
-
-
-                        # Hoàn thành progress bar
-                        progress_bar.progress(100)
-
-                        end_time = time.time()
-                        training_time = end_time - start_time
 
                         
 
-                        # Ghi log với MLflow
-                        mlflow.log_param("epochs", epochs)
-                        mlflow.log_param("batch_size", batch_size)
-                        mlflow.log_param("optimizer", optimizer)
-                        mlflow.log_metric("train_accuracy", history.history['accuracy'][-1])
-                        mlflow.log_metric("val_accuracy", history.history['val_accuracy'][-1])
-                        mlflow.log_metric("final_train_loss", history.history['loss'][-1])
-                        mlflow.log_metric("final_val_loss", history.history['val_loss'][-1])
+                        # # Ghi log với MLflow
+                        # mlflow.log_param("epochs", epochs)
+                        # mlflow.log_param("batch_size", batch_size)
+                        # mlflow.log_param("optimizer", optimizer)
+                        # mlflow.log_metric("train_accuracy", history.history['accuracy'][-1])
+                        # mlflow.log_metric("val_accuracy", history.history['val_accuracy'][-1])
+                        # mlflow.log_metric("final_train_loss", history.history['loss'][-1])
+                        # mlflow.log_metric("final_val_loss", history.history['val_loss'][-1])
 
-                        y_pred = cnn.predict(X_test)
-                        y_pred_class = np.argmax(y_pred, axis=1)
-                        accuracy = accuracy_score(y_test, y_pred_class)
+                        # y_pred = cnn.predict(X_test)
+                        # y_pred_class = np.argmax(y_pred, axis=1)
+                        # accuracy = accuracy_score(y_test, y_pred_class)
+
+                        mlflow.log_params({"num_layers": num_layers, "num_neurons": num_neurons, "activation": activation, "optimizer": optimizer, "k_folds": k_folds})
+                        
+                        kf = StratifiedKFold(n_splits=k_folds, shuffle=True, random_state=42)
+                        accuracies, losses = [], []
+                        
+                        for train_idx, val_idx in kf.split(X_train, y_train):
+                            X_k_train, X_k_val = X_train[train_idx], X_train[val_idx]
+                            y_k_train, y_k_val = y_train[train_idx], y_train[val_idx]
+                            
+                            cnn = tf.Sequential([layers.Input(shape=(X_k_train.shape[1],))] + [layers.Dense(num_neurons, activation=activation) for _ in range(num_layers)] + [layers.Dense(10, activation="softmax")])
+                            cnn.compile(optimizer=optimizer, loss=loss_fn, metrics=["accuracy"])
+                            
+                            start_time = time.time()
+                            history = cnn.fit(X_k_train, y_k_train, epochs=epochs, validation_data=(X_k_val, y_k_val), verbose=0)
+                            elapsed_time = time.time() - start_time
+                            
+                            accuracies.append(history.history["val_accuracy"][-1])
+                            losses.append(history.history["val_loss"][-1])
+                            
+                        avg_val_accuracy = np.mean(accuracies)
+                        avg_val_loss = np.mean(losses)
+                        
+                        mlflow.log_metrics({"avg_val_accuracy": avg_val_accuracy, "avg_val_loss": avg_val_loss, "elapsed_time": elapsed_time})
+                        
+                        test_loss, test_accuracy = cnn.evaluate(X_test, y_test, verbose=0)
+                        mlflow.log_metrics({"test_accuracy": test_accuracy, "test_loss": test_loss})
+                        mlflow.end_run()
+                        st.session_state["trained_model"] = cnn
+                        st.success(f"✅ Huấn luyện hoàn tất!")
+                        st.write(f"📊 **Độ chính xác trung bình trên tập validation:** {avg_val_accuracy:.4f}")
+                        st.write(f"📊 **Độ chính xác trên tập test:** {test_accuracy:.4f}")
+                        st.success(f"✅ Đã log dữ liệu cho **{st.session_state['run_name']}** đã được ghi nhận thành công trong MLflow (Neural_Network)! 🚀")
+                        st.markdown(f"🔗 [Truy cập MLflow UI]({st.session_state['mlflow_url']})")
 
                 st.success("Huấn luyện hoàn tất!")
-                st.write(f"Thời gian huấn luyện: {training_time:.2f} giây")
-                st.write(f"Độ chính xác: {accuracy:.4f}")
+                st.write(f"Thời gian huấn luyện: {elapsed_time:.2f} giây")
+                st.write(f"Độ chính xác: {avg_val_accuracy:.4f}")
 
                 # Đánh giá trên tập test
                 test_loss, test_accuracy = cnn.evaluate(X_test, y_test, verbose=0)
