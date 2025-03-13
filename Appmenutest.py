@@ -18,6 +18,7 @@ app_choice = st.sidebar.radio(
     ["Linear Regression", "Classification", "Clustering","PCA_T-SNE", "Neural Network", "Pseudo Labelling"]
 )
 
+
 # Nội dung chính của trang
 st.title("Chương Trình Ứng Dụng")
 
