@@ -1,12 +1,12 @@
 import streamlit as st
 
 # Import các hàm từ ứng dụng con
-from ClusteringMinst import run_ClusteringMinst_app
-from ClassificationMinst import run_ClassificationMinst_app
-from LinearRegression import run_LinearRegression_app  
-from PcaTSNEMinst import run_PcaTSNEMinst_app
-from NeuralNetworkMNSIT import run_NeuralNetwork_app
-from SemisupervisedNN import run_PseudoLabelling_app
+from ClusteringMinsttest import run_ClusteringMinst_app
+from ClassificationMinsttest import run_ClassificationMinst_app
+from LinearRegressiontest import run_LinearRegression_app  
+from PcaTSNEMinsttest import run_PcaTSNEMinst_app
+from NeuralNetworkMNSITtest import run_NeuralNetwork_app
+from SemisupervisedNNtest import run_PseudoLabellingt_app
 
 # Cấu hình trang chính - phải được gọi ngay đầu file
 st.set_page_config(page_title="App Machine Learning", page_icon="💻", layout="wide")
@@ -33,4 +33,4 @@ elif app_choice == "PCA_T-SNE":
 elif app_choice == "Neural Network":
     run_NeuralNetwork_app()
 elif app_choice == "Pseudo Labelling":
-    run_PseudoLabelling_app()
+    run_PseudoLabellingt_app()
