@@ -41,9 +41,7 @@ def preprocess_canvas_image(canvas_result):
     return None
 
 def run_PseudoLabelling_app():
-    @st.experimental_singleton
-    def my_funcion():
-        return 42
+    
 
     @st.cache_data  # Lưu cache để tránh load lại dữ liệu mỗi lần chạy lại Streamlit
     def get_sampled_pixels(images, sample_size=100_000):
