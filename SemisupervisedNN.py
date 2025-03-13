@@ -321,6 +321,7 @@ def run_PseudoLabelling_app():
                         ax.set_xlabel('Nhãn')
                         ax.set_ylabel('Số lượng')
                         ax.set_title('Phân phối số lượng dữ liệu trong tập train')
+                        ax.set_xticks(unique_labels)
                         st.pyplot(fig)
             else:
                 st.error("🚨 Dữ liệu chưa được nạp. Hãy đảm bảo `train_images`, `train_labels` và `test_images` đã được tải trước khi chạy.")
@@ -415,7 +416,6 @@ def run_PseudoLabelling_app():
                         avg_val_loss = np.mean(losses)
 
                         mlflow.log_metrics({"avg_val_accuracy": avg_val_accuracy, "avg_val_loss": avg_val_loss, "elapsed_time": elapsed_time})
-                        
                         test_loss, test_accuracy = cnn.evaluate(X_test, y_test, verbose=0)
                         mlflow.log_metrics({"test_accuracy": test_accuracy, "test_loss": test_loss})
                         mlflow.end_run()
