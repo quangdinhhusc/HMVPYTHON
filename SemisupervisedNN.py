@@ -353,7 +353,8 @@ def run_PseudoLabelling_app():
                         start_time = time.time()
 
                         # Huấn luyện mô hình
-                        cnn = keras.Sequential([layers.Input(shape=(X_train.shape[1],))] + [layers.Dense(num_neurons, activation=activation) for _ in range(num_layers)] + [layers.Dense(10, activation="softmax")])
+                        # cnn = keras.Sequential([layers.Input(shape=(X_train.shape[1],))] + [layers.Dense(num_neurons, activation=activation) for _ in range(num_layers)] + [layers.Dense(10, activation="softmax")])
+                        cnn = keras.Sequential([layers.Input(shape=(len(X_train[0]),))] + [layers.Dense(num_neurons, activation=activation) for _ in range(num_layers)] + [layers.Dense(10, activation="softmax")])
                         cnn.compile(optimizer=optimizer, loss=loss_fn, metrics=["accuracy"], learning_rate=learning_rate_init)
                             
 
