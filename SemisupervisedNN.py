@@ -332,12 +332,6 @@ def run_PseudoLabelling_app():
                         st.session_state.show_training_options = True
             else:
                 st.error("🚨 Dữ liệu chưa được nạp. Hãy đảm bảo `train_images`, `train_labels` và `test_images` đã được tải trước khi chạy.")
-
-            
-            # # Chuyển dữ liệu về dạng số thực
-            # X_train = X_train / 255.0
-            # X_val = X_val / 255.0
-            # X_test = X_test / 255.0
             
             if st.session_state.show_training_options:
 
