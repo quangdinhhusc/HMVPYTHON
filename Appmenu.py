@@ -34,3 +34,4 @@ elif app_choice == "Neural Network":
     run_NeuralNetwork_app()
 elif app_choice == "Pseudo Labelling":
     run_PseudoLabelling_app()
+    
