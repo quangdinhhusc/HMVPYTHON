@@ -346,13 +346,14 @@ def run_PseudoLabelling_app():
                         accuracies, losses = [], []
                         start_time = time.time()
 
+                        # Huấn luyện mô hình
+                        cnn = keras.Sequential([layers.Input(shape=(X_train.shape[1],))] + [layers.Dense(num_neurons, activation=activation) for _ in range(num_layers)] + [layers.Dense(10, activation="softmax")])
+                        cnn.compile(optimizer=optimizer, loss=loss_fn, metrics=["accuracy"], learning_rate=learning_rate_init)
+                            
+
                         while len(X_val) > 0:
-                            # Huấn luyện mô hình
-                            cnn = keras.Sequential([layers.Input(shape=(X_train.shape[1],))] + [layers.Dense(num_neurons, activation=activation) for _ in range(num_layers)] + [layers.Dense(10, activation="softmax")])
-                            cnn.compile(optimizer=optimizer, loss=loss_fn, metrics=["accuracy"], learning_rate=learning_rate_init)
                             
                             history = cnn.fit(X_train, y_train, epochs=epochs, validation_data=(X_val, y_val), verbose=2)
-                            
                             
                             # Dự đoán nhãn cho phần dữ liệu còn lại (99% của tập train ban đầu)
                             y_pred = cnn.predict(X_val)
