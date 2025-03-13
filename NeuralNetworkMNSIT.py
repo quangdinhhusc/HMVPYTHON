@@ -351,8 +351,6 @@ def run_NeuralNetwork_app():
                         # end_time = time.time()
                         # training_time = end_time - start_time
 
-                        
-
                         # # Ghi log với MLflow
                         # mlflow.log_param("epochs", epochs)
                         # mlflow.log_param("batch_size", batch_size)
