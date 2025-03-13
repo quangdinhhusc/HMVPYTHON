@@ -552,15 +552,16 @@ def run_PseudoLabelling_app():
                 # st.write(f"✅ Độ chính xác trên tập kiểm tra: `{st.session_state.get('test_accuracy', 'N/A'):.4f}`")
 
                 # 🆕 Cập nhật key cho canvas khi nhấn "Tải lại"
-                if "key_value" not in st.session_state:
-                    st.session_state.key_value = str(random.randint(0, 1000000))
+                # if "key_value" not in st.session_state:
+                #     st.session_state.key_value = str(random.randint(0, 1000000))
 
-                if st.button("🔄 Tải lại"):
-                    try:
-                        st.session_state.key_value = str(random.randint(0, 1000000))
-                    except Exception as e:
-                        st.error(f"Cập nhật key không thành công: {str(e)}")
-                        st.stop()
+                # if st.button("🔄 Tải lại"):
+                #     try:
+                #         st.session_state.key_value = str(random.randint(0, 1000000))
+                #     except Exception as e:
+                #         st.error(f"Cập nhật key không thành công: {str(e)}")
+                #         st.stop()
+                st.session_state.key_value = str(random.randint(0, 1000000))
 
                 # ✍️ Vẽ dữ liệu
                 canvas_result = st_canvas(
