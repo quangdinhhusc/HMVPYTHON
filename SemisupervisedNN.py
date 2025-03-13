@@ -305,28 +305,30 @@ def run_PseudoLabelling_app():
                         y_val = y_val_data
                         y_test  = y_test_data
 
+                        # Tạo vùng trống để hiển thị kết quả
+                        result_placeholder = st.empty()
                         # # Ghi log cho quá trình phân chia dữ liệu
                         # mlflow.log_param("test_size", test_size)
                         # mlflow.log_metric("test_percent", test_percent)
                         # mlflow.log_metric("train_percent", train_percent)
                         # mlflow.log_metric("val_percent", val_percent)
-
+                        with result_placeholder:
                         # Hiển thị kết quả
-                        st.write(f"📊 **Tỷ lệ phân chia**: Test={test_percent:.0f}%, Train={train_percent:.0f}%, Val={val_percent:.0f}%")
-                        st.write("✅ Dữ liệu đã được xử lý và chia tách.")
-                        st.write(f"🔹 Kích thước tập huấn luyện ban đầu: `{X_train.shape}`")
-                        st.write(f"🔹 Kích thước tập kiểm tra: `{X_test.shape}`")
-                        st.write(f"🔹 Kích thước tập validation: `{X_val.shape}`")
+                            st.write(f"📊 **Tỷ lệ phân chia**: Test={test_percent:.0f}%, Train={train_percent:.0f}%, Val={val_percent:.0f}%")
+                            st.write("✅ Dữ liệu đã được xử lý và chia tách.")
+                            st.write(f"🔹 Kích thước tập huấn luyện ban đầu: `{X_train.shape}`")
+                            st.write(f"🔹 Kích thước tập kiểm tra: `{X_test.shape}`")
+                            st.write(f"🔹 Kích thước tập validation: `{X_val.shape}`")
 
-                        # Tạo biểu đồ số lượng dữ liệu của mỗi nhãn trong tập train
-                        unique_labels, counts = np.unique(y_train, return_counts=True)
-                        fig, ax = plt.subplots()
-                        ax.bar(unique_labels, counts)
-                        ax.set_xlabel('Nhãn')
-                        ax.set_ylabel('Số lượng')
-                        ax.set_title('Phân phối số lượng dữ liệu trong tập train')
-                        ax.set_xticks(unique_labels)
-                        st.pyplot(fig)
+                            # Tạo biểu đồ số lượng dữ liệu của mỗi nhãn trong tập train
+                            unique_labels, counts = np.unique(y_train, return_counts=True)
+                            fig, ax = plt.subplots()
+                            ax.bar(unique_labels, counts)
+                            ax.set_xlabel('Nhãn')
+                            ax.set_ylabel('Số lượng')
+                            ax.set_title('Phân phối số lượng dữ liệu trong tập train')
+                            ax.set_xticks(unique_labels)
+                            st.pyplot(fig)
                         st.session_state.show_training_options = True
             else:
                 st.error("🚨 Dữ liệu chưa được nạp. Hãy đảm bảo `train_images`, `train_labels` và `test_images` đã được tải trước khi chạy.")
@@ -368,7 +370,7 @@ def run_PseudoLabelling_app():
                 if st.button("⏹️ Huấn luyện mô hình"):
                     with st.spinner("🔄 Đang huấn luyện..."):
                         with mlflow.start_run():
-
+                            
                             cnn = keras.Sequential([
                                 layers.Input(shape=(X_train.shape[1],)),
                                 # Các lớp ẩn của model
@@ -383,8 +385,10 @@ def run_PseudoLabelling_app():
                             kf = StratifiedKFold(n_splits=k_folds, shuffle=True, random_state=42)
                             accuracies, losses = [], []
                             start_time = time.time()
+                            iteration_count = 0
 
                             while len(X_val) > 0:
+                                iteration_count += 1
                                 progress_bar = st.progress(0)# Khởi tạo thanh trạng thái ở 0%
                                 progress_text = st.empty()# Tạo một vùng trống để hiển thị % tiến trình
                                 
@@ -394,26 +398,28 @@ def run_PseudoLabelling_app():
                                     X_k_train, X_k_val = X_train[train_idx], X_train[val_idx]
                                     y_k_train, y_k_val = y_train[train_idx], y_train[val_idx]
                                     
-                                    progress_bar_epoch = st.progress(0)
-                                    
-                                    class EpochCallback(keras.callbacks.Callback):
-                                        def on_epoch_end(self, epoch, logs=None):
-                                            progress_epoch = (epoch + 1) / epochs * 100
-                                            progress_bar_epoch.progress(int(progress_epoch))
-                                            st.write(f"Folds {i+1}/{k_folds}: Epoch {epoch+1}/{epochs}: hoàn thành :               Loss: {logs['loss']:.4f} , Accuracy: {logs['accuracy']:.4f}")
+                                    # progress_bar_epoch = st.progress(0)
+                                    # class EpochCallback(keras.callbacks.Callback):
+                                    #     def on_epoch_end(self, epoch, logs=None):
+                                    #         progress_epoch = (epoch + 1) / epochs * 100
+                                    #         progress_bar_epoch.progress(int(progress_epoch))
+                                    #         st.write(f"Folds {i+1}/{k_folds}: Epoch {epoch+1}/{epochs}: hoàn thành :               Loss: {logs['loss']:.4f} , Accuracy: {logs['accuracy']:.4f}")
 
                                     start_time = time.time()
-                                    history = cnn.fit(X_k_train, y_k_train, epochs=epochs, validation_data=(X_k_val, y_k_val), verbose=2, callbacks=[EpochCallback()])
-                                    # history = cnn.fit(X_k_train, y_k_train, epochs=epochs, validation_data=(X_k_val, y_k_val), verbose=2)
+                                    # history = cnn.fit(X_k_train, y_k_train, epochs=epochs, validation_data=(X_k_val, y_k_val), verbose=2, callbacks=[EpochCallback()])
+                                    history = cnn.fit(X_k_train, y_k_train, epochs=epochs, validation_data=(X_k_val, y_k_val), verbose=2)
                                     elapsed_time = time.time() - start_time
                                     
                                     accuracies.append(history.history["val_accuracy"][-1])
                                     losses.append(history.history["val_loss"][-1])
 
+                                    st.write(f"**Lần lặp thứ {iteration_count}:**")
+
                                     # Cập nhật thanh trạng thái và hiển thị phần trăm
                                     progress = (i + 1) / total_folds  # Tính phần trăm hoàn thành
                                     progress_bar.progress(progress)  # Cập nhật thanh trạng thái
-                                    progress_text.text(f"️🎯Tiến trình huấn luyện: {int(progress * 100)}%")          
+                                    progress_text.text(f"️🎯Tiến trình huấn luyện: {int(progress * 100)}%")   
+
                                 # Dự đoán nhãn cho phần dữ liệu còn lại (99% của tập train ban đầu)
                                 y_pred = cnn.predict(X_val)
                                 y_pred_class = np.argmax(y_pred, axis=1)
