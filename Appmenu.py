@@ -15,7 +15,7 @@ st.set_page_config(page_title="App Machine Learning", page_icon="💻", layout="
 st.sidebar.title("Home page")
 app_choice = st.sidebar.radio(
     "Chọn ứng dụng:",
-    ["Linear Regression", "Classification", "Clustering","PCA_T-SNE", "Neural Network"]
+    ["Linear Regression", "Classification", "Clustering","PCA_T-SNE", "Neural Network", "Pseudo Labelling"]
 )
 
 # Nội dung chính của trang
@@ -34,4 +34,3 @@ elif app_choice == "Neural Network":
     run_NeuralNetwork_app()
 elif app_choice == "Pseudo Labelling":
     run_PseudoLabelling_app()
-    
