@@ -259,7 +259,7 @@ def run_PseudoLabelling_app():
                 # Tạo nút "Lưu Dữ Liệu"
                 if st.button("Xác Nhận & Lưu Dữ Liệu"):
                     with mlflow.start_run():
-
+                        
                         # Phân chia dữ liệu
                         X_train_data, X_test_data, y_train_data, y_test_data = train_test_split(X, y, test_size=test_size, random_state=42)
                         
@@ -344,15 +344,15 @@ def run_PseudoLabelling_app():
                         
                         kf = StratifiedKFold(n_splits=k_folds, shuffle=True, random_state=42)
                         accuracies, losses = [], []
-                        
+                        start_time = time.time()
+
                         while len(X_val) > 0:
                             # Huấn luyện mô hình
                             cnn = keras.Sequential([layers.Input(shape=(X_train.shape[1],))] + [layers.Dense(num_neurons, activation=activation) for _ in range(num_layers)] + [layers.Dense(10, activation="softmax")])
                             cnn.compile(optimizer=optimizer, loss=loss_fn, metrics=["accuracy"], learning_rate=learning_rate_init)
                             
-                            start_time = time.time()
                             history = cnn.fit(X_train, y_train, epochs=epochs, validation_data=(X_val, y_val), verbose=2)
-                            elapsed_time = time.time() - start_time
+                            
                             
                             # Dự đoán nhãn cho phần dữ liệu còn lại (99% của tập train ban đầu)
                             y_pred = cnn.predict(X_val)
@@ -370,7 +370,7 @@ def run_PseudoLabelling_app():
                             y_train = y_new
                             X_val = X_val[pseudo_labels == -1]
                             y_val = y_val[pseudo_labels == -1]
-
+                        elapsed_time = time.time() - start_time
 
                         avg_val_accuracy = np.mean(accuracies)
                         avg_val_loss = np.mean(losses)
