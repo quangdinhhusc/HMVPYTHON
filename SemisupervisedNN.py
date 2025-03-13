@@ -41,6 +41,10 @@ def preprocess_canvas_image(canvas_result):
     return None
 
 def run_PseudoLabelling_app():
+    @st.experimental_singleton
+    def my_funcion():
+        return 42
+
     @st.cache_data  # Lưu cache để tránh load lại dữ liệu mỗi lần chạy lại Streamlit
     def get_sampled_pixels(images, sample_size=100_000):
         return np.random.choice(images.flatten(), sample_size, replace=False)
@@ -315,23 +319,23 @@ def run_PseudoLabelling_app():
                         # mlflow.log_metric("test_percent", test_percent)
                         # mlflow.log_metric("train_percent", train_percent)
                         # mlflow.log_metric("val_percent", val_percent)
-                        with result_placeholder:
+                        # with result_placeholder:
                         # Hiển thị kết quả
-                            st.write(f"📊 **Tỷ lệ phân chia**: Test={test_percent:.0f}%, Train={train_percent:.0f}%, Val={val_percent:.0f}%")
-                            st.write("✅ Dữ liệu đã được xử lý và chia tách.")
-                            st.write(f"🔹 Kích thước tập huấn luyện ban đầu: `{X_train.shape}`")
-                            st.write(f"🔹 Kích thước tập kiểm tra: `{X_test.shape}`")
-                            st.write(f"🔹 Kích thước tập validation: `{X_val.shape}`")
+                        st.write(f"📊 **Tỷ lệ phân chia**: Test={test_percent:.0f}%, Train={train_percent:.0f}%, Val={val_percent:.0f}%")
+                        st.write("✅ Dữ liệu đã được xử lý và chia tách.")
+                        st.write(f"🔹 Kích thước tập huấn luyện ban đầu: `{X_train.shape}`")
+                        st.write(f"🔹 Kích thước tập kiểm tra: `{X_test.shape}`")
+                        st.write(f"🔹 Kích thước tập validation: `{X_val.shape}`")
 
-                            # Tạo biểu đồ số lượng dữ liệu của mỗi nhãn trong tập train
-                            unique_labels, counts = np.unique(y_train, return_counts=True)
-                            fig, ax = plt.subplots()
-                            ax.bar(unique_labels, counts)
-                            ax.set_xlabel('Nhãn')
-                            ax.set_ylabel('Số lượng')
-                            ax.set_title('Phân phối số lượng dữ liệu trong tập train')
-                            ax.set_xticks(unique_labels)
-                            st.pyplot(fig)
+                        # Tạo biểu đồ số lượng dữ liệu của mỗi nhãn trong tập train
+                        unique_labels, counts = np.unique(y_train, return_counts=True)
+                        fig, ax = plt.subplots()
+                        ax.bar(unique_labels, counts)
+                        ax.set_xlabel('Nhãn')
+                        ax.set_ylabel('Số lượng')
+                        ax.set_title('Phân phối số lượng dữ liệu trong tập train')
+                        ax.set_xticks(unique_labels)
+                        st.pyplot(fig)
                         
             else:
                 st.error("🚨 Dữ liệu chưa được nạp. Hãy đảm bảo `train_images`, `train_labels` và `test_images` đã được tải trước khi chạy.")
