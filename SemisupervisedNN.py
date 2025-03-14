@@ -253,14 +253,6 @@ def run_PseudoLabelling_app():
 
                 # Cho phép người dùng chọn tỷ lệ validation và test
                 test_size = st.slider("🔹 Chọn % tỷ lệ tập test", min_value=10, max_value=50, value=20, step=1) / 100
-                
-                # Tạo các biến để lưu dữ liệu
-                X_train = []
-                X_val = []
-                X_test = []
-                y_train = []
-                y_val = []
-                y_test = []
 
                 # Tạo vùng trống để hiển thị kết quả
                 result_placeholder = st.empty()
@@ -303,13 +295,6 @@ def run_PseudoLabelling_app():
                         st.session_state["X_test"] = X_test_data
                         st.session_state["y_test"] = y_test_data
 
-                        # Cập nhật dữ liệu
-                        X_train = X_train_initial
-                        X_val = X_val_data
-                        X_test  = X_test_data
-                        y_train = y_train_initial
-                        y_val = y_val_data
-                        y_test  = y_test_data
                         st.session_state.show_training_options = True
                         
                         # # Ghi log cho quá trình phân chia dữ liệu
@@ -688,7 +673,7 @@ def run_PseudoLabelling_app():
 if __name__ == "__main__":
     run_PseudoLabelling_app()
     # st.write(f"MLflow Tracking URI: {mlflow.get_tracking_uri()}")
-    # print("🎯 Kiểm tra trên DagsHub: https://dagshub.com/Dung2204/MINST.mlflow/")
+    # print("🎯 Kiểm tra trên DagsHub: https://dagshub.com/quangdinh/HMVPYTHON.mlflow/")
     # # # cd "C:\Users\Dell\OneDrive\Pictures\Documents\Code\python\OpenCV\HMVPYTHON\App"
     # ClassificationMinst.
     
