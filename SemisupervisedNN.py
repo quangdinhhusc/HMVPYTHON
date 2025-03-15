@@ -186,7 +186,10 @@ def learning_model():
                 model.compile(optimizer=opt, loss=loss_fn, metrics=["accuracy"])
 
                 start_time = time.time()
-                history = model.fit(X_k_train, y_k_train, epochs=epochs, validation_data=(X_k_val, y_k_val), verbose=0)
+                try:
+                    history = model.fit(X_k_train, y_k_train, epochs=epochs, validation_data=(X_k_val, y_k_val), verbose=0)
+                except Exception as e:
+                    st.error(f"Lỗi huấn luyện mô hình: {e}")
 
                 elapsed_time = time.time() - start_time
                 accuracies.append(history.history["val_accuracy"][-1])
