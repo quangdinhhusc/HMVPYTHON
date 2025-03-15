@@ -306,7 +306,7 @@ def run_PseudoLabelling_app():
                 '''
             )
             # image = Image.open(r'C:\Users\Dell\OneDrive\Pictures\Documents\Code\python\OpenCV\HMVPYTHON\App\image.png')
-
+            X_Information, y_Information = load_mnist_data()
             # Gắn ảnh vào Streamlit và chỉnh kích thước
             # st.image(image, caption='Mô tả ảnh', width=600) 
             # Đặc điểm của bộ dữ liệu
@@ -319,41 +319,37 @@ def run_PseudoLabelling_app():
                 - **Dữ liệu nhãn:** Mỗi ảnh đi kèm với một nhãn số từ 0 đến 9  
                 '''
             )
-            # st.write(f"🔍 Số lượng ảnh huấn luyện: `{train_images.shape[0]}`")
-            # st.write(f"🔍 Số lượng ảnh kiểm tra: `{test_images.shape[0]}`")
+            st.write(f"🔍 Số lượng ảnh huấn luyện: `{X.shape[0]}`")
+            st.write(f"🔍 Số lượng ảnh kiểm tra: `{y.shape[0]}`")
 
         with st.expander("**Hiển thị số lượng mẫu của từng chữ số từ 0 đến 9 trong tập huấn luyện**", expanded=True):
-            # label_counts = pd.Series(train_labels).value_counts().sort_index()
+            label_counts = pd.Series(y_Information).value_counts().sort_index()
 
             # # Hiển thị biểu đồ cột
             st.subheader("📊 Biểu đồ số lượng mẫu của từng chữ số")
-            # st.bar_chart(label_counts)
+            st.bar_chart(label_counts)
 
-            # # Hiển thị bảng dữ liệu dưới biểu đồ
-            # st.subheader("📋 Số lượng mẫu cho từng chữ số")
-            # df_counts = pd.DataFrame({"Chữ số": label_counts.index, "Số lượng mẫu": label_counts.values})
-            # st.dataframe(df_counts)
+            # Hiển thị bảng dữ liệu dưới biểu đồ
+            st.subheader("📋 Số lượng mẫu cho từng chữ số")
+            df_counts = pd.DataFrame({"Chữ số": label_counts.index, "Số lượng mẫu": label_counts.values})
+            st.dataframe(df_counts)
 
 
-        #     st.subheader("Chọn ngẫu nhiên 10 ảnh từ tập huấn luyện để hiển thị")
-        #     num_images = 10
-        #     random_indices = random.sample(range(len(train_images)), num_images)
-        #     fig, axes = plt.subplots(1, num_images, figsize=(10, 5))
+            st.subheader("Chọn ngẫu nhiên 10 ảnh từ tập huấn luyện để hiển thị")
+            num_images = 10
+            random_indices = random.sample(range(len(y_Information)), num_images)
+            fig, axes = plt.subplots(1, num_images, figsize=(10, 5))
 
-        #     for ax, idx in zip(axes, random_indices):
-        #         ax.imshow(train_images[idx], cmap='gray')
-        #         ax.axis("off")
-        #         ax.set_title(f"Label: {train_labels[idx]}")
+            for ax, idx in zip(axes, random_indices):
+                ax.imshow(y_Information[idx], cmap='gray')
+                ax.axis("off")
+                ax.set_title(f"Label: {y_Information[idx]}")
 
-        #     st.pyplot(fig)
-        # with st.expander("**Kiểm tra hình dạng của tập dữ liệu**", expanded=True):    
-        #     # Kiểm tra hình dạng của tập dữ liệu
-        #     st.write("🔍 Hình dạng tập huấn luyện:", train_images.shape)
-        #     st.write("🔍 Hình dạng tập kiểm tra:", test_images.shape)
-        #     st.write("**Chuẩn hóa dữ liệu (đưa giá trị pixel về khoảng 0-1)**")
-        #     # Chuẩn hóa dữ liệu
-        #     train_images = train_images.astype("float32") / 255.0
-        #     test_images = test_images.astype("float32") / 255.0
+            st.pyplot(fig)
+        with st.expander("**Kiểm tra hình dạng của tập dữ liệu**", expanded=True):    
+            # Kiểm tra hình dạng của tập dữ liệu
+            st.write("🔍 Hình dạng tập huấn luyện:", X_Information.shape)
+            st.write("**Chuẩn hóa dữ liệu (đưa giá trị pixel về khoảng 0-1)**")
 
 
 
