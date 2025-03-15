@@ -135,9 +135,9 @@ def learning_model():
     y_val = st.session_state["y_val"]
     y_test = st.session_state["y_test"]
 
-    X_train = X_train.astype('float32') / 255.0
-    X_val = X_val.astype('float32') / 255.0
-    X_test = X_test.astype('float32') / 255.0
+    # X_train = X_train.astype('float32') / 255.0
+    # X_val = X_val.astype('float32') / 255.0
+    # X_test = X_test.astype('float32') / 255.0
 
     
     k_folds = st.slider("Số fold cho Cross-Validation:", 3, 10, 5)
@@ -191,10 +191,9 @@ def learning_model():
                 model.compile(optimizer=opt, loss=loss_fn, metrics=["accuracy"])
 
                 start_time = time.time()
-                try:
-                    history = model.fit(X_k_train, y_k_train, epochs=epochs, validation_data=(X_k_val, y_k_val), verbose=0)
-                except Exception as e:
-                    st.error(f"Lỗi huấn luyện mô hình: {e}")
+                
+                history = model.fit(X_k_train, y_k_train, epochs=epochs, validation_data=(X_k_val, y_k_val), verbose=0)
+                
 
                 elapsed_time = time.time() - start_time
                 accuracies.append(history.history["val_accuracy"][-1])
