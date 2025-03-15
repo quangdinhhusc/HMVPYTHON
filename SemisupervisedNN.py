@@ -153,7 +153,10 @@ def learning_model():
 
                 mlflow.log_params({"num_layers": num_layers, "num_neurons": num_neurons, "activation": activation, "optimizer": optimizer, "k_folds": num_k_folds})
                 
-                cnn = keras.Sequential([layers.Input(shape=(X_k_train.shape[1],))] + [layers.Dense(num_neurons, activation=activation) for _ in range(num_layers)] + [layers.Dense(10, activation="softmax")])
+                cnn = keras.Sequential([layers.Input(shape=(X_train.shape[1],))] 
+                                       + [layers.Dense(num_neurons, activation=activation) for _ in range(num_layers)] 
+                                       + [layers.Dense(10, activation="softmax")])
+                
                 cnn.compile(optimizer=optimizer, loss=loss_fn, metrics=["accuracy"])
 
                 kf = StratifiedKFold(n_splits=num_k_folds, shuffle=True, random_state=42)
