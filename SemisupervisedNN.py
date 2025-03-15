@@ -311,7 +311,7 @@ def run_PseudoLabelling_app():
                         st.write(f"🔹 Kích thước tập chưa gán nhãn: `{X_val_data.shape}`")
 
                         # Tạo biểu đồ số lượng dữ liệu của mỗi nhãn trong tập train
-                        unique_labels, counts = np.unique(y_train, return_counts=True)
+                        unique_labels, counts = np.unique(y_train_data, return_counts=True)
                         fig, ax = plt.subplots()
                         ax.bar(unique_labels, counts)
                         ax.set_xlabel('Nhãn')
