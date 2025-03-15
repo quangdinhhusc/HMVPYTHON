@@ -75,7 +75,8 @@ def data_preparation():
     if st.button("Xác Nhận & Lưu Dữ Liệu"):
         
         # Phân chia dữ liệu
-        X_train_data, X_test_data, y_train_data, y_test_data = train_test_split(X, y, test_size=test_size, random_state=42)
+        X_selected, _, y_selected, _ = train_test_split(X, y, train_size=num_samples, stratify=y, random_state=42)
+        X_train_data, X_test_data, y_train_data, y_test_data = train_test_split(X_selected, y_selected, test_size=test_size/100, stratify=y_selected, random_state=42)
         
         # Lấy 1% số lượng ảnh cho mỗi class (0-9) để làm tập dữ liệu train ban đầu
         indices = []
