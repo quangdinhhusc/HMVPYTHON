@@ -26,7 +26,7 @@ def preprocess_canvas_image(canvas_result):
         return img.reshape(1, -1)  # Chuyển thành vector 1D
     return None
 
-def run_Semisupervised_app():
+def run_PseudoLabelling_app():
 
     # Cấu hình Streamlit    
     # st.set_page_config(page_title="Phân loại ảnh", layout="wide")
@@ -620,4 +620,4 @@ def run_Semisupervised_app():
 
 
 if __name__ == "__main__":
-    run_Semisupervised_app()
+    run_PseudoLabelling_app()
