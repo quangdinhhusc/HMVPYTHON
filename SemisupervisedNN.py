@@ -341,7 +341,7 @@ def run_PseudoLabelling_app():
             fig, axes = plt.subplots(1, num_images, figsize=(10, 5))
 
             for ax, idx in zip(axes, random_indices):
-                ax.imshow(y_Information[idx], cmap='gray')
+                ax.imshow(X_Information[idx], cmap='gray')
                 ax.axis("off")
                 ax.set_title(f"Label: {y_Information[idx]}")
 
