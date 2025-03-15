@@ -134,6 +134,12 @@ def learning_model():
     y_train = st.session_state["y_train"]
     y_val = st.session_state["y_val"]
     y_test = st.session_state["y_test"]
+
+    # Chuẩn Hóa dữ liệu
+    X_train = X_train / 255.0
+    X_val = X_val / 255.0
+    X_test = X_test / 255.0
+
     
     k_folds = st.slider("Số fold cho Cross-Validation:", 3, 10, 5)
     num_layers = st.slider("Số lớp ẩn:", 1, 5, 2)
