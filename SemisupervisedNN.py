@@ -67,7 +67,7 @@ def data_preparation():
     train_size = 1
     indices_size = 100 - test_size - train_size
 
-    st.write(f"📌 **Tỷ lệ phân chia:** Test={test_size}%, ndices={indices_size}%, Train={train_size}%")
+    st.write(f"📌 **Tỷ lệ phân chia:** Test={test_size}%, Indices={indices_size}%, Train={train_size}%")
 
     # Tạo vùng trống để hiển thị kết quả
     result_placeholder = st.empty()
@@ -135,10 +135,9 @@ def learning_model():
     y_val = st.session_state["y_val"]
     y_test = st.session_state["y_test"]
 
-    # Chuẩn Hóa dữ liệu
-    X_train = X_train / 255.0
-    X_val = X_val / 255.0
-    X_test = X_test / 255.0
+    X_train = X_train.astype('float32') / 255.0
+    X_val = X_val.astype('float32') / 255.0
+    X_test = X_test.astype('float32') / 255.0
 
     
     k_folds = st.slider("Số fold cho Cross-Validation:", 3, 10, 5)
