@@ -346,6 +346,8 @@ def run_PseudoLabelling_app():
 
                 num_neurons = st.selectbox("Số neuron mỗi lớp:", [32, 64, 128, 256], index=0)
 
+                num_iterations = st.slider("Số lần lặp:", 1, 10, 5)
+
                 optimizer = st.selectbox("Chọn hàm tối ưu", ["adam", "sgd", "lbfgs"])
 
                 loss_fn = "sparse_categorical_crossentropy"
@@ -419,6 +421,9 @@ def run_PseudoLabelling_app():
                                     y_train = y_new
                                     X_val = X_val[pseudo_labels == -1]
                                     y_val = y_val[pseudo_labels == -1]
+
+                                    if num_iterations == iteration_count:
+                                        break
                                     
                                 elapsed_time = time.time() - start_time
 
