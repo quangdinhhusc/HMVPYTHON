@@ -151,7 +151,7 @@ def learning_model():
         with st.spinner("🔄 Đang huấn luyện..."):
             with mlflow.start_run():
 
-                mlflow.log_params({"num_layers": num_layers, "num_neurons": num_neurons, "activation": activation, "optimizer": optimizer, "k_folds": k_folds})
+                mlflow.log_params({"num_layers": num_layers, "num_neurons": num_neurons, "activation": activation, "optimizer": optimizer, "k_folds": num_k_folds})
                 
                 cnn = keras.Sequential([layers.Input(shape=(X_k_train.shape[1],))] + [layers.Dense(num_neurons, activation=activation) for _ in range(num_layers)] + [layers.Dense(10, activation="softmax")])
                 cnn.compile(optimizer=optimizer, loss=loss_fn, metrics=["accuracy"])
