@@ -28,8 +28,8 @@ def preprocess_canvas_image(canvas_result):
 
 
 def load_mnist_data():
-    X = np.load("data/X_test.npy")
-    y = np.load("data/y_test.npy")
+    X = np.load("data/X.npy")
+    y = np.load("data/y.npy")
     return X, y
 
 
