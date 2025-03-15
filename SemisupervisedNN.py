@@ -171,13 +171,9 @@ def learning_model():
                 X_k_train, X_k_val = X_train[train_idx], X_train[val_idx]
                 y_k_train, y_k_val = y_train[train_idx], y_train[val_idx]
 
-                model = keras.Sequential([
-                    layers.Input(shape=(X_k_train.shape[1],))
-                ] + [
-                    layers.Dense(num_neurons, activation=activation) for _ in range(num_layers)
-                ] + [
-                    layers.Dense(10, activation="softmax")
-                ])
+                model = keras.Sequential([layers.Input(shape=(X_k_train.shape[1],))
+                ] + [layers.Dense(num_neurons, activation=activation) for _ in range(num_layers)
+                ] + [layers.Dense(10, activation="softmax")])
 
                 # Chọn optimizer với learning rate
                 if optimizer == "adam":
