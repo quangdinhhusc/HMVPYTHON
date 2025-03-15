@@ -234,12 +234,6 @@ def learning_model():
 
             mlflow.end_run()
 
-            # Lưu mô hình và hiển thị kết quả
-            st.session_state["selected_model_type"] = "Neural Network"
-            st.session_state["trained_model"] = cnn
-            st.success(f"✅ Huấn luyện hoàn tất trong {elapsed_time:.2f} giây!")
-            st.write(f"📊 **Độ chính xác trên tập test:** {test_accuracy:.4f}")
-
             # Vẽ biểu đồ Loss và Accuracy
             st.markdown("#### 📈 Biểu đồ Accuracy và Loss")
             fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 4))
@@ -258,6 +252,12 @@ def learning_model():
             ax2.legend()
 
             st.pyplot(fig)
+
+            # Lưu mô hình và hiển thị kết quả
+            st.session_state["selected_model_type"] = "Neural Network"
+            st.session_state["trained_model"] = cnn
+            st.success(f"✅ Huấn luyện hoàn tất trong {elapsed_time:.2f} giây!")
+            st.write(f"📊 **Độ chính xác trên tập test:** {test_accuracy:.4f}")
 
 def run_PseudoLabelling_app():
 
