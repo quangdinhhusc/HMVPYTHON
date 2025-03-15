@@ -190,6 +190,7 @@ def learning_model():
                 model.compile(optimizer=opt, loss=loss_fn, metrics=["accuracy"])
 
                 start_time = time.time()
+                
                 history = model.fit(X_k_train, y_k_train, epochs=epochs, validation_data=(X_k_val, y_k_val), verbose=0)
 
                 elapsed_time = time.time() - start_time
