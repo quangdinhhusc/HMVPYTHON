@@ -268,12 +268,12 @@ def learning_model():
                 "elapsed_time": elapsed_time
             })
 
-            # Normalize X_test
-            X_test = X_test.astype('float32') / 255.0
+            # # Normalize X_test
+            # X_test = X_test.astype('float32') / 255.0
 
-            # Đánh giá mô hình trên tập test
-            test_loss, test_accuracy = model.evaluate(X_test, y_test, verbose=0)
-            mlflow.log_metrics({"test_accuracy": test_accuracy, "test_loss": test_loss})
+            # # Đánh giá mô hình trên tập test
+            # test_loss, test_accuracy = model.evaluate(X_test, y_test, verbose=0)
+            # mlflow.log_metrics({"test_accuracy": test_accuracy, "test_loss": test_loss})
 
             mlflow.end_run()
             st.session_state["trained_model"] = model
@@ -284,7 +284,7 @@ def learning_model():
 
             st.success(f"✅ Huấn luyện hoàn tất!")
             st.write(f"📊 **Độ chính xác trung bình trên tập validation:** {avg_val_accuracy:.4f}")
-            st.write(f"📊 **Độ chính xác trên tập test:** {test_accuracy:.4f}")
+            # st.write(f"📊 **Độ chính xác trên tập test:** {test_accuracy:.4f}")
             st.success(f"✅ Đã log dữ liệu cho **{st.session_state['run_name']}** trong MLflow (Neural_Network)! 🚀")
             st.markdown(f"🔗 [Truy cập MLflow UI]({st.session_state['mlflow_url']})")
 
