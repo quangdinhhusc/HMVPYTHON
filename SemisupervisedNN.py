@@ -563,46 +563,46 @@ def run_PseudoLabelling_app():
         with st.expander("**Dự đoán kết quả**", expanded=True):
             st.write("**Dự đoán trên ảnh do người dùng tải lên**")
 
-            # Kiểm tra xem mô hình đã được huấn luyện và lưu kết quả chưa
-            if "selected_model_type" not in st.session_state or "trained_model" not in st.session_state:
+            # Kiểm tra xem mô hình đã được huấn luyện và lưu chưa
+            if "trained_model" not in st.session_state:
                 st.warning("⚠️ Chưa có mô hình nào được huấn luyện. Vui lòng huấn luyện mô hình trước khi dự đoán.")
             else:
-                best_model_name = st.session_state.selected_model_type
-                best_model = st.session_state.trained_model
-
-                st.write(f"Mô hình đang sử dụng: `{best_model_name}`")
-                # st.write(f"✅ Độ chính xác trên tập kiểm tra: `{st.session_state.get('test_accuracy', 'N/A'):.4f}`")
-
-                # Lấy các tham số từ session_state để hiển thị
+                best_model = st.session_state["trained_model"]
+                st.write(f"Mô hình đang sử dụng: Mô hình đã huấn luyện từ `learning_model()`")
 
                 # Cho phép người dùng tải lên ảnh
-                uploaded_file = st.file_uploader("📂 Chọn một ảnh để dự đoán", type=["png", "jpg", "jpeg"])
+                uploaded_file = st.file_uploader("📂 Chọn một ảnh để dự đoán (28x28)", type=["png", "jpg", "jpeg"])
 
                 if uploaded_file is not None:
-                    # Đọc ảnh từ tệp tải lên
+                    # Đọc và tiền xử lý ảnh
                     image = Image.open(uploaded_file).convert("L")  # Chuyển sang ảnh xám
                     image = np.array(image)
 
-                    # Kiểm tra xem dữ liệu huấn luyện đã lưu trong session_state hay chưa
-                    if "X_train" in st.session_state:
-                        X_train_shape = st.session_state["X_train"].shape[1]  # Lấy số đặc trưng từ tập huấn luyện
+                    # Resize ảnh về kích thước 28x28
+                    image = cv2.resize(image, (28, 28))
 
-                        # Resize ảnh về kích thước phù hợp với mô hình đã huấn luyện
-                        image = cv2.resize(image, (28, 28))  # Cập nhật kích thước theo dữ liệu ban đầu
-                        image = image.reshape(1, -1)  # Chuyển về vector 1 chiều
+                    # Phẳng hóa và chuẩn hóa giống dữ liệu huấn luyện
+                    image_flat = image.reshape(1, 28 * 28).astype('float32') / 255.0
 
-                        # Đảm bảo số chiều đúng với dữ liệu huấn luyện
-                        if image.shape[1] == X_train_shape:
-                            prediction = best_model.predict(image)[0]
+                    # Dự đoán với mô hình đã lưu
+                    try:
+                        prediction = best_model.predict(image_flat, verbose=0)[0]
+                        predicted_class = np.argmax(prediction)
+                        confidence = np.max(prediction)
 
-                            # Hiển thị ảnh và kết quả dự đoán
-                            st.image(uploaded_file, caption="📷 Ảnh bạn đã tải lên", use_container_width=True)
-                            
-                            st.success(f"Dự đoán: {np.argmax(prediction)} với xác suất {np.max(prediction):.2f}")
-                        else:
-                            st.error(f"Ảnh không có số đặc trưng đúng ({image.shape[1]} thay vì {X_train_shape}). Hãy kiểm tra lại dữ liệu đầu vào!")
-                    else:
-                        st.error("Dữ liệu huấn luyện không tìm thấy. Hãy huấn luyện mô hình trước khi dự đoán.")
+                        # Hiển thị ảnh và kết quả dự đoán
+                        st.image(uploaded_file, caption="📷 Ảnh bạn đã tải lên", width=200)
+                        st.success(f"Dự đoán: **{predicted_class}** với độ tin cậy: **{confidence:.4f}**")
+
+                        # (Tùy chọn) Hiển thị phân phối xác suất
+                        st.write("Phân phối xác suất:")
+                        st.bar_chart(prediction)
+
+                    except Exception as e:
+                        st.error(f"Lỗi khi dự đoán: {str(e)}. Hãy kiểm tra định dạng ảnh và mô hình!")
+
+                else:
+                    st.info("Vui lòng tải lên một ảnh để dự đoán.")
 
     with tab_demo_2:   
         with st.expander("**Dự đoán kết quả**", expanded=True):
