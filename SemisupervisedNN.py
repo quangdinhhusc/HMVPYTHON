@@ -568,7 +568,7 @@ def run_PseudoLabelling_app():
                 st.warning("⚠️ Chưa có mô hình nào được huấn luyện. Vui lòng huấn luyện mô hình trước khi dự đoán.")
             else:
                 best_model = st.session_state["trained_model"]
-                st.write(f"Mô hình đang sử dụng: Mô hình `Neural Network`")
+                st.write(f"Mô hình đang sử dụng: Mô hình đã huấn luyện từ `learning_model()`")
 
                 # Cho phép người dùng tải lên ảnh
                 uploaded_file = st.file_uploader("📂 Chọn một ảnh để dự đoán (28x28)", type=["png", "jpg", "jpeg"])
@@ -606,28 +606,30 @@ def run_PseudoLabelling_app():
 
     with tab_demo_2:   
         with st.expander("**Dự đoán kết quả**", expanded=True):
-            st.write("**Dự đoán trên ảnh do người dùng vẽ**")
+            st.write("**Dự đoán trên ảnh do người dùng tải lên**")
 
-            # Kiểm tra xem mô hình đã được huấn luyện chưa
-            if "trained_model" not in st.session_state:
+            # Kiểm tra xem mô hình đã được huấn luyện và lưu kết quả chưa
+            if "selected_model_type" not in st.session_state or "trained_model" not in st.session_state:
                 st.warning("⚠️ Chưa có mô hình nào được huấn luyện. Vui lòng huấn luyện mô hình trước khi dự đoán.")
             else:
-                best_model = st.session_state["trained_model"]
-                st.write("Mô hình đang sử dụng: Mô hình `Neural Network`")
+                best_model_name = st.session_state.selected_model_type
+                best_model = st.session_state.trained_model
 
-                # Khởi tạo key cho canvas nếu chưa có
+                st.write(f"Mô hình đang sử dụng: `{best_model_name}`")
+                # st.write(f"✅ Độ chính xác trên tập kiểm tra: `{st.session_state.get('test_accuracy', 'N/A'):.4f}`")
+
+                # 🆕 Cập nhật key cho canvas khi nhấn "Tải lại"
                 if "key_value" not in st.session_state:
                     st.session_state.key_value = str(random.randint(0, 1000000))
 
-                # Nút tải lại canvas
                 if st.button("🔄 Tải lại"):
                     try:
                         st.session_state.key_value = str(random.randint(0, 1000000))
-                        st.write("Canvas đã được làm mới!")
                     except Exception as e:
                         st.error(f"Cập nhật key không thành công: {str(e)}")
+                        st.stop()
 
-                # Vẽ trên canvas
+                # ✍️ Vẽ dữ liệu
                 canvas_result = st_canvas(
                     fill_color="black",
                     stroke_width=10,
@@ -638,32 +640,20 @@ def run_PseudoLabelling_app():
                     drawing_mode="freedraw",
                     key=st.session_state.key_value,
                     update_streamlit=True
-                )
+                ) 
 
-                # Nút dự đoán
                 if st.button("Dự đoán"):
                     img = preprocess_canvas_image(canvas_result)
 
                     if img is not None:
-                        # Dự đoán với mô hình
-                        try:
-                            prediction = best_model.predict(img, verbose=0)[0]
-                            predicted_class = np.argmax(prediction)
-                            confidence = np.max(prediction)
+                        X_train = st.session_state["X_train"]
+                        # Hiển thị ảnh sau xử lý
+                        st.image(Image.fromarray((img.reshape(28, 28) * 255).astype(np.uint8)), caption="Ảnh sau xử lý", width=100)
 
-                            # Hiển thị ảnh sau xử lý
-                            processed_img = (img.reshape(28, 28) * 255).astype(np.uint8)
-                            st.image(processed_img, caption="Ảnh sau xử lý", width=100)
+                        # Dự đoán
+                        prediction = best_model.predict(img)[0]
 
-                            # Hiển thị kết quả
-                            st.success(f"Dự đoán: **{predicted_class}** với độ tin cậy: **{confidence:.4f}**")
-
-                            # (Tùy chọn) Hiển thị phân phối xác suất
-                            st.write("Phân phối xác suất:")
-                            st.bar_chart(prediction)
-
-                        except Exception as e:
-                            st.error(f"Lỗi khi dự đoán: {str(e)}. Hãy kiểm tra mô hình và dữ liệu!")
+                        st.success(f"Dự đoán: {np.argmax(prediction)} với xác suất {np.max(prediction)*100:.2f}%")
                     else:
                         st.error("⚠️ Hãy vẽ một số trước khi bấm Dự đoán!")
 
