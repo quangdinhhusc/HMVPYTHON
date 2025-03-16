@@ -380,7 +380,8 @@ def learning_model():
 
             mlflow.log_metrics({"elapsed_time": elapsed_time})
             mlflow.end_run()
-            
+
+            # Gán mô hình đã huấn luyện vào session_state
             st.session_state["trained_model"] = model
 
             st.success(f"✅ Quá trình huấn luyện và gán nhãn giả hoàn tất!")
