@@ -285,8 +285,7 @@ def learning_model():
             st.success(f"✅ Huấn luyện hoàn tất!")
             st.write(f"📊 **Độ chính xác trung bình trên tập validation:** {avg_val_accuracy:.4f}")
             # st.write(f"📊 **Độ chính xác trên tập test:** {test_accuracy:.4f}")
-            st.success(f"✅ Đã log dữ liệu cho **{st.session_state['run_name']}** trong MLflow (Neural_Network)! 🚀")
-            st.markdown(f"🔗 [Truy cập MLflow UI]({st.session_state['mlflow_url']})")
+            st.write(f"⏱️ **Thời gian huấn luyện trung bình:** {elapsed_time:.2f} giây")
 
 
 def run_PseudoLabelling_app():
