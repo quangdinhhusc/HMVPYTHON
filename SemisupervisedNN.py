@@ -548,97 +548,93 @@ def run_PseudoLabelling_app():
             st.write("**Dự đoán trên ảnh do người dùng tải lên**")
 
             # Kiểm tra xem mô hình đã được huấn luyện và lưu kết quả chưa
-            if "trained_model" not in st.session_state:
-                st.warning("⚠️ Chưa có mô hình nào được huấn luyện. Vui lòng huấn luyện mô hình trước khi dự đoán.")
-            else:
-                best_model = st.session_state.trained_model
+        
+            best_model = st.session_state.trained_model
 
-                st.write(f"Mô hình đang sử dụng: Neural Network")
-                # st.write(f"✅ Độ chính xác trên tập kiểm tra: `{st.session_state.get('test_accuracy', 'N/A'):.4f}`")
+            st.write(f"Mô hình đang sử dụng: Neural Network")
+            # st.write(f"✅ Độ chính xác trên tập kiểm tra: `{st.session_state.get('test_accuracy', 'N/A'):.4f}`")
 
-                # Lấy các tham số từ session_state để hiển thị
+            # Lấy các tham số từ session_state để hiển thị
 
-                # Cho phép người dùng tải lên ảnh
-                uploaded_file = st.file_uploader("📂 Chọn một ảnh để dự đoán", type=["png", "jpg", "jpeg"])
+            # Cho phép người dùng tải lên ảnh
+            uploaded_file = st.file_uploader("📂 Chọn một ảnh để dự đoán", type=["png", "jpg", "jpeg"])
 
-                if uploaded_file is not None:
-                    # Đọc ảnh từ tệp tải lên
-                    image = Image.open(uploaded_file).convert("L")  # Chuyển sang ảnh xám
-                    image = np.array(image)
+            if uploaded_file is not None:
+                # Đọc ảnh từ tệp tải lên
+                image = Image.open(uploaded_file).convert("L")  # Chuyển sang ảnh xám
+                image = np.array(image)
 
-                    # Kiểm tra xem dữ liệu huấn luyện đã lưu trong session_state hay chưa
-                    if "X_train" in st.session_state:
-                        X_train_shape = st.session_state["X_train"].shape[1]  # Lấy số đặc trưng từ tập huấn luyện
+                # Kiểm tra xem dữ liệu huấn luyện đã lưu trong session_state hay chưa
+                if "X_train" in st.session_state:
+                    X_train_shape = st.session_state["X_train"].shape[1]  # Lấy số đặc trưng từ tập huấn luyện
 
-                        # Resize ảnh về kích thước phù hợp với mô hình đã huấn luyện
-                        image = cv2.resize(image, (28, 28))  # Cập nhật kích thước theo dữ liệu ban đầu
-                        image = image.reshape(1, -1)  # Chuyển về vector 1 chiều
+                    # Resize ảnh về kích thước phù hợp với mô hình đã huấn luyện
+                    image = cv2.resize(image, (28, 28))  # Cập nhật kích thước theo dữ liệu ban đầu
+                    image = image.reshape(1, -1)  # Chuyển về vector 1 chiều
 
-                        # Đảm bảo số chiều đúng với dữ liệu huấn luyện
-                        if image.shape[1] == X_train_shape:
-                            prediction = best_model.predict(image)[0]
+                    # Đảm bảo số chiều đúng với dữ liệu huấn luyện
+                    if image.shape[1] == X_train_shape:
+                        prediction = best_model.predict(image)[0]
 
-                            # Hiển thị ảnh và kết quả dự đoán
-                            st.image(uploaded_file, caption="📷 Ảnh bạn đã tải lên", use_container_width=True)
-                            
-                            st.success(f"Dự đoán: {np.argmax(prediction)} với xác suất {np.max(prediction):.2f}")
-                        else:
-                            st.error(f"Ảnh không có số đặc trưng đúng ({image.shape[1]} thay vì {X_train_shape}). Hãy kiểm tra lại dữ liệu đầu vào!")
+                        # Hiển thị ảnh và kết quả dự đoán
+                        st.image(uploaded_file, caption="📷 Ảnh bạn đã tải lên", use_container_width=True)
+                        
+                        st.success(f"Dự đoán: {np.argmax(prediction)} với xác suất {np.max(prediction):.2f}")
                     else:
-                        st.error("Dữ liệu huấn luyện không tìm thấy. Hãy huấn luyện mô hình trước khi dự đoán.")
+                        st.error(f"Ảnh không có số đặc trưng đúng ({image.shape[1]} thay vì {X_train_shape}). Hãy kiểm tra lại dữ liệu đầu vào!")
+                else:
+                    st.error("Dữ liệu huấn luyện không tìm thấy. Hãy huấn luyện mô hình trước khi dự đoán.")
 
     with tab_demo_2:   
         with st.expander("**Dự đoán kết quả**", expanded=True):
             st.write("**Dự đoán trên ảnh do người dùng tải lên**")
 
             # Kiểm tra xem mô hình đã được huấn luyện và lưu kết quả chưa
-            if "trained_model" not in st.session_state:
-                st.warning("⚠️ Chưa có mô hình nào được huấn luyện. Vui lòng huấn luyện mô hình trước khi dự đoán.")
-            else:
-                
-                best_model = st.session_state.trained_model
+        
+            
+            best_model = st.session_state.trained_model
 
-                st.write(f"Mô hình đang sử dụng: Neural Network`")
-                # st.write(f"✅ Độ chính xác trên tập kiểm tra: `{st.session_state.get('test_accuracy', 'N/A'):.4f}`")
+            st.write(f"Mô hình đang sử dụng: Neural Network`")
+            # st.write(f"✅ Độ chính xác trên tập kiểm tra: `{st.session_state.get('test_accuracy', 'N/A'):.4f}`")
 
-                # 🆕 Cập nhật key cho canvas khi nhấn "Tải lại"
-                if "key_value" not in st.session_state:
+            # 🆕 Cập nhật key cho canvas khi nhấn "Tải lại"
+            if "key_value" not in st.session_state:
+                st.session_state.key_value = str(random.randint(0, 1000000))
+
+            if st.button("🔄 Tải lại"):
+                try:
                     st.session_state.key_value = str(random.randint(0, 1000000))
+                except Exception as e:
+                    st.error(f"Cập nhật key không thành công: {str(e)}")
+                    st.stop()
 
-                if st.button("🔄 Tải lại"):
-                    try:
-                        st.session_state.key_value = str(random.randint(0, 1000000))
-                    except Exception as e:
-                        st.error(f"Cập nhật key không thành công: {str(e)}")
-                        st.stop()
+            # ✍️ Vẽ dữ liệu
+            canvas_result = st_canvas(
+                fill_color="black",
+                stroke_width=10,
+                stroke_color="white",
+                background_color="black",
+                height=150,
+                width=150,
+                drawing_mode="freedraw",
+                key=st.session_state.key_value,
+                update_streamlit=True
+            ) 
 
-                # ✍️ Vẽ dữ liệu
-                canvas_result = st_canvas(
-                    fill_color="black",
-                    stroke_width=10,
-                    stroke_color="white",
-                    background_color="black",
-                    height=150,
-                    width=150,
-                    drawing_mode="freedraw",
-                    key=st.session_state.key_value,
-                    update_streamlit=True
-                ) 
+            if st.button("Dự đoán"):
+                img = preprocess_canvas_image(canvas_result)
 
-                if st.button("Dự đoán"):
-                    img = preprocess_canvas_image(canvas_result)
+                if img is not None:
+                    X_train = st.session_state["X_train"]
+                    # Hiển thị ảnh sau xử lý
+                    st.image(Image.fromarray((img.reshape(28, 28) * 255).astype(np.uint8)), caption="Ảnh sau xử lý", width=100)
 
-                    if img is not None:
-                        X_train = st.session_state["X_train"]
-                        # Hiển thị ảnh sau xử lý
-                        st.image(Image.fromarray((img.reshape(28, 28) * 255).astype(np.uint8)), caption="Ảnh sau xử lý", width=100)
+                    # Dự đoán
+                    prediction = best_model.predict(img)[0]
 
-                        # Dự đoán
-                        prediction = best_model.predict(img)[0]
-
-                        st.success(f"Dự đoán: {np.argmax(prediction)} với xác suất {np.max(prediction)*100:.2f}%")
-                    else:
-                        st.error("⚠️ Hãy vẽ một số trước khi bấm Dự đoán!")
+                    st.success(f"Dự đoán: {np.argmax(prediction)} với xác suất {np.max(prediction)*100:.2f}%")
+                else:
+                    st.error("⚠️ Hãy vẽ một số trước khi bấm Dự đoán!")
 
     with tab_mlflow:
         st.header("Thông tin Huấn luyện & MLflow UI")
