@@ -253,7 +253,7 @@ def learning_model():
     if "X_indices" not in st.session_state:
         st.error("⚠️ Dữ liệu X_indices không tồn tại! Vui lòng kiểm tra bước chuẩn bị dữ liệu.")
         return
-    
+        
     # Lấy dữ liệu từ session_state
     X_train = st.session_state["X_train"]
     X_indices = st.session_state["X_indices"]
@@ -379,7 +379,6 @@ def learning_model():
 
             mlflow.log_metrics({"elapsed_time": elapsed_time})
             mlflow.end_run()
-            st.session_state["selected_model_type"] = "Neural Network" 
             st.session_state["trained_model"] = model
 
             st.success(f"✅ Quá trình huấn luyện và gán nhãn giả hoàn tất!")
