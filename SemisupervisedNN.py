@@ -605,57 +605,59 @@ def run_PseudoLabelling_app():
                     st.info("Vui lòng tải lên một ảnh để dự đoán.")
 
     with tab_demo_2:   
-        with st.expander("**Dự đoán kết quả**", expanded=True):
-            st.write("**Dự đoán trên ảnh do người dùng tải lên**")
+        st.header("✍️ Vẽ số để dự đoán")
 
-            # Kiểm tra xem mô hình đã được huấn luyện và lưu kết quả chưa
-            if "selected_model_type" not in st.session_state or "trained_model" not in st.session_state:
-                st.warning("⚠️ Chưa có mô hình nào được huấn luyện. Vui lòng huấn luyện mô hình trước khi dự đoán.")
+        # 📥 Load mô hình đã huấn luyện
+        if "trained_model" in st.session_state:
+            model = st.session_state["trained_model"]
+            st.success("✅ Đã sử dụng mô hình vừa huấn luyện!")
+        else:
+            st.error("⚠️ Chưa có mô hình! Hãy huấn luyện trước.")
+
+
+        # 🆕 Cập nhật key cho canvas khi nhấn "Tải lại"
+        if "key_value" not in st.session_state:
+            st.session_state.key_value = str(random.randint(0, 1000000))  
+
+        if st.button("🔄 Tải lại nếu không thấy canvas"):
+            st.session_state.key_value = str(random.randint(0, 1000000))  
+
+        # ✍️ Vẽ số
+        canvas_result = st_canvas(
+            fill_color="black",
+            stroke_width=10,
+            stroke_color="white",
+            background_color="black",
+            height=150,
+            width=150,
+            drawing_mode="freedraw",
+            key=st.session_state.key_value,
+            update_streamlit=True
+        )
+
+        if st.button("Dự đoán số"):
+            img = preprocess_canvas_image(canvas_result)
+
+            if img is not None:
+                st.image(Image.fromarray((img.reshape(28, 28) * 255).astype(np.uint8)), caption="Ảnh sau xử lý", width=100)
+
+                # Dự đoán số
+                prediction = model.predict(img)
+                predicted_number = np.argmax(prediction, axis=1)[0]
+                max_confidence = np.max(prediction)
+
+                st.subheader(f"🔢 Dự đoán: {predicted_number}")
+                st.write(f"📊 Mức độ tin cậy: {max_confidence:.2%}")
+
+                # Hiển thị bảng confidence score
+                prob_df = pd.DataFrame(prediction.reshape(1, -1), columns=[str(i) for i in range(10)]).T
+                prob_df.columns = ["Mức độ tin cậy"]
+                st.bar_chart(prob_df)
+
             else:
-                best_model_name = st.session_state.selected_model_type
-                best_model = st.session_state.trained_model
+                st.error("⚠️ Hãy vẽ một số trước khi bấm Dự đoán!")
 
-                st.write(f"Mô hình đang sử dụng: `{best_model_name}`")
-                # st.write(f"✅ Độ chính xác trên tập kiểm tra: `{st.session_state.get('test_accuracy', 'N/A'):.4f}`")
-
-                # 🆕 Cập nhật key cho canvas khi nhấn "Tải lại"
-                if "key_value" not in st.session_state:
-                    st.session_state.key_value = str(random.randint(0, 1000000))
-
-                if st.button("🔄 Tải lại"):
-                    try:
-                        st.session_state.key_value = str(random.randint(0, 1000000))
-                    except Exception as e:
-                        st.error(f"Cập nhật key không thành công: {str(e)}")
-                        st.stop()
-
-                # ✍️ Vẽ dữ liệu
-                canvas_result = st_canvas(
-                    fill_color="black",
-                    stroke_width=10,
-                    stroke_color="white",
-                    background_color="black",
-                    height=150,
-                    width=150,
-                    drawing_mode="freedraw",
-                    key=st.session_state.key_value,
-                    update_streamlit=True
-                ) 
-
-                if st.button("Dự đoán"):
-                    img = preprocess_canvas_image(canvas_result)
-
-                    if img is not None:
-                        X_train = st.session_state["X_train"]
-                        # Hiển thị ảnh sau xử lý
-                        st.image(Image.fromarray((img.reshape(28, 28) * 255).astype(np.uint8)), caption="Ảnh sau xử lý", width=100)
-
-                        # Dự đoán
-                        prediction = best_model.predict(img)[0]
-
-                        st.success(f"Dự đoán: {np.argmax(prediction)} với xác suất {np.max(prediction)*100:.2f}%")
-                    else:
-                        st.error("⚠️ Hãy vẽ một số trước khi bấm Dự đoán!")
+    
 
     with tab_mlflow:
         st.header("Thông tin Huấn luyện & MLflow UI")
