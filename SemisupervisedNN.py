@@ -609,12 +609,13 @@ def run_PseudoLabelling_app():
             st.write("**Dự đoán trên ảnh do người dùng tải lên**")
 
             # Kiểm tra xem mô hình đã được huấn luyện và lưu kết quả chưa
-            if "trained_model" not in st.session_state:
+            if "selected_model_type" not in st.session_state or "trained_model" not in st.session_state:
                 st.warning("⚠️ Chưa có mô hình nào được huấn luyện. Vui lòng huấn luyện mô hình trước khi dự đoán.")
             else:
-                best_model = st.session_state["trained_model"]
-                st.write(f"Mô hình đang sử dụng: Mô hình đã huấn luyện từ `learning_model()`")
+                best_model_name = st.session_state.selected_model_type
+                best_model = st.session_state.trained_model
 
+                st.write(f"Mô hình đang sử dụng: `{best_model_name}`")
                 # st.write(f"✅ Độ chính xác trên tập kiểm tra: `{st.session_state.get('test_accuracy', 'N/A'):.4f}`")
 
                 # 🆕 Cập nhật key cho canvas khi nhấn "Tải lại"
