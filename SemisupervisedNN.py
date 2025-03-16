@@ -172,45 +172,71 @@ def learning_model():
             training_progress = st.progress(0)
             training_status = st.empty()
 
-            for fold_idx, (train_idx, val_idx) in enumerate(kf.split(X_train, y_train)):
-                X_k_train, X_k_val = X_train[train_idx], X_train[val_idx]
-                y_k_train, y_k_val = y_train[train_idx], y_train[val_idx]
+            # for fold_idx, (train_idx, val_idx) in enumerate(kf.split(X_train, y_train)):
+            #     X_k_train, X_k_val = X_train[train_idx], X_train[val_idx]
+            #     y_k_train, y_k_val = y_train[train_idx], y_train[val_idx]
 
-                model = keras.Sequential([layers.Input(shape=(X_k_train.shape[1],))
-                ] + [layers.Dense(num_neurons, activation=activation) for _ in range(num_layers)
-                ] + [layers.Dense(10, activation="softmax")])
+            #     model = keras.Sequential([layers.Input(shape=(X_k_train.shape[1],))
+            #     ] + [layers.Dense(num_neurons, activation=activation) for _ in range(num_layers)
+            #     ] + [layers.Dense(10, activation="softmax")])
 
-                # Chọn optimizer với learning rate
-                if optimizer == "adam":
-                    opt = keras.optimizers.Adam(learning_rate=learning_rate)
-                elif optimizer == "sgd":
-                    opt = keras.optimizers.SGD(learning_rate=learning_rate)
-                else:
-                    opt = keras.optimizers.RMSprop(learning_rate=learning_rate)
+            #     # Chọn optimizer với learning rate
+            #     if optimizer == "adam":
+            #         opt = keras.optimizers.Adam(learning_rate=learning_rate)
+            #     elif optimizer == "sgd":
+            #         opt = keras.optimizers.SGD(learning_rate=learning_rate)
+            #     else:
+            #         opt = keras.optimizers.RMSprop(learning_rate=learning_rate)
 
-                model.compile(optimizer=opt, loss=loss_fn, metrics=["accuracy"])
+            #     model.compile(optimizer=opt, loss=loss_fn, metrics=["accuracy"])
 
-                start_time = time.time()
+            #     start_time = time.time()
                 
-                history = model.fit(X_k_train, y_k_train, epochs=epochs, validation_data=(X_k_val, y_k_val), verbose=0)
+            #     history = model.fit(X_k_train, y_k_train, epochs=epochs, validation_data=(X_k_val, y_k_val), verbose=0)
                 
 
-                elapsed_time = time.time() - start_time
-                accuracies.append(history.history["val_accuracy"][-1])
-                losses.append(history.history["val_loss"][-1])
+            #     elapsed_time = time.time() - start_time
+            #     accuracies.append(history.history["val_accuracy"][-1])
+            #     losses.append(history.history["val_loss"][-1])
 
-                # Cập nhật thanh tiến trình chính (theo fold)
+            #     # Cập nhật thanh tiến trình chính (theo fold)
                 
                 
-                progress_percent = int((num / k_folds)*100)
+            #     progress_percent = int((num / k_folds)*100)
                 
-                num = num +1
-                training_progress.progress(progress_percent)
+            #     num = num +1
+            #     training_progress.progress(progress_percent)
                 
                             
 
                 
-                training_status.text(f"⏳ Đang huấn luyện... {progress_percent}%")
+            #     training_status.text(f"⏳ Đang huấn luyện... {progress_percent}%")
+
+            for fold_idx, (train_idx, val_idx) in enumerate(kf.split(X_train, y_train)):
+                X_k_train, X_k_val = X_train[train_idx], X_train[val_idx]
+                y_k_train, y_k_val = y_train[train_idx], y_train[val_idx]
+
+                st.write(f"Fold {fold_idx + 1}: X_k_train shape: {X_k_train.shape}, y_k_train shape: {y_k_train.shape}")
+
+                model = keras.Sequential([
+                    layers.Input(shape=(X_k_train.shape[1],))
+                ] + [layers.Dense(num_neurons, activation=activation) for _ in range(num_layers)
+                ] + [layers.Dense(10, activation="softmax")])
+
+                opt = keras.optimizers.Adam(learning_rate=learning_rate)  # Example optimizer
+                model.compile(optimizer=opt, loss=loss_fn, metrics=["accuracy"])
+
+                try:
+                    start_time = time.time()
+
+                    history = model.fit(X_k_train, y_k_train, epochs=epochs, validation_data=(X_k_val, y_k_val), verbose=0)
+                    accuracies.append(history.history["val_accuracy"][-1])
+                    losses.append(history.history["val_loss"][-1])
+
+                    elapsed_time = time.time() - start_time
+                except Exception as e:
+                    st.error(f"Training failed in fold {fold_idx + 1}: {str(e)}")
+                    return
 
             avg_val_accuracy = np.mean(accuracies)
             avg_val_loss = np.mean(losses)
