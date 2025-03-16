@@ -271,6 +271,7 @@ def learning_model():
     epochs = st.slider("🕰 Số epochs:", min_value=1, max_value=50, value=20, step=1)
     learning_rate = st.slider("⚡ Tốc độ học (Learning Rate):", min_value=1e-5, max_value=1e-1, value=1e-3, step=1e-5, format="%.5f")
     max_iterations = st.slider("Số vòng lặp tối đa cho pseudo-labeling:", 1, 10, 3)  # Thêm tham số mới
+    threshold = st.slider("Threshold", min_value=0.0, max_value=1.0, value=0.6, step=0.01)
 
     loss_fn = "sparse_categorical_crossentropy"
     run_name = st.text_input("🔹 Nhập tên Run:", "Default_Run")
@@ -357,8 +358,8 @@ def learning_model():
                 confidence_scores = np.max(predictions, axis=1)
                 pseudo_labels = np.argmax(predictions, axis=1)
 
-                # Lọc các mẫu có độ tin cậy >= 0.5
-                confident_mask = confidence_scores >= 0.5
+                # Lọc các mẫu có độ tin cậy >= threshold
+                confident_mask = confidence_scores >= threshold
                 if np.sum(confident_mask) > 0:
                     X_confident = X_unlabeled[confident_mask]
                     y_confident = pseudo_labels[confident_mask]
