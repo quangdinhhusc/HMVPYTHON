@@ -358,7 +358,7 @@ def learning_model():
                 confidence_scores = np.max(predictions, axis=1)
                 pseudo_labels = np.argmax(predictions, axis=1)
 
-                # Lọc các mẫu có độ tin cậy >= threshold
+                # Lọc các mẫu có độ tin cậy >= 
                 confident_mask = confidence_scores >= threshold
                 if np.sum(confident_mask) > 0:
                     X_confident = X_unlabeled[confident_mask]
@@ -551,10 +551,9 @@ def run_PseudoLabelling_app():
             if "trained_model" not in st.session_state:
                 st.warning("⚠️ Chưa có mô hình nào được huấn luyện. Vui lòng huấn luyện mô hình trước khi dự đoán.")
             else:
-                best_model_name = "Neural Network"
                 best_model = st.session_state.trained_model
 
-                st.write(f"Mô hình đang sử dụng: `{best_model_name}`")
+                st.write(f"Mô hình đang sử dụng: Neural Network")
                 # st.write(f"✅ Độ chính xác trên tập kiểm tra: `{st.session_state.get('test_accuracy', 'N/A'):.4f}`")
 
                 # Lấy các tham số từ session_state để hiển thị
@@ -596,10 +595,10 @@ def run_PseudoLabelling_app():
             if "trained_model" not in st.session_state:
                 st.warning("⚠️ Chưa có mô hình nào được huấn luyện. Vui lòng huấn luyện mô hình trước khi dự đoán.")
             else:
-                best_model_name = "Neural Network"
+                
                 best_model = st.session_state.trained_model
 
-                st.write(f"Mô hình đang sử dụng: `{best_model_name}`")
+                st.write(f"Mô hình đang sử dụng: Neural Network`")
                 # st.write(f"✅ Độ chính xác trên tập kiểm tra: `{st.session_state.get('test_accuracy', 'N/A'):.4f}`")
 
                 # 🆕 Cập nhật key cho canvas khi nhấn "Tải lại"
