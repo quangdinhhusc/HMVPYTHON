@@ -268,7 +268,7 @@ def learning_model():
                 "elapsed_time": elapsed_time
             })
 
-            # Normalize X_test (no reshaping, keep as (samples, 28, 28))
+            # Normalize X_test
             X_test = X_test.astype('float32') / 255.0
 
             # Đánh giá mô hình trên tập test
