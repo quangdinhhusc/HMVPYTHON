@@ -216,27 +216,48 @@ def learning_model():
                 X_k_train, X_k_val = X_train[train_idx], X_train[val_idx]
                 y_k_train, y_k_val = y_train[train_idx], y_train[val_idx]
 
+                # Debug: Check shapes
                 st.write(f"Fold {fold_idx + 1}: X_k_train shape: {X_k_train.shape}, y_k_train shape: {y_k_train.shape}")
 
+                # Flatten the input data from (samples, 28, 28) to (samples, 784)
+                X_k_train_flat = X_k_train.reshape(-1, 28 * 28)  # -1 infers the number of samples
+                X_k_val_flat = X_k_val.reshape(-1, 28 * 28)
+
+                # Optional: Normalize the data (if not already done)
+                X_k_train_flat = X_k_train_flat.astype('float32') / 255.0
+                X_k_val_flat = X_k_val_flat.astype('float32') / 255.0
+
+                # Define the model with the correct input shape (784,)
                 model = keras.Sequential([
-                    layers.Input(shape=(X_k_train.shape[1],))
+                    layers.Input(shape=(28 * 28,))  # Explicitly set to 784
                 ] + [layers.Dense(num_neurons, activation=activation) for _ in range(num_layers)
                 ] + [layers.Dense(10, activation="softmax")])
 
-                opt = keras.optimizers.Adam(learning_rate=learning_rate)  # Example optimizer
+                # Choose optimizer
+                if optimizer == "adam":
+                    opt = keras.optimizers.Adam(learning_rate=learning_rate)
+                elif optimizer == "sgd":
+                    opt = keras.optimizers.SGD(learning_rate=learning_rate)
+                else:
+                    opt = keras.optimizers.RMSprop(learning_rate=learning_rate)
+
                 model.compile(optimizer=opt, loss=loss_fn, metrics=["accuracy"])
 
                 try:
                     start_time = time.time()
-
-                    history = model.fit(X_k_train, y_k_train, epochs=epochs, validation_data=(X_k_val, y_k_val), verbose=0)
+                    history = model.fit(X_k_train_flat, y_k_train, epochs=epochs, 
+                                    validation_data=(X_k_val_flat, y_k_val), verbose=0)
                     accuracies.append(history.history["val_accuracy"][-1])
                     losses.append(history.history["val_loss"][-1])
-
                     elapsed_time = time.time() - start_time
                 except Exception as e:
                     st.error(f"Training failed in fold {fold_idx + 1}: {str(e)}")
                     return
+
+                # Update progress
+                progress_percent = int(((fold_idx + 1) / k_folds) * 100)
+                training_progress.progress(progress_percent)
+                training_status.text(f"⏳ Đang huấn luyện... {progress_percent}%")
 
             avg_val_accuracy = np.mean(accuracies)
             avg_val_loss = np.mean(losses)
