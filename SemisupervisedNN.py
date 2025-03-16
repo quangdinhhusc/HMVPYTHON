@@ -249,6 +249,10 @@ def learning_model():
     if "X_train" not in st.session_state:
         st.error("⚠️ Chưa có dữ liệu! Hãy chia dữ liệu trước.")
         return
+    # Kiểm tra và lấy dữ liệu từ session_state
+    if "X_indices" not in st.session_state:
+        st.error("⚠️ Dữ liệu X_indices không tồn tại! Vui lòng kiểm tra bước chuẩn bị dữ liệu.")
+        return
     
     # Lấy dữ liệu từ session_state
     X_train = st.session_state["X_train"]
