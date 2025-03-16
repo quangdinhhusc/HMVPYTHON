@@ -568,7 +568,7 @@ def run_PseudoLabelling_app():
                 st.warning("⚠️ Chưa có mô hình nào được huấn luyện. Vui lòng huấn luyện mô hình trước khi dự đoán.")
             else:
                 best_model = st.session_state["trained_model"]
-                st.write(f"Mô hình đang sử dụng: Mô hình đã huấn luyện từ `learning_model()`")
+                st.write(f"Mô hình đang sử dụng: Mô hình `Neural Network`")
 
                 # Cho phép người dùng tải lên ảnh
                 uploaded_file = st.file_uploader("📂 Chọn một ảnh để dự đoán (28x28)", type=["png", "jpg", "jpeg"])
@@ -613,7 +613,7 @@ def run_PseudoLabelling_app():
                 st.warning("⚠️ Chưa có mô hình nào được huấn luyện. Vui lòng huấn luyện mô hình trước khi dự đoán.")
             else:
                 best_model = st.session_state["trained_model"]
-                st.write("Mô hình đang sử dụng: Mô hình đã huấn luyện từ `learning_model()`")
+                st.write("Mô hình đang sử dụng: Mô hình `Neural Network`")
 
                 # Khởi tạo key cho canvas nếu chưa có
                 if "key_value" not in st.session_state:
