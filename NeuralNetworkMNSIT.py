@@ -569,11 +569,12 @@ def run_NeuralNetwork_app():
     
                 st.markdown("### Chỉ số đã log")
                 metrics = {
-                    "avg_val_accuracy": selected_run.data.metrics.get("avg_val_accuracy", "N/A"),
-                    "std_cv_accuracy": selected_run.data.metrics.get("std_cv_accuracy", "N/A"),
-                    "accuracy": selected_run.data.metrics.get("accuracy", "N/A"),
-                    "model_type": selected_run.data.metrics.get("model_type", "N/A")
-                }
+                    "avg_val_accuracy": selected_run.data.metrics.get("mean_cv_accuracy_log", "N/A"),
+                    "std_cv_accuracy": selected_run.data.metrics.get("std_cv_accuracy_log", "N/A"),
+                    "accuracy": selected_run.data.metrics.get("accuracy_log", "N/A"),
+                    "model_type": selected_run.data.metrics.get("model_type_log", "N/A")                                                                                
+                }   
+
                 st.json(metrics)
     
                 # 5) Nút bấm mở MLflow UI
