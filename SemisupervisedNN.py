@@ -60,14 +60,14 @@ def data_preparation():
     total_samples = X.shape[0] 
     
     # Thanh kéo chọn số lượng ảnh để train
-    num_samples = st.slider("📌 Chọn số lượng ảnh để huấn luyện:", 1000, total_samples, 10000)
+    num_samples = st.slider("Chọn số lượng ảnh để huấn luyện:", 100, total_samples, 20000)
     num_samples = num_samples -10
     # Thanh kéo chọn tỷ lệ Train/Test
-    test_size = st.slider("📌 Chọn % dữ liệu Test", 10, 50, 20)
+    test_size = st.slider("Chọn % dữ liệu Test", 10, 50, 20)
     train_size = 1
     indices_size = 100 - test_size - train_size
 
-    st.write(f"📌 **Tỷ lệ phân chia:** Test={test_size}%, Indices={indices_size}%, Train={train_size}%")
+    st.write(f"**Tỷ lệ phân chia:** Test={test_size}%, Indices={indices_size}%, Train={train_size}%")
 
     # Tạo vùng trống để hiển thị kết quả
     result_placeholder = st.empty()
