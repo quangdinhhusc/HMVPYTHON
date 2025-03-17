@@ -138,18 +138,18 @@ def learning_model():
     k_folds = st.slider("Số fold cho Cross-Validation:", 3, 10, 5)
     num_layers = st.slider("Số lớp ẩn:", 1, 5, 2)
     num_neurons = st.slider("Số neuron mỗi lớp:", 32, 512, 128, 32)
+    epochs = st.slider("Số epochs:", min_value=1, max_value=50, value=20, step=1)
+    learning_rate = st.slider("Tốc độ học (Learning Rate):", min_value=1e-4, max_value=1e-1, value=1e-3, step=1e-4, format="%.4f")
     activation = st.selectbox("Hàm kích hoạt:", ["relu", "sigmoid", "tanh"])
     optimizer = st.selectbox("Optimizer:", ["adam", "sgd", "rmsprop"])
-    epochs = st.slider("🕰 Số epochs:", min_value=1, max_value=50, value=20, step=1)
-    learning_rate = st.slider("⚡ Tốc độ học (Learning Rate):", min_value=1e-5, max_value=1e-1, value=1e-3, step=1e-5, format="%.5f")
     max_iterations = st.slider("Số vòng lặp tối đa cho pseudo-labeling:", 1, 10, 3)
     threshold = st.slider("Threshold", min_value=0.0, max_value=1.0, value=0.6, step=0.01)
 
     loss_fn = "sparse_categorical_crossentropy"
-    run_name = st.text_input("🔹 Nhập tên Run:", "Default_Run")
+    run_name = st.text_input("Nhập tên Run:", "Default_Run")
     st.session_state['run_name'] = run_name
     
-    if st.button("🚀 Huấn luyện mô hình"):
+    if st.button("Huấn luyện mô hình"):
         with st.spinner("Đang huấn luyện..."):
             mlflow.start_run(run_name=run_name)
             mlflow.log_params({
