@@ -569,14 +569,10 @@ def run_NeuralNetwork_app():
     
                 st.markdown("### Chỉ số đã log")
                 metrics = {
-                    "mean_cv_accuracy": selected_run.data.metrics.get("mean_cv_accuracy", "N/A"),
+                    "avg_val_accuracy": selected_run.data.metrics.get("avg_val_accuracy", "N/A"),
                     "std_cv_accuracy": selected_run.data.metrics.get("std_cv_accuracy", "N/A"),
                     "accuracy": selected_run.data.metrics.get("accuracy", "N/A"),
-                    "model_type": selected_run.data.metrics.get("model_type", "N/A"),
-                    "kernel": selected_run.data.metrics.get("kernel", "N/A"),
-                    "C_value": selected_run.data.metrics.get("C_value", "N/A")
-                
-
+                    "model_type": selected_run.data.metrics.get("model_type", "N/A")
                 }
                 st.json(metrics)
     
