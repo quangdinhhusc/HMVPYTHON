@@ -306,46 +306,6 @@ def run_NeuralNetwork_app():
                 with st.spinner("🔄 Đang huấn luyện..."):
                     with mlflow.start_run():
                         
-                        # progress_bar = st.progress(0)
-                        # history = None
-                        # start_time = time.time()
-                        # # Huấn luyện mô hình với callback để cập nhật progress bar
-                        # class ProgressCallback(tf.keras.callbacks.Callback):
-                        #     def on_epoch_end(self, epoch, logs=None):
-                        #         progress = (epoch + 1) / epochs * 100
-                        #         progress_bar.progress(int(progress))
-                        #         st.write(f"Epoch {epoch+1}/{epochs}: {int(progress)}% hoàn thành")
-                        #         st.write(f"Loss: {logs['loss']:.4f}, Accuracy: {logs['accuracy']:.4f}")
-
-                        # # Huấn luyện mô hình
-                        # # early_stopping = EarlyStopping(monitor='val_loss', patience=5, min_delta=0.001)
-                        # # model_checkpoint = ModelCheckpoint('best_model.h5', monitor='val_loss', save_best_only=True, mode='min')
-                        # history = cnn.fit(X_train, y_train,
-                        #                 epochs=epochs,
-                        #                 batch_size=batch_size,
-                        #                 validation_data=(X_val, y_val),
-                        #                 verbose=1,
-                        #                 callbacks=[ProgressCallback()])
-
-
-                        # # Hoàn thành progress bar
-                        # progress_bar.progress(100)
-
-                        # end_time = time.time()
-                        # training_time = end_time - start_time
-
-                        # # Ghi log với MLflow
-                        # mlflow.log_param("epochs", epochs)
-                        # mlflow.log_param("batch_size", batch_size)
-                        # mlflow.log_param("optimizer", optimizer)
-                        # mlflow.log_metric("train_accuracy", history.history['accuracy'][-1])
-                        # mlflow.log_metric("val_accuracy", history.history['val_accuracy'][-1])
-                        # mlflow.log_metric("final_train_loss", history.history['loss'][-1])
-                        # mlflow.log_metric("final_val_loss", history.history['val_loss'][-1])
-
-                        # y_pred = cnn.predict(X_test)
-                        # y_pred_class = np.argmax(y_pred, axis=1)
-                        # accuracy = accuracy_score(y_test, y_pred_class)
 
                         mlflow.log_params({"num_layers": num_layers, "num_neurons": num_neurons, "activation": activation, "optimizer": optimizer, "k_folds": k_folds})
                         
@@ -416,7 +376,6 @@ def run_NeuralNetwork_app():
                 mlflow.log_metric("test_loss", test_loss)
 
                 # Lưu model đã huấn luyện vào st.session_state
-                st.session_state.selected_model_type = "Neural Network"
                 st.session_state.trained_model = cnn
                 st.session_state['history'] = history
 
@@ -447,99 +406,99 @@ def run_NeuralNetwork_app():
         with st.expander("**Dự đoán kết quả**", expanded=True):
             st.write("**Dự đoán trên ảnh do người dùng tải lên**")
 
-            # Kiểm tra xem mô hình đã được huấn luyện và lưu kết quả chưa
-            if "selected_model_type" not in st.session_state or "trained_model" not in st.session_state:
+            # Kiểm tra xem mô hình đã được huấn luyện và lưu chưa
+            if "trained_model" not in st.session_state:
                 st.warning("⚠️ Chưa có mô hình nào được huấn luyện. Vui lòng huấn luyện mô hình trước khi dự đoán.")
             else:
-                best_model_name = st.session_state.selected_model_type
-                best_model = st.session_state.trained_model
-
-                st.write(f"Mô hình đang sử dụng: `{best_model_name}`")
-                # st.write(f"✅ Độ chính xác trên tập kiểm tra: `{st.session_state.get('test_accuracy', 'N/A'):.4f}`")
-
-                # Lấy các tham số từ session_state để hiển thị
+                best_model = st.session_state["trained_model"]
+                st.write(f"Mô hình đang sử dụng: Mô hình đã huấn luyện từ `learning_model()`")
 
                 # Cho phép người dùng tải lên ảnh
-                uploaded_file = st.file_uploader("📂 Chọn một ảnh để dự đoán", type=["png", "jpg", "jpeg"])
+                uploaded_file = st.file_uploader("📂 Chọn một ảnh để dự đoán (28x28)", type=["png", "jpg", "jpeg"])
 
                 if uploaded_file is not None:
-                    # Đọc ảnh từ tệp tải lên
+                    # Đọc và tiền xử lý ảnh
                     image = Image.open(uploaded_file).convert("L")  # Chuyển sang ảnh xám
                     image = np.array(image)
 
-                    # Kiểm tra xem dữ liệu huấn luyện đã lưu trong session_state hay chưa
-                    if "X_train" in st.session_state:
-                        X_train_shape = st.session_state["X_train"].shape[1]  # Lấy số đặc trưng từ tập huấn luyện
+                    # Resize ảnh về kích thước 28x28
+                    image = cv2.resize(image, (28, 28))
 
-                        # Resize ảnh về kích thước phù hợp với mô hình đã huấn luyện
-                        image = cv2.resize(image, (28, 28))  # Cập nhật kích thước theo dữ liệu ban đầu
-                        image = image.reshape(1, -1)  # Chuyển về vector 1 chiều
+                    # Phẳng hóa và chuẩn hóa giống dữ liệu huấn luyện
+                    image_flat = image.reshape(1, 28 * 28).astype('float32') / 255.0
 
-                        # Đảm bảo số chiều đúng với dữ liệu huấn luyện
-                        if image.shape[1] == X_train_shape:
-                            prediction = best_model.predict(image)[0]
+                    # Dự đoán với mô hình đã lưu
+                    try:
+                        prediction = best_model.predict(image_flat, verbose=0)[0]
+                        predicted_class = np.argmax(prediction)
+                        confidence = np.max(prediction)
 
-                            # Hiển thị ảnh và kết quả dự đoán
-                            st.image(uploaded_file, caption="📷 Ảnh bạn đã tải lên", use_container_width=True)
-                            
-                            st.success(f"Dự đoán: {np.argmax(prediction)} với xác suất {np.max(prediction):.2f}")
-                        else:
-                            st.error(f"Ảnh không có số đặc trưng đúng ({image.shape[1]} thay vì {X_train_shape}). Hãy kiểm tra lại dữ liệu đầu vào!")
-                    else:
-                        st.error("Dữ liệu huấn luyện không tìm thấy. Hãy huấn luyện mô hình trước khi dự đoán.")
+                        # Hiển thị ảnh và kết quả dự đoán
+                        st.image(uploaded_file, caption="📷 Ảnh bạn đã tải lên", width=200)
+                        st.success(f"Dự đoán: **{predicted_class}** với độ tin cậy: **{confidence:.4f}**")
+
+                        # (Tùy chọn) Hiển thị phân phối xác suất
+                        st.write("Phân phối xác suất:")
+                        st.bar_chart(prediction)
+
+                    except Exception as e:
+                        st.error(f"Lỗi khi dự đoán: {str(e)}. Hãy kiểm tra định dạng ảnh và mô hình!")
+
+                else:
+                    st.info("Vui lòng tải lên một ảnh để dự đoán.")
 
     with tab_demo_2:   
-        with st.expander("**Dự đoán kết quả**", expanded=True):
-            st.write("**Dự đoán trên ảnh do người dùng tải lên**")
+        st.header("✍️ Vẽ số để dự đoán")
 
-            # Kiểm tra xem mô hình đã được huấn luyện và lưu kết quả chưa
-            if "selected_model_type" not in st.session_state or "trained_model" not in st.session_state:
-                st.warning("⚠️ Chưa có mô hình nào được huấn luyện. Vui lòng huấn luyện mô hình trước khi dự đoán.")
+        # 📥 Load mô hình đã huấn luyện
+        if "trained_model" in st.session_state:
+            model = st.session_state["trained_model"]
+            st.success("✅ Đã sử dụng mô hình vừa huấn luyện!")
+        else:
+            st.error("⚠️ Chưa có mô hình! Hãy huấn luyện trước.")
+
+
+        # 🆕 Cập nhật key cho canvas khi nhấn "Tải lại"
+        if "key_value" not in st.session_state:
+            st.session_state.key_value = str(random.randint(0, 1000000))  
+
+        if st.button("🔄 Tải lại nếu không thấy canvas"):
+            st.session_state.key_value = str(random.randint(0, 1000000))  
+
+        # ✍️ Vẽ số
+        canvas_result = st_canvas(
+            fill_color="black",
+            stroke_width=10,
+            stroke_color="white",
+            background_color="black",
+            height=150,
+            width=150,
+            drawing_mode="freedraw",
+            key=st.session_state.key_value,
+            update_streamlit=True
+        )
+
+        if st.button("Dự đoán số"):
+            img = preprocess_canvas_image(canvas_result)
+
+            if img is not None:
+                st.image(Image.fromarray((img.reshape(28, 28) * 255).astype(np.uint8)), caption="Ảnh sau xử lý", width=100)
+
+                # Dự đoán số
+                prediction = model.predict(img)
+                predicted_number = np.argmax(prediction, axis=1)[0]
+                max_confidence = np.max(prediction)
+
+                st.subheader(f"🔢 Dự đoán: {predicted_number}")
+                st.write(f"📊 Mức độ tin cậy: {max_confidence:.2%}")
+
+                # Hiển thị bảng confidence score
+                prob_df = pd.DataFrame(prediction.reshape(1, -1), columns=[str(i) for i in range(10)]).T
+                prob_df.columns = ["Mức độ tin cậy"]
+                st.bar_chart(prob_df)
+
             else:
-                best_model_name = st.session_state.selected_model_type
-                best_model = st.session_state.trained_model
-
-                st.write(f"Mô hình đang sử dụng: `{best_model_name}`")
-                # st.write(f"✅ Độ chính xác trên tập kiểm tra: `{st.session_state.get('test_accuracy', 'N/A'):.4f}`")
-
-                # 🆕 Cập nhật key cho canvas khi nhấn "Tải lại"
-                if "key_value" not in st.session_state:
-                    st.session_state.key_value = str(random.randint(0, 1000000))
-
-                if st.button("🔄 Tải lại"):
-                    try:
-                        st.session_state.key_value = str(random.randint(0, 1000000))
-                    except Exception as e:
-                        st.error(f"Cập nhật key không thành công: {str(e)}")
-                        st.stop()
-
-                # ✍️ Vẽ dữ liệu
-                canvas_result = st_canvas(
-                    fill_color="black",
-                    stroke_width=10,
-                    stroke_color="white",
-                    background_color="black",
-                    height=150,
-                    width=150,
-                    drawing_mode="freedraw",
-                    key=st.session_state.key_value,
-                    update_streamlit=True
-                ) 
-
-                if st.button("Dự đoán"):
-                    img = preprocess_canvas_image(canvas_result)
-
-                    if img is not None:
-                        X_train = st.session_state["X_train"]
-                        # Hiển thị ảnh sau xử lý
-                        st.image(Image.fromarray((img.reshape(28, 28) * 255).astype(np.uint8)), caption="Ảnh sau xử lý", width=100)
-
-                        # Dự đoán
-                        prediction = best_model.predict(img)[0]
-
-                        st.success(f"Dự đoán: {np.argmax(prediction)} với xác suất {np.max(prediction)*100:.2f}%")
-                    else:
-                        st.error("⚠️ Hãy vẽ một số trước khi bấm Dự đoán!")
+                st.error("⚠️ Hãy vẽ một số trước khi bấm Dự đoán!")
 
     with tab_mlflow:
         st.header("Thông tin Huấn luyện & MLflow UI")
