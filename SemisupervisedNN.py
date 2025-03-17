@@ -125,8 +125,8 @@ def data_preparation():
         
         
 
-# Chuẩn hóa dữ liệu đầu vào khi huấn luyện và khi demo giống nhau để đạt độ tin cậy
-# Neural Network huấn luyện giữa các fold sẽ sử dụng model đã huấn luyện ở trước đó để tiếp tục huấn luyện 
+
+
 def learning_model():
     if "X_train" not in st.session_state:
         st.error("⚠️ Chưa có dữ liệu! Hãy chia dữ liệu trước.")
@@ -160,18 +160,7 @@ def learning_model():
     
     if st.button("Huấn luyện mô hình"):
         with st.spinner("Đang huấn luyện..."):
-            mlflow.start_run(run_name=run_name)
-            mlflow.log_params({
-                "num_layers": num_layers,
-                "num_neurons": num_neurons,
-                "activation": activation,
-                "optimizer": optimizer,
-                "learning_rate": learning_rate,
-                "k_folds": k_folds,
-                "epochs": epochs,
-                "max_iterations": max_iterations,
-                "threshold": threshold
-            })
+            
 
             X_unlabeled = X_indices.copy()
             iteration = 0
@@ -250,6 +239,17 @@ def learning_model():
                     break  # Thoát vòng lặp nếu không có mẫu nào được gán nhãn
 
                 overall_progress.progress(min(iteration / max_iterations, 1.0))
+
+                # Ghi log vào MLFlow
+                mlflow.start_run(run_name=run_name)
+                mlflow.log_param("k_folds", k_folds)
+                mlflow.log_param("num_layers", num_layers)
+                mlflow.log_param("epochs", epochs)
+                mlflow.log_param("learning_rate_init", learning_rate)
+                mlflow.log_param("activation", activation)
+                mlflow.log_param("num_neurons", num_neurons)
+                mlflow.log_param("optimizer", optimizer)
+                mlflow.log_param("loss_function", loss_fn)
 
             # Huấn luyện lại trên toàn bộ dữ liệu để có mô hình cuối cùng
             X_train_flat = X_train.reshape(-1, 28 * 28).astype('float32') / 255.0
