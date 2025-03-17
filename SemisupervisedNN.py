@@ -40,7 +40,7 @@ def load_mnist_data():
 def data_preparation():
 
     # Cho phép người dùng chọn tỷ lệ validation và test
-    st.title("📌 Chia dữ liệu Train/Test")
+    st.title("Chia dữ liệu Train/Test")
     
     # Tạo các biến để lưu dữ liệu
 
