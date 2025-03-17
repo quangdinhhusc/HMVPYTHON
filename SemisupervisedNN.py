@@ -64,6 +64,8 @@ def data_preparation():
     
     if num_samples == total_samples:
         num_samples = num_samples - 10
+    else:
+        num_samples = num_samples
 
     # Thanh kéo chọn tỷ lệ Train/Test
     test_size = st.slider("Chọn % dữ liệu Test", 10, 50, 20)
