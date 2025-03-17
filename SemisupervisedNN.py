@@ -160,7 +160,7 @@ def learning_model():
     
     if st.button("Huấn luyện mô hình"):
         with st.spinner("Đang huấn luyện..."):
-            
+            mlflow.start_run(run_name=run_name)
 
             X_unlabeled = X_indices.copy()
             iteration = 0
@@ -241,7 +241,7 @@ def learning_model():
                 overall_progress.progress(min(iteration / max_iterations, 1.0))
 
                 # Ghi log vào MLFlow
-                mlflow.start_run(run_name=run_name)
+                
                 mlflow.log_param("k_folds", k_folds)
                 mlflow.log_param("num_layers", num_layers)
                 mlflow.log_param("epochs", epochs)
