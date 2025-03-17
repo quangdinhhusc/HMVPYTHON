@@ -61,9 +61,9 @@ def data_preparation():
     
     # Thanh kéo chọn số lượng ảnh để train
     num_samples = st.slider("Chọn số lượng ảnh để huấn luyện:", 100, total_samples, 20000)
-    num_samples = num_samples - 1
-
     
+    if num_samples == total_samples:
+        num_samples = num_samples - 10
 
     # Thanh kéo chọn tỷ lệ Train/Test
     test_size = st.slider("Chọn % dữ liệu Test", 10, 50, 20)
