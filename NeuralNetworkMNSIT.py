@@ -299,9 +299,15 @@ def run_NeuralNetwork_app():
             if st.button("⏹️ Huấn luyện mô hình"):
                 with st.spinner("🔄 Đang huấn luyện..."):
                     with mlflow.start_run():
-                        
-
-                        mlflow.log_params({"num_layers": num_layers, "num_neurons": num_neurons, "activation": activation, "optimizer": optimizer, "k_folds": k_folds})
+                        mlflow.log_param("train_data_size", train_data_size)
+                        mlflow.log_param("k_folds", k_folds)
+                        mlflow.log_param("num_layers", num_layers)
+                        mlflow.log_param("epochs", epochs)
+                        mlflow.log_param("learning_rate_init", learning_rate_init)
+                        mlflow.log_param("activation", activation)
+                        mlflow.log_param("num_neurons", num_neurons)
+                        mlflow.log_param("optimizer", optimizer)
+                        mlflow.log_param("loss_function", loss_fn)    
                         
                         kf = StratifiedKFold(n_splits=k_folds, shuffle=True, random_state=42)
                         accuracies, losses = [], []

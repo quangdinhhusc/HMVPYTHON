@@ -522,7 +522,7 @@ def run_PseudoLabelling_app():
         st.header("Thông tin Huấn luyện & MLflow UI")
         try:
             client = MlflowClient()
-            experiment_name = "Classification"
+            experiment_name = "PseudoLabelling"
     
             # Kiểm tra nếu experiment đã tồn tại
             experiment = client.get_experiment_by_name(experiment_name)
@@ -586,17 +586,7 @@ def run_PseudoLabelling_app():
                 st.json(selected_run.data.params)
     
                 st.markdown("### Chỉ số đã log")
-                metrics = {
-                    "mean_cv_accuracy": selected_run.data.metrics.get("mean_cv_accuracy", "N/A"),
-                    "std_cv_accuracy": selected_run.data.metrics.get("std_cv_accuracy", "N/A"),
-                    "accuracy": selected_run.data.metrics.get("accuracy", "N/A"),
-                    "model_type": selected_run.data.metrics.get("model_type", "N/A"),
-                    "kernel": selected_run.data.metrics.get("kernel", "N/A"),
-                    "C_value": selected_run.data.metrics.get("C_value", "N/A")
-                
-
-                }
-                st.json(metrics)
+                st.json(selected_run.data.metrics)
     
                 # 5) Nút bấm mở MLflow UI
                 st.subheader("Truy cập MLflow UI")
