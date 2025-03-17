@@ -41,13 +41,7 @@ def preprocess_canvas_image(canvas_result):
     return None
 
 def run_NeuralNetwork_app():
-    @st.cache_data  # Lưu cache để tránh load lại dữ liệu mỗi lần chạy lại Streamlit
-    def get_sampled_pixels(images, sample_size=100_000):
-        return np.random.choice(images.flatten(), sample_size, replace=False)
-
-    @st.cache_data  # Cache danh sách ảnh ngẫu nhiên
-    def get_random_indices(num_images, total_images):
-        return np.random.randint(0, total_images, size=num_images)
+    
 
     # Cấu hình Streamlit    
     # st.set_page_config(page_title="Phân loại ảnh", layout="wide")
@@ -504,7 +498,7 @@ def run_NeuralNetwork_app():
         st.header("Thông tin Huấn luyện & MLflow UI")
         try:
             client = MlflowClient()
-            experiment_name = "Classification"
+            experiment_name = "NeuralNetwork"
     
             # Kiểm tra nếu experiment đã tồn tại
             experiment = client.get_experiment_by_name(experiment_name)
@@ -567,15 +561,9 @@ def run_NeuralNetwork_app():
                 st.markdown("### Tham số đã log")
                 st.json(selected_run.data.params)
     
-                st.markdown("### Chỉ số đã log")
-                metrics = {
-                    "avg_val_accuracy": selected_run.data.metrics.get("mean_cv_accuracy_log", "N/A"),
-                    "std_cv_accuracy": selected_run.data.metrics.get("std_cv_accuracy_log", "N/A"),
-                    "accuracy": selected_run.data.metrics.get("accuracy_log", "N/A"),
-                    "model_type": selected_run.data.metrics.get("model_type_log", "N/A")                                                                                
-                }   
+                st.markdown("### Chỉ số đã log") 
 
-                st.json(metrics)
+                st.json(selected_run.data.metrics)
     
                 # 5) Nút bấm mở MLflow UI
                 st.subheader("Truy cập MLflow UI")
