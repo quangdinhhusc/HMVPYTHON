@@ -215,7 +215,7 @@ def learning_model():
                     total_time = 0  # Theo dõi tổng thời gian huấn luyện
 
                     # Cross-validation
-                    for fold_idx, (train_idx, _) in enumerate(kf.split(X_train)):
+                    for fold_idx, (train_idx, _) in enumerate(kf.split(X_train, y_train)):
                         # Kiểm tra và sửa lỗi khi truy cập X_train[train_idx]
                         if len(train_idx) == 0 or len(X_train) == 0:
                             st.error(f"⚠️ Lỗi: Tập train trống trong fold {fold_idx + 1}")
