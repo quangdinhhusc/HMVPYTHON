@@ -69,7 +69,7 @@ def data_preparation():
 
     # Thanh kéo chọn tỷ lệ Train/Test
     test_size = st.slider("Chọn % dữ liệu Test", 10, 50, 20)
-    val_size = st.slider("Chọn % tỷ lệ tập Validation (trong phần train)", min_value=10, max_value=50, value=20, step=5) / 100
+    val_size = st.slider("Chọn % tỷ lệ tập Validation (trong phần train)", min_value=10, max_value=50, value=20, step=5)
     train_size = 100 - test_size - val_size
 
     st.write(f"**Tỷ lệ phân chia:** Test={test_size}%, Validation = {val_size}%, Indices={train_size - 1}%, Train={1}%")
