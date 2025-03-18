@@ -256,6 +256,7 @@ def learning_model():
                         y_train = np.concatenate([y_train, y_confident])
                         X_unlabeled = X_unlabeled[~confident_mask]
                         st.write(f"✅ Đã thêm {np.sum(confident_mask)} mẫu vào tập huấn luyện")
+                        st.write(avg_val_accuracy)
                     else:
                         st.write(f"⚠️ Không có mẫu nào đạt ngưỡng tin cậy {threshold}. Kết thúc sớm.")
                         break  # Thoát vòng lặp nếu không có mẫu nào được gán nhãn
