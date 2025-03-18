@@ -86,8 +86,6 @@ def data_preparation():
             X_selected, _, y_selected, _ = train_test_split(
                 X, y, train_size=num_samples/total_samples, stratify=y, random_state=42
             )
-        # Phân chia dữ liệu
-        # X_selected, _, y_selected, _ = train_test_split(X, y, train_size=num_samples/total_samples, stratify=y, random_state=42)
         
         # Chia thành tập train, val, test
         X_temp, X_test_data, y_temp, y_test_data = train_test_split(
