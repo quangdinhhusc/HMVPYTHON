@@ -215,14 +215,25 @@ def learning_model():
                     total_time = 0  # Theo dõi tổng thời gian huấn luyện
 
                     # Cross-validation
-                    for fold_idx, (train_idx) in enumerate(kf.split(X_train, y_train)):
-                        X_k_train = X_train[train_idx]
-                        y_k_train = y_train[train_idx]
+                    for fold_idx, (train_idx, _) in enumerate(kf.split(X_train)):
+                        # Kiểm tra và sửa lỗi khi truy cập X_train[train_idx]
+                        if len(train_idx) == 0 or len(X_train) == 0:
+                            st.error(f"⚠️ Lỗi: Tập train trống trong fold {fold_idx + 1}")
+                            mlflow.end_run()
+                            return
+                        try:
+                            X_k_train = X_train[train_idx]
+                            y_k_train = y_train[train_idx]
+                        except IndexError as e:
+                            st.error(f"⚠️ Lỗi chỉ số trong fold {fold_idx + 1}: {str(e)}")
+                            st.write(f"Kích thước X_train: {X_train.shape}, train_idx: {train_idx}")
+                            mlflow.end_run()
+                            return
 
                         X_k_train_flat = X_k_train.reshape(-1, 28 * 28).astype('float32') / 255.0
                         
-                        model.compile(optimizer=opt, loss=loss_fn, metrics=["accuracy"])
-
+                        if fold_idx == 0:
+                            model.compile(optimizer=opt, loss=loss_fn, metrics=["accuracy"])
                         try:
                             start_time = time.time()
                             history = model.fit(X_k_train_flat, y_k_train, epochs=epochs, 
