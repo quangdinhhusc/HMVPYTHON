@@ -69,49 +69,60 @@ def data_preparation():
 
     # Thanh kéo chọn tỷ lệ Train/Test
     test_size = st.slider("Chọn % dữ liệu Test", 10, 50, 20)
-    train_size = 1
-    indices_size = 100 - test_size - train_size
+    val_size = st.slider("Chọn % tỷ lệ tập Validation (trong phần train)", min_value=10, max_value=50, value=20, step=5) / 100
+    train_size = 100 - test_size - val_size
 
-    st.write(f"**Tỷ lệ phân chia:** Test={test_size}%, Indices={indices_size}%, Train={train_size}%")
+    st.write(f"**Tỷ lệ phân chia:** Test={test_size}%, Validation = {val_size}%, Indices={train_size - 1}%, Train={1}%")
     # chia thêm phần dữ liệu tập val
 
     # Tạo vùng trống để hiển thị kết quả
     result_placeholder = st.empty()
     # Tạo nút "Lưu Dữ Liệu"
     if st.button("Xác Nhận & Lưu Dữ Liệu"):
-        
         # Phân chia dữ liệu
-        X_selected, _, y_selected, _ = train_test_split(X, y, train_size=num_samples, stratify=y, random_state=42)
-        X_train_data, X_test_data, y_train_data, y_test_data = train_test_split(X_selected, y_selected, test_size=test_size/100, stratify=y_selected, random_state=42)
+        X_selected, _, y_selected, _ = train_test_split(X, y, train_size=num_samples/total_samples, stratify=y, random_state=42)
         
+        # Chia thành tập train, val, test
+        X_temp, X_test_data, y_temp, y_test_data = train_test_split(
+            X_selected, y_selected, test_size=test_size/100, stratify=y_selected, random_state=42
+        )
+        X_train_data, X_val_data, y_train_data, y_val_data = train_test_split(
+            X_temp, y_temp, test_size=val_size/(100 - test_size), stratify=y_temp, random_state=42
+        )
         
         # Lấy 1% số lượng ảnh cho mỗi class (0-9) để làm tập dữ liệu train ban đầu
         indices = []
         for i in range(10):
             class_indices = np.where(y_train_data == i)[0]
-            num_samples = int(0.01 * len(class_indices))
-            data_indices_random = np.random.choice(class_indices, num_samples, replace=False)
+            num_samples_per_class = int(0.01 * len(class_indices))
+            if num_samples_per_class == 0:  # Đảm bảo ít nhất 1 mẫu mỗi class nếu dữ liệu quá ít
+                num_samples_per_class = 1
+            data_indices_random = np.random.choice(class_indices, num_samples_per_class, replace=False)
             indices.extend(data_indices_random)
-        # dữ liệu quá thấp thì số lượng dữ liệu train sẽ về 0 và xảy ra lỗi 
 
         X_train_initial = X_train_data[indices]
         y_train_initial = y_train_data[indices]
 
-        # Chuyển 99% còn lại sang tập val
+        # Chuyển phần còn lại (không thuộc train_initial) sang tập indices
         data_indices = np.setdiff1d(np.arange(len(X_train_data)), indices)
         X_indices_data = X_train_data[data_indices]
         y_indices_data = y_train_data[data_indices]
 
-
         # Lưu dữ liệu vào session_state
         st.session_state["X_train"] = X_train_initial
         st.session_state["y_train"] = y_train_initial
-        st.session_state["X_indices"] = X_indices_data
-        st.session_state["y_indices"] = y_indices_data
+        st.session_state["X_val"] = X_val_data
+        st.session_state["y_val"] = y_val_data
         st.session_state["X_test"] = X_test_data
         st.session_state["y_test"] = y_test_data
+        st.session_state["X_indices"] = X_indices_data
+        st.session_state["y_indices"] = y_indices_data
 
-        summary_df = pd.DataFrame({"Tập dữ liệu": ["Train", "Test", "Indices"], "Số lượng mẫu": [X_train_initial.shape[0], X_test_data.shape[0], X_indices_data.shape[0]]})
+        # Hiển thị kết quả
+        summary_df = pd.DataFrame({
+            "Tập dữ liệu": ["Train", "Validation", "Test", "Indices"],
+            "Số lượng mẫu": [X_train_initial.shape[0], X_val_data.shape[0], X_test_data.shape[0], X_indices_data.shape[0]]
+        })
         st.success("✅ Dữ liệu đã được chia thành công!")
         st.table(summary_df)
         
@@ -243,7 +254,7 @@ def learning_model():
                     # Tính độ chính xác trên tập test
                     X_test_flat = X_test.reshape(-1, 28 * 28).astype('float32') / 255.0
                     test_loss, test_accuracy = model.evaluate(X_test_flat, y_test, verbose=0)
-                    st.write(f"✅ Độ chính xác trên tập test sau vòng lặp {iteration}: {test_accuracy:.4f}")
+                    st.write(f"✅ Độ chính xác trên tập Test sau vòng lặp {iteration}: {test_accuracy:.4f}")
                     mlflow.log_metric(f"iter_{iteration}_test_accuracy", test_accuracy)
                     mlflow.log_metric(f"iter_{iteration}_test_loss", test_loss)
 
@@ -261,7 +272,7 @@ def learning_model():
                         y_train = np.concatenate([y_train, y_confident])
                         X_unlabeled = X_unlabeled[~confident_mask]
                         st.write(f"✅ Đã thêm {np.sum(confident_mask)} mẫu vào tập huấn luyện")
-                        st.write(f"Độ Chính Xác: {avg_val_accuracy:.4f}")
+                        st.write(f"✅ Độ chính xác trên tập Validation sau vòng lặp {iteration}: {avg_val_accuracy:.4f}")
                     else:
                         st.write(f"⚠️ Không có mẫu nào đạt ngưỡng tin cậy {threshold}. Kết thúc sớm.")
                         break  # Thoát vòng lặp nếu không có mẫu nào được gán nhãn
@@ -290,7 +301,7 @@ def learning_model():
             # Tính độ chính xác cuối cùng trên tập test
             X_test_flat = X_test.reshape(-1, 28 * 28).astype('float32') / 255.0
             final_test_loss, final_test_accuracy = model.evaluate(X_test_flat, y_test, verbose=0)
-            st.write(f"✅ Độ chính xác cuối cùng trên tập test: {final_test_accuracy:.4f}")
+
             mlflow.log_metric("final_test_accuracy", final_test_accuracy)
             mlflow.log_metric("final_test_loss", final_test_loss)
 
