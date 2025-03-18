@@ -281,74 +281,79 @@ def run_NeuralNetwork_app():
             optimizer = st.selectbox("Chọn hàm tối ưu", ["adam", "sgd", "lbfgs"])
 
             loss_fn = "sparse_categorical_crossentropy"
+            run_name = st.text_input("Nhập tên Run:", "Default_Run")
+            st.session_state['run_name'] = run_name
 
             if st.button("⏹️ Huấn luyện mô hình"):
                 with st.spinner("🔄 Đang huấn luyện..."):
-                    with mlflow.start_run():
-                        
-                        kf = StratifiedKFold(n_splits=k_folds, shuffle=True, random_state=42)
-                        accuracies, losses = [], []
+                    mlflow.start_run(run_name=run_name)
+                    
+                    kf = StratifiedKFold(n_splits=k_folds, shuffle=True, random_state=42)
+                    accuracies, losses = [], []
 
-                        progress_bar = st.progress(0)# Khởi tạo thanh trạng thái ở 0%
-                        progress_text = st.empty()# Tạo một vùng trống để hiển thị % tiến trình
+                    progress_bar = st.progress(0)# Khởi tạo thanh trạng thái ở 0%
+                    progress_text = st.empty()# Tạo một vùng trống để hiển thị % tiến trình
+                    
+                    total_folds = k_folds
+                    
+                    for i, (train_idx, val_idx) in enumerate(kf.split(X_train, y_train)):
+                        X_k_train, X_k_val = X_train[train_idx], X_train[val_idx]
+                        y_k_train, y_k_val = y_train[train_idx], y_train[val_idx]
                         
-                        total_folds = k_folds
+                        cnn = keras.Sequential([layers.Input(shape=(X_k_train.shape[1],))] + [layers.Dense(num_neurons, activation=activation) for _ in range(num_layers)] + [layers.Dense(10, activation="softmax")])
+                        cnn.compile(optimizer=optimizer, loss=loss_fn, metrics=["accuracy"])
+                        progress_bar_epoch = st.progress(0)
                         
-                        for i, (train_idx, val_idx) in enumerate(kf.split(X_train, y_train)):
-                            X_k_train, X_k_val = X_train[train_idx], X_train[val_idx]
-                            y_k_train, y_k_val = y_train[train_idx], y_train[val_idx]
-                            
-                            cnn = keras.Sequential([layers.Input(shape=(X_k_train.shape[1],))] + [layers.Dense(num_neurons, activation=activation) for _ in range(num_layers)] + [layers.Dense(10, activation="softmax")])
-                            cnn.compile(optimizer=optimizer, loss=loss_fn, metrics=["accuracy"])
-                            progress_bar_epoch = st.progress(0)
-                            
-                            class EpochCallback(keras.callbacks.Callback):
-                                def on_epoch_end(self, epoch, logs=None):
-                                    progress_epoch = (epoch + 1) / epochs * 100
-                                    progress_bar_epoch.progress(int(progress_epoch))
-                                    st.write(f"Folds {i+1}/{k_folds}: Epoch {epoch+1}/{epochs}: hoàn thành :               Loss: {logs['loss']:.4f} , Accuracy: {logs['accuracy']:.4f}")
+                        class EpochCallback(keras.callbacks.Callback):
+                            def on_epoch_end(self, epoch, logs=None):
+                                progress_epoch = (epoch + 1) / epochs * 100
+                                progress_bar_epoch.progress(int(progress_epoch))
+                                st.write(f"Folds {i+1}/{k_folds}: Epoch {epoch+1}/{epochs}: hoàn thành :               Loss: {logs['loss']:.4f} , Accuracy: {logs['accuracy']:.4f}")
 
-                            start_time = time.time()
-                            history = cnn.fit(X_k_train, y_k_train, epochs=epochs, validation_data=(X_k_val, y_k_val), verbose=2, callbacks=[EpochCallback()])
-                            # history = cnn.fit(X_k_train, y_k_train, epochs=epochs, validation_data=(X_k_val, y_k_val), verbose=2)
-                            elapsed_time = time.time() - start_time
-                            
-                            accuracies.append(history.history["val_accuracy"][-1])
-                            losses.append(history.history["val_loss"][-1])
-
-                            # Cập nhật thanh trạng thái và hiển thị phần trăm
-                            progress = (i + 1) / total_folds  # Tính phần trăm hoàn thành
-                            progress_bar.progress(progress)  # Cập nhật thanh trạng thái
-                            progress_text.text(f"️🎯Tiến trình huấn luyện: {int(progress * 100)}%")  # Hiển thị % cụ thể
-                            
-                        avg_val_accuracy = np.mean(accuracies)
-                        avg_val_loss = np.mean(losses)
+                        start_time = time.time()
+                        history = cnn.fit(X_k_train, y_k_train, epochs=epochs, validation_data=(X_k_val, y_k_val), verbose=2, callbacks=[EpochCallback()])
+                        # history = cnn.fit(X_k_train, y_k_train, epochs=epochs, validation_data=(X_k_val, y_k_val), verbose=2)
+                        elapsed_time = time.time() - start_time
                         
-                        mlflow.log_metrics({"avg_val_accuracy": avg_val_accuracy, "avg_val_loss": avg_val_loss, "elapsed_time": elapsed_time})
+                        accuracies.append(history.history["val_accuracy"][-1])
+                        losses.append(history.history["val_loss"][-1])
+
+                        # Cập nhật thanh trạng thái và hiển thị phần trăm
+                        progress = (i + 1) / total_folds  # Tính phần trăm hoàn thành
+                        progress_bar.progress(progress)  # Cập nhật thanh trạng thái
+                        progress_text.text(f"️🎯Tiến trình huấn luyện: {int(progress * 100)}%")  # Hiển thị % cụ thể
                         
-                        test_loss, test_accuracy = cnn.evaluate(X_test, y_test, verbose=0)
-                        mlflow.log_metrics({"test_accuracy": test_accuracy, "test_loss": test_loss})
-                        mlflow.end_run()
-                        st.session_state["trained_model"] = cnn
-                        st.success(f"✅ Huấn luyện hoàn tất!")
-                        st.write(f"📊 **Độ chính xác trung bình trên tập validation:** {avg_val_accuracy:.4f}")
-                        st.write(f"📊 **Độ chính xác trên tập test:** {test_accuracy:.4f}")
+                    avg_val_accuracy = np.mean(accuracies)
+                    avg_val_loss = np.mean(losses)
+                    
+                    mlflow.log_metrics({"avg_val_accuracy": avg_val_accuracy, "avg_val_loss": avg_val_loss, "elapsed_time": elapsed_time})
+                    
+                    test_loss, test_accuracy = cnn.evaluate(X_test, y_test, verbose=0)
+                    mlflow.log_metrics({"test_accuracy": test_accuracy, "test_loss": test_loss})
+                    mlflow.end_run()
+                    
+                    st.session_state["trained_model"] = cnn
+                    st.session_state["run_name"] = run_name
+
+                    st.success(f"✅ Huấn luyện hoàn tất!")
+                    st.write(f"📊 **Độ chính xác trung bình trên tập validation:** {avg_val_accuracy:.4f}")
+                    st.write(f"📊 **Độ chính xác trên tập test:** {test_accuracy:.4f}")
 
 
-                        # Ghi log với MLflow
-                        mlflow.log_param("train_data_size", train_data_size)
-                        mlflow.log_param("k_folds", k_folds)
-                        mlflow.log_param("num_layers", num_layers)
-                        mlflow.log_param("epochs", epochs)
-                        mlflow.log_param("learning_rate_init", learning_rate_init)
-                        mlflow.log_param("activation", activation)
-                        mlflow.log_param("num_neurons", num_neurons)
-                        mlflow.log_param("optimizer", optimizer)
-                        mlflow.log_param("loss_function", loss_fn)   
-                        mlflow.log_metric("train_accuracy", history.history['accuracy'][-1])
-                        mlflow.log_metric("val_accuracy", history.history['val_accuracy'][-1])
-                        mlflow.log_metric("final_train_loss", history.history['loss'][-1])
-                        mlflow.log_metric("final_val_loss", history.history['val_loss'][-1])
+                    # Ghi log với MLflow
+                    mlflow.log_param("train_data_size", train_data_size)
+                    mlflow.log_param("k_folds", k_folds)
+                    mlflow.log_param("num_layers", num_layers)
+                    mlflow.log_param("epochs", epochs)
+                    mlflow.log_param("learning_rate_init", learning_rate_init)
+                    mlflow.log_param("activation", activation)
+                    mlflow.log_param("num_neurons", num_neurons)
+                    mlflow.log_param("optimizer", optimizer)
+                    mlflow.log_param("loss_function", loss_fn)   
+                    mlflow.log_metric("train_accuracy", history.history['accuracy'][-1])
+                    mlflow.log_metric("val_accuracy", history.history['val_accuracy'][-1])
+                    mlflow.log_metric("final_train_loss", history.history['loss'][-1])
+                    mlflow.log_metric("final_val_loss", history.history['val_loss'][-1])
 
                 st.success("Huấn luyện hoàn tất!")
                 st.write(f"Thời gian huấn luyện: {elapsed_time:.2f} giây")
@@ -395,7 +400,8 @@ def run_NeuralNetwork_app():
                 st.warning("⚠️ Chưa có mô hình nào được huấn luyện. Vui lòng huấn luyện mô hình trước khi dự đoán.")
             else:
                 best_model = st.session_state["trained_model"]
-                st.write(f"Mô hình đang sử dụng: Mô hình đã huấn luyện từ `learning_model()`")
+                run_name = st.session_state["run_name"]
+                st.write(f"Mô hình đang sử dụng: Mô hình đã huấn luyện `{run_name}`!")
 
                 # Cho phép người dùng tải lên ảnh
                 uploaded_file = st.file_uploader("📂 Chọn một ảnh để dự đoán (28x28)", type=["png", "jpg", "jpeg"])
@@ -437,7 +443,8 @@ def run_NeuralNetwork_app():
         # 📥 Load mô hình đã huấn luyện
         if "trained_model" in st.session_state:
             model = st.session_state["trained_model"]
-            st.success("✅ Đã sử dụng mô hình vừa huấn luyện!")
+            run_name = st.session_state["run_name"]
+            st.success("✅ Mô hình đang sử dụng: Mô hình đã huấn luyện từ `{run_name}`!")
         else:
             st.error("⚠️ Chưa có mô hình! Hãy huấn luyện trước.")
 

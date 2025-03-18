@@ -441,8 +441,11 @@ def run_PseudoLabelling_app():
                     image = cv2.resize(image, (28, 28))
 
                     # Phẳng hóa và chuẩn hóa giống dữ liệu huấn luyện
-                    image_flat = image.reshape(1, 28 * 28).astype('float32') / 255.0
+                    image_normalized = image.reshape(1, 28 * 28).astype('float32') / 255.0
 
+                    # Reshape to 1D vector (1, 784) to match training input
+                    image_flat = image_normalized.reshape(1, -1)
+                    
                     # Dự đoán với mô hình đã lưu
                     try:
                         prediction = best_model.predict(image_flat, verbose=0)[0]
