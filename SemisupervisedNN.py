@@ -79,6 +79,14 @@ def data_preparation():
     result_placeholder = st.empty()
     # Tạo nút "Lưu Dữ Liệu"
     if st.button("Xác Nhận & Lưu Dữ Liệu"):
+
+        if num_samples == total_samples:
+            X_selected = X
+            y_selected = y
+        else:
+            X_selected, _, y_selected, _ = train_test_split(
+                X, y, train_size=num_samples/total_samples, stratify=y, random_state=42
+            )
         # Phân chia dữ liệu
         X_selected, _, y_selected, _ = train_test_split(X, y, train_size=num_samples/total_samples, stratify=y, random_state=42)
         
