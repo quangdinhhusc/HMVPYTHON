@@ -501,10 +501,18 @@ def run_PseudoLabelling_app():
             img = preprocess_canvas_image(canvas_result)
 
             if img is not None:
-                st.image(Image.fromarray((img.reshape(28, 28) * 255).astype(np.uint8)), caption="Ảnh sau xử lý", width=100)
+                # Preprocess canvas image
+                img = Image.fromarray(canvas_result.image_data[:, :, 0].astype(np.uint8))
+                img = img.resize((28, 28)).convert("L")  # Resize to 28x28 and convert to grayscale
+                img_array = np.array(img, dtype=np.float32)
 
+                # Normalize pixel values to [0, 1] (same as training data)
+                img_normalized = img_array / 255.0
+
+                # Reshape to 1D vector (1, 784) to match training input
+                img_flat = img_normalized.reshape(1, -1)
                 # Dự đoán số
-                prediction = model.predict(img)
+                prediction = model.predict(img_flat)
                 predicted_number = np.argmax(prediction, axis=1)[0]
                 max_confidence = np.max(prediction)
 
