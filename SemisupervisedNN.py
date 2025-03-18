@@ -62,10 +62,10 @@ def data_preparation():
     # Thanh kéo chọn số lượng ảnh để train
     num_samples = st.slider("Chọn số lượng ảnh để huấn luyện:", 100, total_samples, 20000)
     
-    if num_samples == total_samples:
-        num_samples = num_samples - 10
-    else:
-        num_samples = num_samples
+    # if num_samples == total_samples:
+    #     num_samples = num_samples - 10
+    # else:
+    #     num_samples = num_samples
 
     # Thanh kéo chọn tỷ lệ Train/Test
     test_size = st.slider("Chọn % dữ liệu Test", 10, 50, 20)
@@ -249,7 +249,7 @@ def learning_model():
                         training_status.text(f"⏳ Đang huấn luyện... {progress_percent}%")
 
                     avg_val_accuracy = np.mean(accuracies)
-                    
+
                     mlflow.log_metrics({
                         f"iter_{iteration}_avg_val_accuracy": avg_val_accuracy,
                         f"iter_{iteration}_avg_val_loss": np.mean(losses)
