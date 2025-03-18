@@ -1,34 +1,20 @@
 import time
-from sklearn.neural_network import MLPClassifier
 import streamlit as st
 import os
 import cv2
 import numpy as np
 import pandas as pd
-import pickle
-import seaborn as sns
 import random
 import struct
-from sklearn.datasets import fetch_openml, load_iris
 import mlflow
 import matplotlib.pyplot as plt
 from streamlit_drawable_canvas import st_canvas
 from sklearn.model_selection import train_test_split
-from sklearn import datasets
-from sklearn.preprocessing import StandardScaler
-from sklearn.tree import DecisionTreeClassifier,plot_tree
-from sklearn.svm import SVC
-from sklearn.metrics import accuracy_score, classification_report, ConfusionMatrixDisplay
 from PIL import Image
-from sklearn.model_selection import KFold
-from collections import Counter
 from mlflow.tracking import MlflowClient
 from streamlit_drawable_canvas import st_canvas
 from tensorflow.keras import layers, models, callbacks, optimizers
-from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint
-from tensorflow.keras.models import load_model
 from sklearn.model_selection import train_test_split, StratifiedKFold
-from mlflow.models.signature import infer_signature
 from tensorflow.keras.models import Sequential
 from tensorflow import keras
 
