@@ -215,7 +215,7 @@ def learning_model():
                     total_time = 0  # Theo dõi tổng thời gian huấn luyện
 
                     # Cross-validation
-                    for fold_idx, (train_idx) in enumerate(kf.split(X_train)):
+                    for fold_idx, (train_idx) in enumerate(kf.split(X_train, y_train)):
                         X_k_train = X_train[train_idx]
                         y_k_train = y_train[train_idx]
 
