@@ -160,34 +160,27 @@ def learning_model():
     
     if st.button("Huấn luyện mô hình"):
         with st.spinner("Đang huấn luyện..."):
-            mlflow.start_run(run_name=run_name)
+            with mlflow.start_run(run_name=run_name):
 
-            X_unlabeled = X_indices.copy()
-            iteration = 0
-            overall_progress = st.progress(0)
-            total_start_time = time.time()
+                X_unlabeled = X_indices.copy()
+                iteration = 0
+                overall_progress = st.progress(0)
+                total_start_time = time.time()
 
-            while len(X_unlabeled) > 0 and iteration < max_iterations:
-                iteration += 1
-                st.write(f"🔄 Vòng lặp pseudo-labeling thứ {iteration}")
+                while len(X_unlabeled) > 0 and iteration < max_iterations:
+                    iteration += 1
+                    st.write(f"🔄 Vòng lặp pseudo-labeling thứ {iteration}")
 
-                kf = StratifiedKFold(n_splits=k_folds, shuffle=True, random_state=42)
-                accuracies, losses = [], []
-                training_progress = st.progress(0)
-                training_status = st.empty()
+                    kf = StratifiedKFold(n_splits=k_folds, shuffle=True, random_state=42)
+                    accuracies, losses = [], []
+                    training_progress = st.progress(0)
+                    training_status = st.empty()
 
-                # Cross-validation
-                for fold_idx, (train_idx, val_idx) in enumerate(kf.split(X_train, y_train)):
-                    X_k_train, X_k_val = X_train[train_idx], X_train[val_idx]
-                    y_k_train, y_k_val = y_train[train_idx], y_train[val_idx]
-
-                    X_k_train_flat = X_k_train.reshape(-1, 28 * 28).astype('float32') / 255.0
-                    X_k_val_flat = X_k_val.reshape(-1, 28 * 28).astype('float32') / 255.0
-
+                    # Khởi tạo mô hình
                     model = keras.Sequential([
-                        layers.Input(shape=(28 * 28,))
-                    ] + [layers.Dense(num_neurons, activation=activation) for _ in range(num_layers)
-                    ] + [layers.Dense(10, activation="softmax")])
+                            layers.Input(shape=(28 * 28,))
+                        ] + [layers.Dense(num_neurons, activation=activation) for _ in range(num_layers)
+                        ] + [layers.Dense(10, activation="softmax")])
 
                     if optimizer == "adam":
                         opt = keras.optimizers.Adam(learning_rate=learning_rate)
@@ -196,60 +189,93 @@ def learning_model():
                     else:
                         opt = keras.optimizers.RMSprop(learning_rate=learning_rate)
 
-                    model.compile(optimizer=opt, loss=loss_fn, metrics=["accuracy"])
+                    # Biến để lưu lịch sử huấn luyện tổng hợp qua tất cả các fold
+                    full_history = {'loss': [], 'accuracy': [], 'val_loss': [], 'val_accuracy': []}
+                    total_time = 0  # Theo dõi tổng thời gian huấn luyện
 
-                    try:
-                        start_time = time.time()
-                        history = model.fit(X_k_train_flat, y_k_train, epochs=epochs, 
-                                          validation_data=(X_k_val_flat, y_k_val), verbose=0)
-                        accuracies.append(history.history["val_accuracy"][-1])
-                        losses.append(history.history["val_loss"][-1])
-                        elapsed_time = time.time() - start_time
-                    except Exception as e:
-                        st.error(f"Training failed in fold {fold_idx + 1}: {str(e)}")
-                        mlflow.end_run()
-                        return
+                    # Cross-validation
+                    for fold_idx, (train_idx, val_idx) in enumerate(kf.split(X_train, y_train)):
+                        X_k_train, X_k_val = X_train[train_idx], X_train[val_idx]
+                        y_k_train, y_k_val = y_train[train_idx], y_train[val_idx]
 
-                    progress_percent = int(((fold_idx + 1) / k_folds) * 100)
-                    training_progress.progress(progress_percent)
-                    training_status.text(f"⏳ Đang huấn luyện... {progress_percent}%")
+                        X_k_train_flat = X_k_train.reshape(-1, 28 * 28).astype('float32') / 255.0
+                        X_k_val_flat = X_k_val.reshape(-1, 28 * 28).astype('float32') / 255.0
 
-                avg_val_accuracy = np.mean(accuracies)
-                mlflow.log_metrics({
-                    f"iter_{iteration}_avg_val_accuracy": avg_val_accuracy,
-                    f"iter_{iteration}_avg_val_loss": np.mean(losses)
-                })
+                        
+                        model.compile(optimizer=opt, loss=loss_fn, metrics=["accuracy"])
 
-                # Gán nhãn giả
-                X_unlabeled_flat = X_unlabeled.reshape(-1, 28 * 28).astype('float32') / 255.0
-                predictions = model.predict(X_unlabeled_flat, verbose=0)
-                confidence_scores = np.max(predictions, axis=1)
-                pseudo_labels = np.argmax(predictions, axis=1)
+                        try:
+                            start_time = time.time()
+                            history = model.fit(X_k_train_flat, y_k_train, epochs=epochs, 
+                                            validation_data=(X_k_val_flat, y_k_val), verbose=0)
+                            accuracies.append(history.history["val_accuracy"][-1])
+                            losses.append(history.history["val_loss"][-1])
+                            elapsed_time = time.time() - start_time
+                            total_time += elapsed_time
 
-                confident_mask = confidence_scores >= threshold
-                if np.sum(confident_mask) > 0:
-                    X_confident = X_unlabeled[confident_mask]
-                    y_confident = pseudo_labels[confident_mask]
-                    X_train = np.concatenate([X_train, X_confident])
-                    y_train = np.concatenate([y_train, y_confident])
-                    X_unlabeled = X_unlabeled[~confident_mask]
-                    st.write(f"✅ Đã thêm {np.sum(confident_mask)} mẫu vào tập huấn luyện")
-                else:
-                    st.write(f"⚠️ Không có mẫu nào đạt ngưỡng tin cậy {threshold}. Kết thúc sớm.")
-                    break  # Thoát vòng lặp nếu không có mẫu nào được gán nhãn
+                            # Gộp lịch sử huấn luyện từ fold hiện tại vào full_history
+                            full_history['loss'].extend(history.history['loss'])
+                            full_history['accuracy'].extend(history.history['accuracy'])
+                            full_history['val_loss'].extend(history.history['val_loss'])
+                            full_history['val_accuracy'].extend(history.history['val_accuracy'])
 
-                overall_progress.progress(min(iteration / max_iterations, 1.0))
+                            # Lưu trữ độ chính xác và loss của fold hiện tại để tính trung bình
+                            accuracies.append(history.history["val_accuracy"][-1])
+                            losses.append(history.history["val_loss"][-1])
 
-                # Ghi log vào MLFlow
-                
-                mlflow.log_param("k_folds", k_folds)
-                mlflow.log_param("num_layers", num_layers)
-                mlflow.log_param("epochs", epochs)
-                mlflow.log_param("learning_rate_init", learning_rate)
-                mlflow.log_param("activation", activation)
-                mlflow.log_param("num_neurons", num_neurons)
-                mlflow.log_param("optimizer", optimizer)
-                mlflow.log_param("loss_function", loss_fn)
+                            st.write(accuracies)
+                            st.write(losses)
+
+
+                        except Exception as e:
+                            st.error(f"Training failed in fold {fold_idx + 1}: {str(e)}")
+                            mlflow.end_run()
+                            return
+
+                        progress_percent = int(((fold_idx + 1) / k_folds) * 100)
+                        training_progress.progress(progress_percent)
+                        training_status.text(f"⏳ Đang huấn luyện... {progress_percent}%")
+
+                    avg_val_accuracy = np.mean(accuracies)
+                    mlflow.log_metrics({
+                        f"iter_{iteration}_avg_val_accuracy": avg_val_accuracy,
+                        f"iter_{iteration}_avg_val_loss": np.mean(losses)
+                    })
+
+                    # Gán nhãn giả
+                    X_unlabeled_flat = X_unlabeled.reshape(-1, 28 * 28).astype('float32') / 255.0
+                    predictions = model.predict(X_unlabeled_flat, verbose=0)
+                    confidence_scores = np.max(predictions, axis=1)
+                    pseudo_labels = np.argmax(predictions, axis=1)
+
+                    confident_mask = confidence_scores >= threshold
+                    if np.sum(confident_mask) > 0:
+                        X_confident = X_unlabeled[confident_mask]
+                        y_confident = pseudo_labels[confident_mask]
+                        X_train = np.concatenate([X_train, X_confident])
+                        y_train = np.concatenate([y_train, y_confident])
+                        X_unlabeled = X_unlabeled[~confident_mask]
+                        st.write(f"✅ Đã thêm {np.sum(confident_mask)} mẫu vào tập huấn luyện")
+                    else:
+                        st.write(f"⚠️ Không có mẫu nào đạt ngưỡng tin cậy {threshold}. Kết thúc sớm.")
+                        break  # Thoát vòng lặp nếu không có mẫu nào được gán nhãn
+
+                    overall_progress.progress(min(iteration / max_iterations, 1.0))
+
+                    # Ghi log vào MLFlow
+                    
+                    mlflow.log_param("k_folds", k_folds)
+                    mlflow.log_param("num_layers", num_layers)
+                    mlflow.log_param("epochs", epochs)
+                    mlflow.log_param("learning_rate_init", learning_rate)
+                    mlflow.log_param("activation", activation)
+                    mlflow.log_param("num_neurons", num_neurons)
+                    mlflow.log_param("optimizer", optimizer)
+                    mlflow.log_param("loss_function", loss_fn)
+                    mlflow.log_metric("train_accuracy", full_history['accuracy'][-1])
+                    mlflow.log_metric("val_accuracy", full_history['val_accuracy'][-1])
+                    mlflow.log_metric("final_train_loss", full_history['loss'][-1])
+                    mlflow.log_metric("final_val_loss", full_history['val_loss'][-1])
 
             # Huấn luyện lại trên toàn bộ dữ liệu để có mô hình cuối cùng
             X_train_flat = X_train.reshape(-1, 28 * 28).astype('float32') / 255.0
