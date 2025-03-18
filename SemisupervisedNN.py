@@ -150,9 +150,11 @@ def learning_model():
     X_train = st.session_state["X_train"]
     X_indices = st.session_state["X_indices"]
     X_test = st.session_state["X_test"]
+    X_val = st.session_state["X_val"]
     y_train = st.session_state["y_train"]
     y_indices = st.session_state["y_indices"]
     y_test = st.session_state["y_test"]
+    y_val = st.session_state["y_val"]
 
     # Các tham số từ giao diện
     k_folds = st.slider("Số fold cho Cross-Validation:", 3, 10, 5)
@@ -182,6 +184,9 @@ def learning_model():
                     iteration += 1
                     st.write(f"🔄 Vòng lặp pseudo-labeling thứ {iteration}")
 
+                    # Chuẩn bị dữ liệu validation cố định
+                    X_val_flat = X_val.reshape(-1, 28 * 28).astype('float32') / 255.0
+
                     kf = StratifiedKFold(n_splits=k_folds, shuffle=True, random_state=42)
                     accuracies, losses = [], []
                     training_progress = st.progress(0)
@@ -205,20 +210,18 @@ def learning_model():
                     total_time = 0  # Theo dõi tổng thời gian huấn luyện
 
                     # Cross-validation
-                    for fold_idx, (train_idx, val_idx) in enumerate(kf.split(X_train, y_train)):
-                        X_k_train, X_k_val = X_train[train_idx], X_train[val_idx]
-                        y_k_train, y_k_val = y_train[train_idx], y_train[val_idx]
+                    for fold_idx, (train_idx) in enumerate(kf.split(X_train)):
+                        X_k_train = X_train[train_idx]
+                        y_k_train = y_train[train_idx]
 
                         X_k_train_flat = X_k_train.reshape(-1, 28 * 28).astype('float32') / 255.0
-                        X_k_val_flat = X_k_val.reshape(-1, 28 * 28).astype('float32') / 255.0
-
                         
                         model.compile(optimizer=opt, loss=loss_fn, metrics=["accuracy"])
 
                         try:
                             start_time = time.time()
                             history = model.fit(X_k_train_flat, y_k_train, epochs=epochs, 
-                                            validation_data=(X_k_val_flat, y_k_val), verbose=0)
+                                            validation_data=(X_val_flat, y_val), verbose=0)
                             accuracies.append(history.history["val_accuracy"][-1])
                             losses.append(history.history["val_loss"][-1])
                             elapsed_time = time.time() - start_time
@@ -246,6 +249,7 @@ def learning_model():
                         training_status.text(f"⏳ Đang huấn luyện... {progress_percent}%")
 
                     avg_val_accuracy = np.mean(accuracies)
+                    
                     mlflow.log_metrics({
                         f"iter_{iteration}_avg_val_accuracy": avg_val_accuracy,
                         f"iter_{iteration}_avg_val_loss": np.mean(losses)
@@ -254,7 +258,9 @@ def learning_model():
                     # Tính độ chính xác trên tập test
                     X_test_flat = X_test.reshape(-1, 28 * 28).astype('float32') / 255.0
                     test_loss, test_accuracy = model.evaluate(X_test_flat, y_test, verbose=0)
+
                     st.write(f"✅ Độ chính xác trên tập Test sau vòng lặp {iteration}: {test_accuracy:.4f}")
+
                     mlflow.log_metric(f"iter_{iteration}_test_accuracy", test_accuracy)
                     mlflow.log_metric(f"iter_{iteration}_test_loss", test_loss)
 
@@ -265,14 +271,17 @@ def learning_model():
                     pseudo_labels = np.argmax(predictions, axis=1)
 
                     confident_mask = confidence_scores >= threshold
+
                     if np.sum(confident_mask) > 0:
                         X_confident = X_unlabeled[confident_mask]
                         y_confident = pseudo_labels[confident_mask]
                         X_train = np.concatenate([X_train, X_confident])
                         y_train = np.concatenate([y_train, y_confident])
                         X_unlabeled = X_unlabeled[~confident_mask]
-                        st.write(f"✅ Đã thêm {np.sum(confident_mask)} mẫu vào tập huấn luyện")
+
                         st.write(f"✅ Độ chính xác trên tập Validation sau vòng lặp {iteration}: {avg_val_accuracy:.4f}")
+                        st.write(f"✅ Đã thêm {np.sum(confident_mask)} mẫu vào tập huấn luyện")
+                        
                     else:
                         st.write(f"⚠️ Không có mẫu nào đạt ngưỡng tin cậy {threshold}. Kết thúc sớm.")
                         break  # Thoát vòng lặp nếu không có mẫu nào được gán nhãn
