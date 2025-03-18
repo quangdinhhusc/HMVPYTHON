@@ -223,9 +223,7 @@ def learning_model():
                             accuracies.append(history.history["val_accuracy"][-1])
                             losses.append(history.history["val_loss"][-1])
 
-                            st.write(accuracies)
-                            st.write(losses)
-
+                            
 
                         except Exception as e:
                             st.error(f"Training failed in fold {fold_idx + 1}: {str(e)}")
@@ -256,7 +254,7 @@ def learning_model():
                         y_train = np.concatenate([y_train, y_confident])
                         X_unlabeled = X_unlabeled[~confident_mask]
                         st.write(f"✅ Đã thêm {np.sum(confident_mask)} mẫu vào tập huấn luyện")
-                        st.write(avg_val_accuracy)
+                        st.write(f"Độ Chính Xác: {avg_val_accuracy:.4f}")
                     else:
                         st.write(f"⚠️ Không có mẫu nào đạt ngưỡng tin cậy {threshold}. Kết thúc sớm.")
                         break  # Thoát vòng lặp nếu không có mẫu nào được gán nhãn
