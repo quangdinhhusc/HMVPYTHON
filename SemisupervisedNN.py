@@ -240,6 +240,13 @@ def learning_model():
                         f"iter_{iteration}_avg_val_loss": np.mean(losses)
                     })
 
+                    # Tính độ chính xác trên tập test
+                    X_test_flat = X_test.reshape(-1, 28 * 28).astype('float32') / 255.0
+                    test_loss, test_accuracy = model.evaluate(X_test_flat, y_test, verbose=0)
+                    st.write(f"✅ Độ chính xác trên tập test sau vòng lặp {iteration}: {test_accuracy:.4f}")
+                    mlflow.log_metric(f"iter_{iteration}_test_accuracy", test_accuracy)
+                    mlflow.log_metric(f"iter_{iteration}_test_loss", test_loss)
+
                     # Gán nhãn giả
                     X_unlabeled_flat = X_unlabeled.reshape(-1, 28 * 28).astype('float32') / 255.0
                     predictions = model.predict(X_unlabeled_flat, verbose=0)
@@ -280,6 +287,13 @@ def learning_model():
             X_train_flat = X_train.reshape(-1, 28 * 28).astype('float32') / 255.0
             model.fit(X_train_flat, y_train, epochs=epochs, verbose=0)
 
+            # Tính độ chính xác cuối cùng trên tập test
+            X_test_flat = X_test.reshape(-1, 28 * 28).astype('float32') / 255.0
+            final_test_loss, final_test_accuracy = model.evaluate(X_test_flat, y_test, verbose=0)
+            st.write(f"✅ Độ chính xác cuối cùng trên tập test: {final_test_accuracy:.4f}")
+            mlflow.log_metric("final_test_accuracy", final_test_accuracy)
+            mlflow.log_metric("final_test_loss", final_test_loss)
+
             total_elapsed_time = time.time() - total_start_time
             mlflow.log_metrics({"total_elapsed_time": total_elapsed_time})
             mlflow.end_run()
@@ -289,6 +303,7 @@ def learning_model():
 
             st.success(f"✅ Quá trình huấn luyện và gán nhãn giả hoàn tất!")
             st.write(f"📊 **Độ chính xác trung bình cuối cùng trên tập validation:** {avg_val_accuracy:.4f}")
+            st.write(f"📊 **Độ chính xác cuối cùng trên tập test:** {final_test_accuracy:.4f}")
             st.write(f"⏱️ **Tổng thời gian huấn luyện:** {total_elapsed_time:.2f} giây")
             st.write(f"📈 **Số mẫu trong tập huấn luyện cuối cùng:** {len(X_train)}")
 
