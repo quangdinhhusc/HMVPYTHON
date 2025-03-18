@@ -412,8 +412,7 @@ def run_NeuralNetwork_app():
 
             if st.button("⏹️ Huấn luyện mô hình"):
                 with st.spinner("🔄 Đang huấn luyện..."):
-                    # Thiết lập thí nghiệm với tên do người dùng cung cấp
-                    mlflow.set_experiment(experiment_name)
+                    
 
                     # Bắt đầu MLflow run với tên do người dùng chỉ định
                     with mlflow.start_run(run_name=run_name):
