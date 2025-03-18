@@ -295,6 +295,17 @@ def run_NeuralNetwork_app():
                     progress_text = st.empty()# Tạo một vùng trống để hiển thị % tiến trình
                     
                     total_folds = k_folds
+
+                    # Khởi tạo mô hình một lần duy nhất ngoài vòng lặp
+                    cnn = keras.Sequential([
+                        layers.Input(shape=(X_train.shape[1],))
+                    ] + [layers.Dense(num_neurons, activation=activation) for _ in range(num_layers)] + [
+                        layers.Dense(10, activation="softmax")
+                    ])
+                    cnn.compile(optimizer=optimizer, loss=loss_fn, metrics=["accuracy"])
+
+                    # Biến để lưu lịch sử huấn luyện tổng hợp
+                    full_history = {'loss': [], 'accuracy': [], 'val_loss': [], 'val_accuracy': []}
                     
                     for i, (train_idx, val_idx) in enumerate(kf.split(X_train, y_train)):
                         X_k_train, X_k_val = X_train[train_idx], X_train[val_idx]
@@ -314,6 +325,12 @@ def run_NeuralNetwork_app():
                         history = cnn.fit(X_k_train, y_k_train, epochs=epochs, validation_data=(X_k_val, y_k_val), verbose=2, callbacks=[EpochCallback()])
                         # history = cnn.fit(X_k_train, y_k_train, epochs=epochs, validation_data=(X_k_val, y_k_val), verbose=2)
                         elapsed_time = time.time() - start_time
+
+                        # Gộp lịch sử huấn luyện từ mỗi fold
+                        full_history['loss'].extend(history.history['loss'])
+                        full_history['accuracy'].extend(history.history['accuracy'])
+                        full_history['val_loss'].extend(history.history['val_loss'])
+                        full_history['val_accuracy'].extend(history.history['val_accuracy'])
                         
                         accuracies.append(history.history["val_accuracy"][-1])
                         losses.append(history.history["val_loss"][-1])
@@ -366,7 +383,7 @@ def run_NeuralNetwork_app():
 
                 # Lưu model đã huấn luyện vào st.session_state
                 st.session_state.trained_model = cnn
-                st.session_state['history'] = history
+                st.session_state['history'] = full_history
 
                 st.markdown("---")
                 st.markdown("#### 📈**Biểu đồ Accuracy và Loss**")
