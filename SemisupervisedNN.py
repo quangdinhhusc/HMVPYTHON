@@ -161,17 +161,28 @@ def learning_model():
     y_test = st.session_state["y_test"]
     y_val = st.session_state["y_val"]
 
-    # Các tham số từ giao diện
-    k_folds = st.number_input("Số fold cho Cross-Validation:", 3, 10, 5)
-    num_layers = st.number_input("Số lớp ẩn:", 1, 5, 2)
-    num_neurons = st.number_input("Số neuron mỗi lớp:", 32, 512, 128, 32)
-    epochs = st.number_input("Số epochs:", min_value=1, max_value=50, value=20, step=1)
-    learning_rate = st.number_input("Tốc độ học (Learning Rate):", min_value=1e-4, max_value=1e-1, value=1e-3, step=1e-4, format="%.4f")
-    activation = st.selectbox("Hàm kích hoạt:", ["relu", "sigmoid", "tanh"])
-    optimizer = st.selectbox("Optimizer:", ["adam", "sgd", "rmsprop"])
-    max_iterations = st.slider("Số vòng lặp tối đa cho pseudo-labeling:", 1, 10, 3)
-    threshold = st.number_input("Threshold", min_value=0.0, max_value=1.0, value=0.6, step=0.01)
+    # Lựa chọn tham số huấn luyện
+    st.markdown("### Lựa chọn tham số huấn luyện")
+    
+    # Chia giao diện thành 2 cột
+    col1, col2 = st.columns(2)
 
+    # Cột 1: k_folds, num_layers, epochs
+    with col1:
+        st.markdown("### Chỉ Số Model Neural Network")
+        k_folds = st.number_input("Số fold cho Cross-Validation:", 3, 10, 5)
+        num_layers = st.number_input("Số lớp ẩn:", 1, 5, 2)
+        epochs = st.number_input("Số lần lặp tối đa", 2, 50, 5)
+        learning_rate = st.number_input("Tốc độ học", 0.001, 0.1, 0.01, step=0.001, format="%.3f")
+        activation = st.selectbox("Hàm kích hoạt:", ["relu", "sigmoid", "tanh"])
+        num_neurons = st.selectbox("Số neuron mỗi lớp:", [32, 64, 128, 256], index=0)
+        optimizer = st.selectbox("Chọn hàm tối ưu", ["adam", "sgd", "lbfgs"])
+
+    # Cột 2: learning_rate_init, activation, num_neurons, optimizer
+    with col2:
+        st.markdown("### Chỉ Số Thực Hiện Pseudo-labeling")
+        max_iterations = st.number_input("Số vòng lặp tối đa cho pseudo-labeling:", 1, 10, 3)
+        threshold = st.number_input("Threshold", min_value=0.0, max_value=1.0, value=0.6, step=0.01)
     loss_fn = "sparse_categorical_crossentropy"
     run_name = st.text_input("Nhập tên Run:", "Default_Run")
     st.session_state['run_name'] = run_name
