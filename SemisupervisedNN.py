@@ -559,7 +559,7 @@ def run_PseudoLabelling_app():
 
     # 3️⃣ HUẤN LUYỆN MÔ HÌNH
     with tab_preprocess:
-        with st.expander(st.markdown("**Huấn luyện Neural Network**"), expanded=True):
+        with st.expander("**Huấn luyện Neural Network**", expanded=True):
 
             learning_model()
 
