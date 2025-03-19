@@ -157,10 +157,11 @@ def learning_model():
     X_test = st.session_state["X_test"]
     X_val = st.session_state["X_val"]
     y_train = st.session_state["y_train"]
-    y_indices = st.session_state["y_indices"]
+    # y_indices = st.session_state["y_indices"]
     y_test = st.session_state["y_test"]
     y_val = st.session_state["y_val"]
 
+    run_name = st.text_input("Nhập tên Run:", "Default_Run")
     # Lựa chọn tham số huấn luyện
     st.markdown("### Lựa chọn tham số huấn luyện")
     
@@ -184,7 +185,7 @@ def learning_model():
         max_iterations = st.number_input("Số vòng lặp tối đa cho pseudo-labeling:", 1, 10, 3)
         threshold = st.number_input("Threshold", min_value=0.0, max_value=1.0, value=0.6, step=0.01)
     loss_fn = "sparse_categorical_crossentropy"
-    run_name = st.text_input("Nhập tên Run:", "Default_Run")
+    
     st.session_state['run_name'] = run_name
     
     if st.button("Huấn luyện mô hình"):
