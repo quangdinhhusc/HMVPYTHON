@@ -438,49 +438,89 @@ def run_PseudoLabelling_app():
 
     with tab_note:
         with st.expander("**Thông tin mô hình**", expanded=True):
-        # Assume model_option1 is selected from somewhere in the app
-            st.markdown("""
+            st.markdown("### Chọn thông tin hiển thị về mô hình")
+            model_option = st.selectbox(
+                "Chọn mô hình:",
+                ["Neural Network (NN)", "PseudoLabelling"]
+            )
+
+            if model_option == "Neural Network (NN)":
+                st.markdown("""
                     ### Neural Network (NN)
                     """) 
-            st.markdown("---")        
-            st.markdown("""            
-            ### Khái Niệm:  
-            **Neural Network (NN)**:
-            - Là một mô hình tính toán lấy cảm hứng từ cấu trúc và chức năng của mạng lưới thần kinh sinh học. Nó được tạo thành từ các nút kết nối với nhau, hay còn gọi là nơ-ron nhân tạo, được sắp xếp thành các lớp.
-            - Ý tưởng chính của **Neural Network** là tạo ra một mô hình tính toán có khả năng học hỏi và xử lý thông tin giống như bộ não con người.
-            """)
+                st.markdown("---")        
+                st.markdown("""            
+                ### Khái Niệm:  
+                **Neural Network (NN)**:
+                - Là một mô hình tính toán lấy cảm hứng từ cấu trúc và chức năng của mạng lưới thần kinh sinh học. Nó được tạo thành từ các nút kết nối với nhau, hay còn gọi là nơ-ron nhân tạo, được sắp xếp thành các lớp.
+                - Ý tưởng chính của **Neural Network** là tạo ra một mô hình tính toán có khả năng học hỏi và xử lý thông tin giống như bộ não con người.
+                """)
 
-            st.markdown("---")        
-                       
-            st.write("### Mô Hình Tổng Quát:")   
-            st.image("imgnn/modelnn.png",use_container_width ="auto")
-            st.markdown(""" 
-            - Layer đầu tiên là input layer, các layer ở giữa được gọi là hidden layer, layer cuối cùng được gọi là output layer. Các hình tròn được gọi là node.
-            - Mỗi mô hình luôn có 1 input layer, 1 output layer, có thể có hoặc không các hidden layer. Tổng số layer trong mô hình được quy ước là số layer - 1 (Không tính input layer).
-            - Mỗi node trong hidden layer và output layer :
-                - Liên kết với tất cả các node ở layer trước đó với các hệ số w riêng.
-                - Mỗi node có 1 hệ số bias b riêng.
-                - Diễn ra 2 bước: tính tổng linear và áp dụng activation function.
-            """)
+                st.markdown("---")        
+                st.write("### Mô Hình Tổng Quát:")   
+                st.image("imgnn/modelnn.png", use_container_width="auto")
+                st.markdown(""" 
+                - Layer đầu tiên là input layer, các layer ở giữa được gọi là hidden layer, layer cuối cùng được gọi là output layer. Các hình tròn được gọi là node.
+                - Mỗi mô hình luôn có 1 input layer, 1 output layer, có thể có hoặc không các hidden layer. Tổng số layer trong mô hình được quy ước là số layer - 1 (Không tính input layer).
+                - Mỗi node trong hidden layer và output layer :
+                    - Liên kết với tất cả các node ở layer trước đó với các hệ số w riêng.
+                    - Mỗi node có 1 hệ số bias b riêng.
+                    - Diễn ra 2 bước: tính tổng linear và áp dụng activation function.
+                """)
 
-            st.markdown("---")          
-            st.markdown("""
-            ### Nguyên lý hoạt động:  
-            - Dữ liệu đầu vào được đưa vào lớp đầu vào.
-            - Mỗi nơ-ron trong lớp ẩn nhận tín hiệu từ các nơ-ron ở lớp trước đó, xử lý tín hiệu và chuyển tiếp kết quả đến các nơ-ron ở lớp tiếp theo.
-            - Quá trình này tiếp tục cho đến khi dữ liệu đến lớp đầu ra.
-            - Kết quả đầu ra được tạo ra dựa trên các tín hiệu nhận được từ lớp ẩn cuối cùng.
-            """)           
-            st.markdown("---")
-            st.markdown("""  
-            ### Áp dụng vào ngữ cảnh Neural Network với MNIST:  
-            - **MNIST (Modified National Institute of Standards and Technology database)** là một bộ dữ liệu kinh điển trong lĩnh vực học máy, đặc biệt là trong việc áp dụng mạng nơ-ron. Nó bao gồm 70.000 ảnh xám của chữ số viết tay (từ 0 đến 9), được chia thành 60.000 ảnh huấn luyện và 10.000 ảnh kiểm tra.
-            - Mục tiêu của bài toán là phân loại chính xác chữ số từ 0 đến 9 dựa trên ảnh đầu vào.
-            - Có nhiều cách để áp dụng mạng nơ-ron cho bài toán phân loại chữ số viết tay trên MNIST. Dưới đây là một số phương pháp phổ biến:
-                - **Multi-Layer Perceptron (MLP)**: Một mô hình mạng nơ-ron sâu với nhiều lớp ẩn.
-                - **Convolutional Neural Network (CNN)**: Một mô hình mạng nơ-ron sâu được thiết kế đặc biệt cho việc xử lý ảnh.
-                - **Recurrent Neural Network (RNN)**: Một mô hình mạng nơ-ron sâu được thiết kế cho dữ liệu chuỗi.
-            """)
+                st.markdown("---")          
+                st.markdown("""
+                ### Nguyên lý hoạt động:  
+                - Dữ liệu đầu vào được đưa vào lớp đầu vào.
+                - Mỗi nơ-ron trong lớp ẩn nhận tín hiệu từ các nơ-ron ở lớp trước đó, xử lý tín hiệu và chuyển tiếp kết quả đến các nơ-ron ở lớp tiếp theo.
+                - Quá trình này tiếp tục cho đến khi dữ liệu đến lớp đầu ra.
+                - Kết quả đầu ra được tạo ra dựa trên các tín hiệu nhận được từ lớp ẩn cuối cùng.
+                """)           
+                st.markdown("---")
+                st.markdown("""  
+                ### Áp dụng vào ngữ cảnh Neural Network với MNIST:  
+                - **MNIST (Modified National Institute of Standards and Technology database)** là một bộ dữ liệu kinh điển trong lĩnh vực học máy, đặc biệt là trong việc áp dụng mạng nơ-ron. Nó bao gồm 70.000 ảnh xám của chữ số viết tay (từ 0 đến 9), được chia thành 60.000 ảnh huấn luyện và 10.000 ảnh kiểm tra.
+                - Mục tiêu của bài toán là phân loại chính xác chữ số từ 0 đến 9 dựa trên ảnh đầu vào.
+                - Có nhiều cách để áp dụng mạng nơ-ron cho bài toán phân loại chữ số viết tay trên MNIST. Dưới đây là một số phương pháp phổ biến:
+                    - **Multi-Layer Perceptron (MLP)**: Một mô hình mạng nơ-ron sâu với nhiều lớp ẩn.
+                    - **Convolutional Neural Network (CNN)**: Một mô hình mạng nơ-ron sâu được thiết kế đặc biệt cho việc xử lý ảnh.
+                    - **Recurrent Neural Network (RNN)**: Một mô hình mạng nơ-ron sâu được thiết kế cho dữ liệu chuỗi.
+                """)
+
+            elif model_option == "PseudoLabelling":
+                st.markdown("""
+                    ### PseudoLabelling
+                    """)
+                st.markdown("---")
+                
+                st.markdown("""
+                ### Khái Niệm:
+                **PseudoLabelling**:
+                - Là một kỹ thuật học bán giám sát (semi-supervised learning) nhằm tận dụng cả dữ liệu có nhãn và dữ liệu không có nhãn để cải thiện hiệu suất mô hình học máy.
+                - Ý tưởng chính là sử dụng mô hình đã được huấn luyện trên dữ liệu có nhãn để dự đoán nhãn cho dữ liệu không có nhãn, sau đó thêm các nhãn "giả" (pseudo-labels) này vào tập huấn luyện để tiếp tục huấn luyện mô hình.
+                """)
+
+                st.markdown("---")
+                st.markdown("""
+                ### Nguyên lý hoạt động:
+                - **Bước 1:** Huấn luyện mô hình ban đầu trên tập dữ liệu có nhãn (labeled data) bằng phương pháp học có giám sát.
+                - **Bước 2:** Sử dụng mô hình đã huấn luyện để dự đoán nhãn cho tập dữ liệu không có nhãn (unlabeled data).
+                - **Bước 3:** Lọc các dự đoán có độ tin cậy cao (dựa trên ngưỡng xác suất) và gán nhãn giả cho các mẫu này.
+                - **Bước 4:** Kết hợp dữ liệu có nhãn ban đầu với dữ liệu có nhãn giả, sau đó huấn luyện lại mô hình trên tập dữ liệu mở rộng.
+                - **Lặp lại:** Quá trình này có thể được lặp lại nhiều lần cho đến khi không còn mẫu nào đạt ngưỡng tin cậy hoặc đạt số vòng lặp tối đa.
+                """)
+
+                st.markdown("---")
+                st.markdown("""
+                ### Áp dụng vào ngữ cảnh PseudoLabelling với MNIST:
+                - Trong bài toán MNIST, PseudoLabelling được sử dụng để tận dụng tập dữ liệu lớn nhưng chỉ một phần nhỏ có nhãn.
+                - **Quy trình cụ thể:**
+                    1. Bắt đầu với một tập train nhỏ (có nhãn) từ dữ liệu MNIST (ví dụ: 1% mỗi class).
+                    2. Sử dụng mô hình Neural Network để dự đoán nhãn cho tập dữ liệu không có nhãn (indices).
+                    3. Chọn các dự đoán có độ tin cậy cao (threshold) và thêm vào tập train.
+                    4. Huấn luyện lại mô hình trên tập train mở rộng và lặp lại quá trình.
+                - **Lợi ích:** Giảm sự phụ thuộc vào dữ liệu có nhãn đầy đủ, tận dụng tối đa dữ liệu không có nhãn để cải thiện độ chính xác.
+                """)
     
     with tab_load:
         with st.expander("**Tải dữ liệu**", expanded=True):
