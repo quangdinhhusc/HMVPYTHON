@@ -505,14 +505,17 @@ def run_PseudoLabelling_app():
                 st.markdown("---")        
                 st.write("### Mô Hình Tổng Quát:")   
                 st.image("imgpl/modelpl.png", use_container_width="auto", caption="Mô hình PseudoLabelling (researchgate.net)")
-                st.markdown(""" 
-                - Layer đầu tiên là input layer, các layer ở giữa được gọi là hidden layer, layer cuối cùng được gọi là output layer. Các hình tròn được gọi là node.
-                - Mỗi mô hình luôn có 1 input layer, 1 output layer, có thể có hoặc không các hidden layer. Tổng số layer trong mô hình được quy ước là số layer - 1 (Không tính input layer).
-                - Mỗi node trong hidden layer và output layer :
-                    - Liên kết với tất cả các node ở layer trước đó với các hệ số w riêng.
-                    - Mỗi node có 1 hệ số bias b riêng.
-                    - Diễn ra 2 bước: tính tổng linear và áp dụng activation function.
-                """)
+                st.markdown("""
+                    **Giải thích quy trình:**
+                    - **Labeled data (Dữ liệu có nhãn):** Tập dữ liệu ban đầu với các mẫu đã được gán nhãn (màu đỏ và xanh dương đại diện cho các lớp khác nhau).
+                    - **Unlabeled data (Dữ liệu không có nhãn):** Tập dữ liệu chưa được gán nhãn (màu xám).
+                    - **Train (Huấn luyện):** Mô hình được huấn luyện trên dữ liệu có nhãn ban đầu.
+                    - **Predict (Dự đoán):** Mô hình dự đoán nhãn cho dữ liệu không có nhãn.
+                    - **Pseudo-labeled data (Dữ liệu nhãn giả):** Các mẫu không có nhãn được gán nhãn giả dựa trên dự đoán của mô hình (màu đỏ và xanh dương).
+                    - **Append (Thêm vào):** Dữ liệu nhãn giả được thêm vào tập dữ liệu có nhãn ban đầu.
+                    - **Retrain (Huấn luyện lại):** Mô hình được huấn luyện lại trên tập dữ liệu mở rộng (bao gồm cả dữ liệu có nhãn và nhãn giả).
+                    - Quá trình này lặp lại để cải thiện hiệu suất mô hình.
+                    """)
 
                 st.markdown("---")
                 st.markdown("""
