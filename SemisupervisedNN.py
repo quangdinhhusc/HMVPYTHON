@@ -414,8 +414,6 @@ def run_PseudoLabelling_app():
                 - **Dữ liệu nhãn:** Mỗi ảnh đi kèm với một nhãn số từ 0 đến 9  
                 '''
             )
-            st.write(f"🔍 Số lượng ảnh huấn luyện: `{X_Information.shape[0]}`")
-            st.write(f"🔍 Số lượng ảnh kiểm tra: `{y_Information.shape[0]}`")
 
         with st.expander("**Hiển thị số lượng mẫu của từng chữ số từ 0 đến 9 trong tập huấn luyện**", expanded=True):
             label_counts = pd.Series(y_Information).value_counts().sort_index()
