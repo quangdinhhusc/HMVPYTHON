@@ -493,6 +493,29 @@ def run_PseudoLabelling_app():
                 st.markdown("""
                     ### PseudoLabelling
                     """)
+                
+                # Tạo dữ liệu giả
+                np.random.seed(42)
+                labeled_data_x = np.random.rand(10)
+                labeled_data_y = np.random.rand(10)
+                labels = [0] * 5 + [1] * 5  # 5 điểm lớp 0 (đỏ), 5 điểm lớp 1 (xanh)
+
+                # Vẽ dữ liệu có nhãn
+                plt.figure(figsize=(6, 4))
+                for i in range(len(labeled_data_x)):
+                    color = 'red' if labels[i] == 0 else 'blue'
+                    plt.scatter(labeled_data_x[i], labeled_data_y[i], c=color, s=100)
+
+                # Vẽ mũi tên và hộp "Model"
+                plt.arrow(0.6, 0.5, 0.2, 0, head_width=0.05, head_length=0.05, fc='black', ec='black')
+                plt.text(0.7, 0.55, "Train", fontsize=12)
+                plt.text(0.8, 0.45, "Model", fontsize=12, bbox=dict(facecolor='white', edgecolor='black'))
+
+                plt.title("Bước 1: Huấn luyện mô hình trên dữ liệu có nhãn")
+                plt.axis('off')
+                plt.savefig("step1_train.png", bbox_inches='tight')
+                plt.close()
+
                 st.markdown("---")
                 
                 st.markdown("""
@@ -520,12 +543,32 @@ def run_PseudoLabelling_app():
                 st.markdown("---")
                 st.markdown("""
                 ### Nguyên lý hoạt động:
-                - **Bước 1:** Huấn luyện mô hình ban đầu trên tập dữ liệu có nhãn (labeled data) bằng phương pháp học có giám sát.
-                - **Bước 2:** Sử dụng mô hình đã huấn luyện để dự đoán nhãn cho tập dữ liệu không có nhãn (unlabeled data).
-                - **Bước 3:** Lọc các dự đoán có độ tin cậy cao (dựa trên ngưỡng xác suất) và gán nhãn giả cho các mẫu này.
-                - **Bước 4:** Kết hợp dữ liệu có nhãn ban đầu với dữ liệu có nhãn giả, sau đó huấn luyện lại mô hình trên tập dữ liệu mở rộng.
-                - **Lặp lại:** Quá trình này có thể được lặp lại nhiều lần cho đến khi không còn mẫu nào đạt ngưỡng tin cậy hoặc đạt số vòng lặp tối đa.
+                Dưới đây là các bước chi tiết trong quy trình PseudoLabelling, với hình ảnh minh họa cho từng bước:
+                - **Bước 1: Huấn luyện mô hình ban đầu trên tập dữ liệu có nhãn (labeled data)**
+                    - Dữ liệu có nhãn (labeled data) được sử dụng để huấn luyện mô hình ban đầu bằng phương pháp học có giám sát.
                 """)
+                st.image("img/step1_train.png", caption="Bước 1: Huấn luyện mô hình trên dữ liệu có nhãn", use_container_width="auto")
+                st.markdown("""
+                - **Bước 2: Sử dụng mô hình đã huấn luyện để dự đoán nhãn cho tập dữ liệu không có nhãn (unlabeled data)**
+                    - Mô hình đã huấn luyện được sử dụng để dự đoán nhãn cho dữ liệu không có nhãn.
+                """)
+                st.image("img/step2_predict.png", caption="Bước 2: Dự đoán nhãn cho dữ liệu không có nhãn", use_container_width="auto")
+                st.markdown("""
+                - **Bước 3: Lọc các dự đoán có độ tin cậy cao và gán nhãn giả**
+                    - Các dự đoán có độ tin cậy cao (dựa trên ngưỡng xác suất) được chọn và gán nhãn giả (pseudo-labels).
+                """)
+                st.image("img/step3_filter.png", caption="Bước 3: Lọc và gán nhãn giả", use_container_width="auto")
+                st.markdown("""
+                - **Bước 4: Kết hợp dữ liệu có nhãn ban đầu với dữ liệu có nhãn giả**
+                    - Dữ liệu có nhãn ban đầu được kết hợp với dữ liệu có nhãn giả để tạo thành tập dữ liệu mở rộng.
+                """)
+                st.image("img/step4_append.png", caption="Bước 4: Kết hợp dữ liệu có nhãn và nhãn giả", use_container_width="auto")
+                st.markdown("""
+                - **Lặp lại: Huấn luyện lại mô hình trên tập dữ liệu mở rộng**
+                    - Mô hình được huấn luyện lại trên tập dữ liệu mở rộng (bao gồm cả dữ liệu có nhãn và nhãn giả).
+                    - Quá trình này lặp lại nhiều lần cho đến khi không còn mẫu nào đạt ngưỡng tin cậy hoặc đạt số vòng lặp tối đa.
+                """)
+                st.image("img/step5_retrain.png", caption="Bước 5: Huấn luyện lại và lặp lại", use_container_width="auto")
 
                 st.markdown("---")
                 st.markdown("""

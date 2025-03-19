@@ -268,7 +268,7 @@ def run_NeuralNetwork_app():
             # Lựa chọn tham số huấn luyện
             k_folds = st.slider("Số fold cho Cross-Validation:", 3, 10, 5)
             
-            num_layers = st.slider("Số lớp ẩn:", 1, 5, 2)
+            num_layers = st.number_input("Số lớp ẩn:", 1, 5, 2)
 
             epochs = st.slider("Số lần lặp tối đa", 2, 50, 5)
 
