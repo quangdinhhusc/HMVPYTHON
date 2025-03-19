@@ -444,7 +444,7 @@ def run_PseudoLabelling_app():
         with st.expander("**Kiểm tra hình dạng của tập dữ liệu**", expanded=True):    
             # Kiểm tra hình dạng của tập dữ liệu
             st.write("🔍 Hình dạng tập huấn luyện:", X_Information.shape)
-            st.write("**Chuẩn hóa dữ liệu (đưa giá trị pixel về khoảng 0-1)**")
+            
 
 
 
