@@ -458,7 +458,7 @@ def run_PseudoLabelling_app():
 
                 st.markdown("---")        
                 st.write("### Mô Hình Tổng Quát:")   
-                st.image("imgnn/modelnn.png", use_container_width="auto")
+                st.image("imgnn/modelnn.png", use_container_width="auto", caption="Mô hình Neural Network (machinelearningcoban.com)")
                 st.markdown(""" 
                 - Layer đầu tiên là input layer, các layer ở giữa được gọi là hidden layer, layer cuối cùng được gọi là output layer. Các hình tròn được gọi là node.
                 - Mỗi mô hình luôn có 1 input layer, 1 output layer, có thể có hoặc không các hidden layer. Tổng số layer trong mô hình được quy ước là số layer - 1 (Không tính input layer).
@@ -498,6 +498,18 @@ def run_PseudoLabelling_app():
                 **PseudoLabelling**:
                 - Là một kỹ thuật học bán giám sát (semi-supervised learning) nhằm tận dụng cả dữ liệu có nhãn và dữ liệu không có nhãn để cải thiện hiệu suất mô hình học máy.
                 - Ý tưởng chính là sử dụng mô hình đã được huấn luyện trên dữ liệu có nhãn để dự đoán nhãn cho dữ liệu không có nhãn, sau đó thêm các nhãn "giả" (pseudo-labels) này vào tập huấn luyện để tiếp tục huấn luyện mô hình.
+                """)
+
+                st.markdown("---")        
+                st.write("### Mô Hình Tổng Quát:")   
+                st.image("imgpl/modelpl.png", use_container_width="auto", caption="Mô hình PseudoLabelling (researchgate.net)")
+                st.markdown(""" 
+                - Layer đầu tiên là input layer, các layer ở giữa được gọi là hidden layer, layer cuối cùng được gọi là output layer. Các hình tròn được gọi là node.
+                - Mỗi mô hình luôn có 1 input layer, 1 output layer, có thể có hoặc không các hidden layer. Tổng số layer trong mô hình được quy ước là số layer - 1 (Không tính input layer).
+                - Mỗi node trong hidden layer và output layer :
+                    - Liên kết với tất cả các node ở layer trước đó với các hệ số w riêng.
+                    - Mỗi node có 1 hệ số bias b riêng.
+                    - Diễn ra 2 bước: tính tổng linear và áp dụng activation function.
                 """)
 
                 st.markdown("---")
