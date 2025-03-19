@@ -455,6 +455,7 @@ def run_PseudoLabelling_app():
                 - Là một mô hình tính toán lấy cảm hứng từ cấu trúc và chức năng của mạng lưới thần kinh sinh học. Nó được tạo thành từ các nút kết nối với nhau, hay còn gọi là nơ-ron nhân tạo, được sắp xếp thành các lớp.
                 - Ý tưởng chính của **Neural Network** là tạo ra một mô hình tính toán có khả năng học hỏi và xử lý thông tin giống như bộ não con người.
                 """)
+                
 
                 st.markdown("---")        
                 st.write("### Mô Hình Tổng Quát:")   
@@ -467,6 +468,7 @@ def run_PseudoLabelling_app():
                     - Mỗi node có 1 hệ số bias b riêng.
                     - Diễn ra 2 bước: tính tổng linear và áp dụng activation function.
                 """)
+
 
                 st.markdown("---")          
                 st.markdown("""
