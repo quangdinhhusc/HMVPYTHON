@@ -266,13 +266,13 @@ def run_NeuralNetwork_app():
             X_test = X_test / 255.0
             
             # Lựa chọn tham số huấn luyện
-            k_folds = st.slider("Số fold cho Cross-Validation:", 3, 10, 5)
+            k_folds = st.number_input("Số fold cho Cross-Validation:", 3, 10, 5)
             
             num_layers = st.number_input("Số lớp ẩn:", 1, 5, 2)
 
-            epochs = st.slider("Số lần lặp tối đa", 2, 50, 5)
+            epochs = st.number_input("Số lần lặp tối đa", 2, 50, 5)
 
-            learning_rate_init = st.slider("Tốc độ học", 0.001, 0.1, 0.01, step = 0.001, format="%.3f")
+            learning_rate_init = st.number_input("Tốc độ học", 0.001, 0.1, 0.01, step = 0.001, format="%.3f")
 
             activation = st.selectbox("Hàm kích hoạt:", ["relu", "sigmoid", "tanh"])
 
