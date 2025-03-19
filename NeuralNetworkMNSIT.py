@@ -264,24 +264,44 @@ def run_NeuralNetwork_app():
             X_train = X_train / 255.0
             X_val = X_val / 255.0
             X_test = X_test / 255.0
-            
+
+            run_name = st.text_input("Nhập tên Run:", "Default_Run")
             # Lựa chọn tham số huấn luyện
-            k_folds = st.number_input("Số fold cho Cross-Validation:", 3, 10, 5)
+            st.markdown("### Lựa chọn tham số huấn luyện")
             
-            num_layers = st.number_input("Số lớp ẩn:", 1, 5, 2)
+            # Chia giao diện thành 2 cột
+            col1, col2 = st.columns(2)
 
-            epochs = st.number_input("Số lần lặp tối đa", 2, 50, 5)
+            # Cột 1: k_folds, num_layers, epochs
+            with col1:
+                k_folds = st.number_input("Số fold cho Cross-Validation:", 3, 10, 5)
+                num_layers = st.number_input("Số lớp ẩn:", 1, 5, 2)
+                epochs = st.number_input("Số lần lặp tối đa", 2, 50, 5)
+                learning_rate_init = st.number_input("Tốc độ học", 0.001, 0.1, 0.01, step=0.001, format="%.3f")
 
-            learning_rate_init = st.number_input("Tốc độ học", 0.001, 0.1, 0.01, step = 0.001, format="%.3f")
+            # Cột 2: learning_rate_init, activation, num_neurons, optimizer
+            with col2:  
+                activation = st.selectbox("Hàm kích hoạt:", ["relu", "sigmoid", "tanh"])
+                num_neurons = st.selectbox("Số neuron mỗi lớp:", [32, 64, 128, 256], index=0)
+                optimizer = st.selectbox("Chọn hàm tối ưu", ["adam", "sgd", "lbfgs"])
+            
+            # # Lựa chọn tham số huấn luyện
+            # k_folds = st.number_input("Số fold cho Cross-Validation:", 3, 10, 5)
+            
+            # num_layers = st.number_input("Số lớp ẩn:", 1, 5, 2)
 
-            activation = st.selectbox("Hàm kích hoạt:", ["relu", "sigmoid", "tanh"])
+            # epochs = st.number_input("Số lần lặp tối đa", 2, 50, 5)
 
-            num_neurons = st.selectbox("Số neuron mỗi lớp:", [32, 64, 128, 256], index=0)
+            # learning_rate_init = st.number_input("Tốc độ học", 0.001, 0.1, 0.01, step = 0.001, format="%.3f")
 
-            optimizer = st.selectbox("Chọn hàm tối ưu", ["adam", "sgd", "lbfgs"])
+            # activation = st.selectbox("Hàm kích hoạt:", ["relu", "sigmoid", "tanh"])
+
+            # num_neurons = st.selectbox("Số neuron mỗi lớp:", [32, 64, 128, 256], index=0)
+
+            # optimizer = st.selectbox("Chọn hàm tối ưu", ["adam", "sgd", "lbfgs"])
 
             loss_fn = "sparse_categorical_crossentropy"
-            run_name = st.text_input("Nhập tên Run:", "Default_Run")
+            
             st.session_state['run_name'] = run_name
 
             # Huấn luyện mô hình
