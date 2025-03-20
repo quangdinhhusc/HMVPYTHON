@@ -247,250 +247,6 @@ def data_preparation():
 
 
 
-# def learning_model():
-#     if "X_train" not in st.session_state:
-#         st.error("⚠️ Chưa có dữ liệu! Hãy chia dữ liệu trước.")
-#         return
-#     if "X_indices" not in st.session_state:
-#         st.error("⚠️ Dữ liệu X_indices không tồn tại! Vui lòng kiểm tra bước chuẩn bị dữ liệu.")
-#         return
-        
-#     # Lấy dữ liệu từ session_state
-#     X_train = st.session_state["X_train"]
-#     X_indices = st.session_state["X_indices"]
-#     X_test = st.session_state["X_test"]
-#     X_val = st.session_state["X_val"]
-#     y_train = st.session_state["y_train"]
-#     y_indices = st.session_state["y_indices"]
-#     y_test = st.session_state["y_test"]
-#     y_val = st.session_state["y_val"]
-
-#     run_name = st.text_input("Nhập tên Run:", "")
-#     # Lựa chọn tham số huấn luyện
-#     st.markdown("### Lựa chọn tham số huấn luyện")
-    
-#     # Chia giao diện thành 2 cột
-#     col1, col2 = st.columns(2)
-
-#     # Cột 1: k_folds, num_layers, epochs
-#     with col1:
-#         st.markdown("### Chỉ Số Model Neural Network")
-#         k_folds = st.number_input("Số fold cho Cross-Validation:", 3, 10, 5)
-#         num_layers = st.number_input("Số lớp ẩn:", 1, 5, 2)
-#         epochs = st.number_input("Số lần lặp tối đa", 2, 50, 5)
-#         learning_rate = st.number_input("Tốc độ học", 0.001, 0.1, 0.01, step=0.001, format="%.3f")
-#         activation = st.selectbox("Hàm kích hoạt:", ["relu", "sigmoid", "tanh"])
-#         num_neurons = st.selectbox("Số neuron mỗi lớp:", [32, 64, 128, 256], index=0)
-#         optimizer = st.selectbox("Chọn hàm tối ưu", ["adam", "sgd", "lbfgs"])
-
-#     # Cột 2: learning_rate_init, activation, num_neurons, optimizer
-#     with col2:
-#         st.markdown("### Chỉ Số Thực Hiện Pseudo-labeling")
-#         max_iterations = st.number_input("Số vòng lặp tối đa cho pseudo-labeling:", 1, 10, 3)
-#         threshold = st.number_input("Threshold", min_value=0.0, max_value=1.0, value=0.6, step=0.01)
-#     loss_fn = "sparse_categorical_crossentropy"
-    
-#     st.session_state['run_name'] = run_name
-    
-#     if st.button("Huấn luyện mô hình"):
-#         with st.spinner("Đang huấn luyện..."):
-#             with mlflow.start_run(run_name=run_name):
-
-#                 X_unlabeled = X_indices.copy()
-#                 unlabeled_indices = np.arange(len(X_indices))
-#                 iteration = 0
-#                 overall_progress = st.progress(0)
-#                 total_start_time = time.time()
-
-#                 while len(X_unlabeled) > 0 and iteration < max_iterations:
-#                     iteration += 1
-#                     st.write(f"🔄 Vòng lặp pseudo-labeling thứ {iteration}")
-
-#                     # Chuẩn bị dữ liệu validation cố định
-#                     X_val_flat = X_val.reshape(-1, 28 * 28).astype('float32') / 255.0
-
-#                     kf = StratifiedKFold(n_splits=k_folds, shuffle=True, random_state=42)
-#                     accuracies, losses = [], []
-#                     training_progress = st.progress(0)
-#                     training_status = st.empty()
-
-#                     # Khởi tạo mô hình
-#                     model = keras.Sequential([
-#                             layers.Input(shape=(28 * 28,))
-#                         ] + [layers.Dense(num_neurons, activation=activation) for _ in range(num_layers)
-#                         ] + [layers.Dense(10, activation="softmax")])
-
-#                     if optimizer == "adam":
-#                         opt = keras.optimizers.Adam(learning_rate=learning_rate)
-#                     elif optimizer == "sgd":
-#                         opt = keras.optimizers.SGD(learning_rate=learning_rate)
-#                     else:
-#                         opt = keras.optimizers.RMSprop(learning_rate=learning_rate)
-
-#                     # Biến để lưu lịch sử huấn luyện tổng hợp qua tất cả các fold
-#                     full_history = {'loss': [], 'accuracy': [], 'val_loss': [], 'val_accuracy': []}
-#                     total_time = 0  # Theo dõi tổng thời gian huấn luyện
-
-#                     # Cross-validation
-#                     for fold_idx, (train_idx, _) in enumerate(kf.split(X_train, y_train)):
-#                         # Kiểm tra và sửa lỗi khi truy cập X_train[train_idx]
-#                         if len(train_idx) == 0 or len(X_train) == 0:
-#                             st.error(f"⚠️ Lỗi: Tập train trống trong fold {fold_idx + 1}")
-#                             mlflow.end_run()
-#                             return
-#                         try:
-#                             X_k_train = X_train[train_idx]
-#                             y_k_train = y_train[train_idx]
-#                         except IndexError as e:
-#                             st.error(f"⚠️ Lỗi chỉ số trong fold {fold_idx + 1}: {str(e)}")
-#                             st.write(f"Kích thước X_train: {X_train.shape}, train_idx: {train_idx}")
-#                             mlflow.end_run()
-#                             return
-
-#                         X_k_train_flat = X_k_train.reshape(-1, 28 * 28).astype('float32') / 255.0
-                        
-#                         if fold_idx == 0:
-#                             model.compile(optimizer=opt, loss=loss_fn, metrics=["accuracy"])
-#                         try:
-#                             start_time = time.time()
-#                             history = model.fit(X_k_train_flat, y_k_train, epochs=epochs, 
-#                                             validation_data=(X_val_flat, y_val), verbose=0)
-#                             accuracies.append(history.history["val_accuracy"][-1])
-#                             losses.append(history.history["val_loss"][-1])
-#                             elapsed_time = time.time() - start_time
-#                             total_time += elapsed_time
-
-#                             # Gộp lịch sử huấn luyện từ fold hiện tại vào full_history
-#                             full_history['loss'].extend(history.history['loss'])
-#                             full_history['accuracy'].extend(history.history['accuracy'])
-#                             full_history['val_loss'].extend(history.history['val_loss'])
-#                             full_history['val_accuracy'].extend(history.history['val_accuracy'])
-
-#                             # Lưu trữ độ chính xác và loss của fold hiện tại để tính trung bình
-#                             accuracies.append(history.history["val_accuracy"][-1])
-#                             losses.append(history.history["val_loss"][-1])
-
-                            
-
-#                         except Exception as e:
-#                             st.error(f"Training failed in fold {fold_idx + 1}: {str(e)}")
-#                             mlflow.end_run()
-#                             return
-
-#                         progress_percent = int(((fold_idx + 1) / k_folds) * 100)
-#                         training_progress.progress(progress_percent)
-#                         training_status.text(f"⏳ Đang huấn luyện... {progress_percent}%")
-
-#                     avg_val_accuracy = np.mean(accuracies)
-
-#                     mlflow.log_metrics({
-#                         f"iter_{iteration}_avg_val_accuracy": avg_val_accuracy,
-#                         f"iter_{iteration}_avg_val_loss": np.mean(losses)
-#                     })
-
-#                     # Tính độ chính xác trên tập test
-#                     X_test_flat = X_test.reshape(-1, 28 * 28).astype('float32') / 255.0
-#                     test_loss, test_accuracy = model.evaluate(X_test_flat, y_test, verbose=0)
-
-#                     st.write(f"✅ Độ chính xác trên tập Test sau vòng lặp {iteration}: {test_accuracy:.4f}")
-
-#                     mlflow.log_metric(f"iter_{iteration}_test_accuracy", test_accuracy)
-#                     mlflow.log_metric(f"iter_{iteration}_test_loss", test_loss)
-
-#                     # Gán nhãn giả
-#                     X_unlabeled_flat = X_unlabeled.reshape(-1, 28 * 28).astype('float32') / 255.0
-#                     predictions = model.predict(X_unlabeled_flat, verbose=0)
-#                     confidence_scores = np.max(predictions, axis=1)
-#                     pseudo_labels = np.argmax(predictions, axis=1)
-
-#                     confident_mask = confidence_scores >= threshold
-
-
-#                     if np.sum(confident_mask) > 0:
-#                         X_confident = X_unlabeled[confident_mask]
-#                         y_confident = pseudo_labels[confident_mask]
-#                         # Lấy chỉ số của các mẫu được chọn trong X_unlabeled
-#                         selected_unlabeled_indices = unlabeled_indices[confident_mask]
-#                         # Lấy nhãn thật từ y_indices dựa trên chỉ số
-#                         true_labels = y_indices[selected_unlabeled_indices]
-
-#                         X_train = np.concatenate([X_train, X_confident])
-#                         y_train = np.concatenate([y_train, y_confident])
-#                         # Cập nhật X_unlabeled và unlabeled_indices
-#                         X_unlabeled = X_unlabeled[~confident_mask]
-#                         unlabeled_indices = unlabeled_indices[~confident_mask]
-#                         st.write(f"✅ Đã thêm {np.sum(confident_mask)} mẫu vào tập huấn luyện")
-#                         st.write(f"Độ Chính Xác (Validation): {avg_val_accuracy:.4f}")
-
-#                         # Hiển thị ngẫu nhiên 5 mẫu ảnh vừa được gán nhãn giả
-#                         st.markdown("#### Một số mẫu vừa được gán nhãn giả")
-#                         if len(X_confident) >= 5:
-#                             # Chọn ngẫu nhiên 5 mẫu từ X_confident
-#                             indices = np.random.choice(len(X_confident), 5, replace=False)
-#                             selected_images = X_confident[indices]
-#                             selected_pseudo_labels = y_confident[indices]
-#                             selected_true_labels = true_labels[indices]
-#                         else:
-#                             # Nếu số mẫu ít hơn 5, lấy tất cả mẫu
-#                             selected_images = X_confident
-#                             selected_pseudo_labels = y_confident
-#                             selected_true_labels = true_labels
-
-#                         # Chia giao diện thành 5 cột để hiển thị 5 ảnh
-#                         cols = st.columns(5)
-#                         for i in range(min(5, len(selected_images))):
-#                             with cols[i]:
-#                                 # Đảm bảo ảnh có định dạng đúng (28x28) và giá trị từ 0-255
-#                                 image = selected_images[i]
-#                                 # .reshape(28, 28) * 255.0
-#                                 # image = image.astype(np.uint8)
-#                                 # Hiển thị ảnh với nhãn giả và nhãn thật
-#                                 st.image(image, caption=f"Nhãn giả: {selected_pseudo_labels[i]} | Nhãn thật: {selected_true_labels[i]}", use_container_width=True)
-#                     else:
-#                         st.write(f"⚠️ Không có mẫu nào đạt ngưỡng tin cậy {threshold}. Kết thúc sớm.")
-#                         break  # Thoát vòng lặp nếu không có mẫu nào được gán nhãn
-
-#                     overall_progress.progress(min(iteration / max_iterations, 1.0))
-
-#                     # Ghi log vào MLFlow
-                    
-#                     mlflow.log_param("k_folds", k_folds)
-#                     mlflow.log_param("num_layers", num_layers)
-#                     mlflow.log_param("epochs", epochs)
-#                     mlflow.log_param("learning_rate_init", learning_rate)
-#                     mlflow.log_param("activation", activation)
-#                     mlflow.log_param("num_neurons", num_neurons)
-#                     mlflow.log_param("optimizer", optimizer)
-#                     mlflow.log_param("loss_function", loss_fn)
-#                     mlflow.log_metric("train_accuracy", full_history['accuracy'][-1])
-#                     mlflow.log_metric("val_accuracy", full_history['val_accuracy'][-1])
-#                     mlflow.log_metric("final_train_loss", full_history['loss'][-1])
-#                     mlflow.log_metric("final_val_loss", full_history['val_loss'][-1])
-
-#             # Huấn luyện lại trên toàn bộ dữ liệu để có mô hình cuối cùng
-#             X_train_flat = X_train.reshape(-1, 28 * 28).astype('float32') / 255.0
-#             model.fit(X_train_flat, y_train, epochs=epochs, verbose=0)
-
-#             # Tính độ chính xác cuối cùng trên tập test
-#             X_test_flat = X_test.reshape(-1, 28 * 28).astype('float32') / 255.0
-#             final_test_loss, final_test_accuracy = model.evaluate(X_test_flat, y_test, verbose=0)
-
-#             mlflow.log_metric("final_test_accuracy", final_test_accuracy)
-#             mlflow.log_metric("final_test_loss", final_test_loss)
-
-#             total_elapsed_time = time.time() - total_start_time
-#             mlflow.log_metrics({"total_elapsed_time": total_elapsed_time})
-#             mlflow.end_run()
-
-#             # Lưu mô hình
-#             st.session_state["trained_model"] = model
-
-#             st.success(f"✅ Quá trình huấn luyện và gán nhãn giả hoàn tất!")
-#             st.write(f"📊 **Độ chính xác trung bình cuối cùng trên tập validation:** {avg_val_accuracy:.4f}")
-#             st.write(f"📊 **Độ chính xác cuối cùng trên tập test:** {final_test_accuracy:.4f}")
-#             st.write(f"⏱️ **Tổng thời gian huấn luyện:** {total_elapsed_time:.2f} giây")
-#             st.write(f"📈 **Số mẫu trong tập huấn luyện cuối cùng:** {len(X_train)}")
-
 def learning_model():
     if "X_train" not in st.session_state:
         st.error("⚠️ Chưa có dữ liệu! Hãy chia dữ liệu trước.")
@@ -498,10 +254,7 @@ def learning_model():
     if "X_indices" not in st.session_state:
         st.error("⚠️ Dữ liệu X_indices không tồn tại! Vui lòng kiểm tra bước chuẩn bị dữ liệu.")
         return
-    if "X_val" not in st.session_state:
-        st.error("⚠️ Dữ liệu X_val không tồn tại! Vui lòng kiểm tra bước chuẩn bị dữ liệu.")
-        return
-
+        
     # Lấy dữ liệu từ session_state
     X_train = st.session_state["X_train"]
     X_indices = st.session_state["X_indices"]
@@ -512,12 +265,7 @@ def learning_model():
     y_test = st.session_state["y_test"]
     y_val = st.session_state["y_val"]
 
-    # Đảm bảo X_train là mảng NumPy
-    X_train = np.array(X_train)
-    y_train = np.array(y_train)
-    X_indices = np.array(X_indices)
-    y_indices = np.array(y_indices)
-
+    run_name = st.text_input("Nhập tên Run:", "")
     # Lựa chọn tham số huấn luyện
     st.markdown("### Lựa chọn tham số huấn luyện")
     
@@ -526,32 +274,29 @@ def learning_model():
 
     # Cột 1: k_folds, num_layers, epochs
     with col1:
-        st.markdown("#### Cấu trúc huấn luyện")
+        st.markdown("### Chỉ Số Model Neural Network")
         k_folds = st.number_input("Số fold cho Cross-Validation:", 3, 10, 5)
         num_layers = st.number_input("Số lớp ẩn:", 1, 5, 2)
         epochs = st.number_input("Số lần lặp tối đa", 2, 50, 5)
-
-    # Cột 2: learning_rate_init, activation, num_neurons, optimizer
-    with col2:
-        st.markdown("#### Tham số mô hình")
-        learning_rate_init = st.number_input("Tốc độ học", 0.001, 0.1, 0.01, step=0.001, format="%.3f")
+        learning_rate = st.number_input("Tốc độ học", 0.001, 0.1, 0.01, step=0.001, format="%.3f")
         activation = st.selectbox("Hàm kích hoạt:", ["relu", "sigmoid", "tanh"])
         num_neurons = st.selectbox("Số neuron mỗi lớp:", [32, 64, 128, 256], index=0)
         optimizer = st.selectbox("Chọn hàm tối ưu", ["adam", "sgd", "lbfgs"])
 
-    # Các tham số khác
-    max_iterations = st.slider("Số vòng lặp tối đa cho pseudo-labeling:", 1, 10, 3)
-    threshold = st.slider("Threshold", min_value=0.0, max_value=1.0, value=0.6, step=0.01)
-
+    # Cột 2: learning_rate_init, activation, num_neurons, optimizer
+    with col2:
+        st.markdown("### Chỉ Số Thực Hiện Pseudo-labeling")
+        max_iterations = st.number_input("Số vòng lặp tối đa cho pseudo-labeling:", 1, 10, 3)
+        threshold = st.number_input("Threshold", min_value=0.0, max_value=1.0, value=0.6, step=0.01)
     loss_fn = "sparse_categorical_crossentropy"
-    run_name = st.text_input("Nhập tên Run:", "Default_Run")
+    
     st.session_state['run_name'] = run_name
     
     if st.button("Huấn luyện mô hình"):
         with st.spinner("Đang huấn luyện..."):
             with mlflow.start_run(run_name=run_name):
+
                 X_unlabeled = X_indices.copy()
-                # Tạo một mảng chỉ số để theo dõi các mẫu trong X_unlabeled
                 unlabeled_indices = np.arange(len(X_indices))
                 iteration = 0
                 overall_progress = st.progress(0)
@@ -564,34 +309,34 @@ def learning_model():
                     # Số lượng dữ liệu tập train trước khi thêm dữ liệu mới
                     train_size_before = len(X_train)
 
-                    # Sử dụng KFold thay vì StratifiedKFold vì không cần chia val nữa
+                    # Chuẩn bị dữ liệu validation cố định
+                    X_val_flat = X_val.reshape(-1, 28 * 28).astype('float32') / 255.0
+
                     kf = StratifiedKFold(n_splits=k_folds, shuffle=True, random_state=42)
                     accuracies, losses = [], []
                     training_progress = st.progress(0)
                     training_status = st.empty()
 
-                    # Chuẩn bị dữ liệu validation cố định
-                    X_val_flat = X_val.reshape(-1, 28 * 28).astype('float32') / 255.0
-
-                    # Khởi tạo mô hình chỉ một lần trước khi vào vòng lặp k-fold
+                    # Khởi tạo mô hình
                     model = keras.Sequential([
-                        layers.Input(shape=(28 * 28,))
-                    ] + [layers.Dense(num_neurons, activation=activation) for _ in range(num_layers)
-                    ] + [layers.Dense(10, activation="softmax")])
+                            layers.Input(shape=(28 * 28,))
+                        ] + [layers.Dense(num_neurons, activation=activation) for _ in range(num_layers)
+                        ] + [layers.Dense(10, activation="softmax")])
 
                     if optimizer == "adam":
-                        opt = keras.optimizers.Adam(learning_rate=learning_rate_init)
+                        opt = keras.optimizers.Adam(learning_rate=learning_rate)
                     elif optimizer == "sgd":
-                        opt = keras.optimizers.SGD(learning_rate=learning_rate_init)
+                        opt = keras.optimizers.SGD(learning_rate=learning_rate)
                     else:
-                        opt = keras.optimizers.RMSprop(learning_rate=learning_rate_init)
+                        opt = keras.optimizers.RMSprop(learning_rate=learning_rate)
 
                     # Biến để lưu lịch sử huấn luyện tổng hợp qua tất cả các fold
                     full_history = {'loss': [], 'accuracy': [], 'val_loss': [], 'val_accuracy': []}
                     total_time = 0  # Theo dõi tổng thời gian huấn luyện
 
-                    # Cross-validation với tập validation cố định
-                    for fold_idx, (train_idx, _) in enumerate(kf.split(X_train)):
+                    # Cross-validation
+                    for fold_idx, (train_idx, _) in enumerate(kf.split(X_train, y_train)):
+                        # Kiểm tra và sửa lỗi khi truy cập X_train[train_idx]
                         if len(train_idx) == 0 or len(X_train) == 0:
                             st.error(f"⚠️ Lỗi: Tập train trống trong fold {fold_idx + 1}")
                             mlflow.end_run()
@@ -606,10 +351,9 @@ def learning_model():
                             return
 
                         X_k_train_flat = X_k_train.reshape(-1, 28 * 28).astype('float32') / 255.0
-
+                        
                         if fold_idx == 0:
                             model.compile(optimizer=opt, loss=loss_fn, metrics=["accuracy"])
-
                         try:
                             start_time = time.time()
                             history = model.fit(X_k_train_flat, y_k_train, epochs=epochs, 
@@ -619,10 +363,17 @@ def learning_model():
                             elapsed_time = time.time() - start_time
                             total_time += elapsed_time
 
+                            # Gộp lịch sử huấn luyện từ fold hiện tại vào full_history
                             full_history['loss'].extend(history.history['loss'])
                             full_history['accuracy'].extend(history.history['accuracy'])
                             full_history['val_loss'].extend(history.history['val_loss'])
                             full_history['val_accuracy'].extend(history.history['val_accuracy'])
+
+                            # Lưu trữ độ chính xác và loss của fold hiện tại để tính trung bình
+                            accuracies.append(history.history["val_accuracy"][-1])
+                            losses.append(history.history["val_loss"][-1])
+
+                            
 
                         except Exception as e:
                             st.error(f"Training failed in fold {fold_idx + 1}: {str(e)}")
@@ -634,6 +385,7 @@ def learning_model():
                         training_status.text(f"⏳ Đang huấn luyện... {progress_percent}%")
 
                     avg_val_accuracy = np.mean(accuracies)
+
                     mlflow.log_metrics({
                         f"iter_{iteration}_avg_val_accuracy": avg_val_accuracy,
                         f"iter_{iteration}_avg_val_loss": np.mean(losses)
@@ -642,7 +394,9 @@ def learning_model():
                     # Tính độ chính xác trên tập test
                     X_test_flat = X_test.reshape(-1, 28 * 28).astype('float32') / 255.0
                     test_loss, test_accuracy = model.evaluate(X_test_flat, y_test, verbose=0)
-                    st.write(f"✅ Độ chính xác trên tập test sau vòng lặp {iteration}: {test_accuracy:.4f}")
+
+                    st.write(f"✅ Độ chính xác trên tập Test sau vòng lặp {iteration}: {test_accuracy:.4f}")
+
                     mlflow.log_metric(f"iter_{iteration}_test_accuracy", test_accuracy)
                     mlflow.log_metric(f"iter_{iteration}_test_loss", test_loss)
 
@@ -653,6 +407,8 @@ def learning_model():
                     pseudo_labels = np.argmax(predictions, axis=1)
 
                     confident_mask = confidence_scores >= threshold
+
+
                     if np.sum(confident_mask) > 0:
                         X_confident = X_unlabeled[confident_mask]
                         y_confident = pseudo_labels[confident_mask]
@@ -675,7 +431,6 @@ def learning_model():
                         st.markdown(f"#### Kết quả gán nhãn giả vòng lặp {iteration}")
                         st.table(summary_df)
 
-                        # Cập nhật tập train
                         X_train = np.concatenate([X_train, X_confident])
                         y_train = np.concatenate([y_train, y_confident])
                         # Cập nhật X_unlabeled và unlabeled_indices
@@ -687,33 +442,39 @@ def learning_model():
                         # Hiển thị ngẫu nhiên 5 mẫu ảnh vừa được gán nhãn giả
                         st.markdown("#### Một số mẫu vừa được gán nhãn giả")
                         if len(X_confident) >= 5:
+                            # Chọn ngẫu nhiên 5 mẫu từ X_confident
                             indices = np.random.choice(len(X_confident), 5, replace=False)
                             selected_images = X_confident[indices]
                             selected_pseudo_labels = y_confident[indices]
                             selected_true_labels = true_labels[indices]
                         else:
+                            # Nếu số mẫu ít hơn 5, lấy tất cả mẫu
                             selected_images = X_confident
                             selected_pseudo_labels = y_confident
                             selected_true_labels = true_labels
 
+                        # Chia giao diện thành 5 cột để hiển thị 5 ảnh
                         cols = st.columns(5)
                         for i in range(min(5, len(selected_images))):
                             with cols[i]:
-                                image = selected_images[i].reshape(28, 28) * 255.0
-                                image = image.astype(np.uint8)
+                                # Đảm bảo ảnh có định dạng đúng (28x28) và giá trị từ 0-255
+                                image = selected_images[i]
+                                # .reshape(28, 28) * 255.0
+                                # image = image.astype(np.uint8)
+                                # Hiển thị ảnh với nhãn giả và nhãn thật
                                 st.image(image, caption=f"Nhãn giả: {selected_pseudo_labels[i]} | Nhãn thật: {selected_true_labels[i]}", use_container_width=True)
-
                     else:
                         st.write(f"⚠️ Không có mẫu nào đạt ngưỡng tin cậy {threshold}. Kết thúc sớm.")
-                        break
+                        break  # Thoát vòng lặp nếu không có mẫu nào được gán nhãn
 
                     overall_progress.progress(min(iteration / max_iterations, 1.0))
 
                     # Ghi log vào MLFlow
+                    
                     mlflow.log_param("k_folds", k_folds)
                     mlflow.log_param("num_layers", num_layers)
                     mlflow.log_param("epochs", epochs)
-                    mlflow.log_param("learning_rate_init", learning_rate_init)
+                    mlflow.log_param("learning_rate_init", learning_rate)
                     mlflow.log_param("activation", activation)
                     mlflow.log_param("num_neurons", num_neurons)
                     mlflow.log_param("optimizer", optimizer)
@@ -730,7 +491,7 @@ def learning_model():
             # Tính độ chính xác cuối cùng trên tập test
             X_test_flat = X_test.reshape(-1, 28 * 28).astype('float32') / 255.0
             final_test_loss, final_test_accuracy = model.evaluate(X_test_flat, y_test, verbose=0)
-            st.write(f"✅ Độ chính xác cuối cùng trên tập test: {final_test_accuracy:.4f}")
+
             mlflow.log_metric("final_test_accuracy", final_test_accuracy)
             mlflow.log_metric("final_test_loss", final_test_loss)
 
