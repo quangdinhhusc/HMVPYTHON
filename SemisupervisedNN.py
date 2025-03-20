@@ -56,10 +56,12 @@ def data_preparation():
     num_samples = st.number_input("Chọn số lượng ảnh để huấn luyện:", 100, total_samples, 20000)
     
     # Thanh kéo chọn tỷ lệ Train/Val/Test/Indices
-    train_size = st.slider("Tỷ lệ dữ liệu tập train (%):", 1, 5, 1, step=1)
-    test_size = st.slider("Chọn % dữ liệu Test", 10, 50, 20)
-    val_size = st.slider("Chọn % tỷ lệ tập Validation (trong phần còn lại sau Test)", min_value=10, max_value=50, value=20, step=5)
     
+    test_size = st.number_input("Chọn % dữ liệu Test", 10, 50, 20)
+    size = 100 - test_size
+    val_size = st.number_input("Chọn % tỷ lệ tập Validation (trong phần còn lại sau Test)", min_value=10, max_value=size, value=20, step=5)
+    train_size = st.number_input("Tỷ lệ dữ liệu tập train (%):", 1, 5, 1, step=1)
+
     # Tính tỷ lệ indices (phần còn lại)
     remaining_percent = 100 - test_size  # Phần còn lại sau khi lấy tập test
     val_actual_size = (val_size / 100) * remaining_percent  # Tỷ lệ thực tế của tập validation
