@@ -35,50 +35,48 @@ def load_mnist_data():
 
 
 
-
-
 def data_preparation():
-
-    # Cho phép người dùng chọn tỷ lệ validation và test
     st.title("Chia dữ liệu Train/Test")
     
     # Tạo các biến để lưu dữ liệu
-
     test_percent = 0
     train_percent = 0
     indices_percent = 0
 
-    X_train_initial = np.array([]).reshape(0,0)
-    X_test_data = np.array([]).reshape(0,0)
-    X_indices_data = np.array([]).reshape(0,0)
+    X_train_initial = np.array([]).reshape(0, 0)
+    X_test_data = np.array([]).reshape(0, 0)
+    X_indices_data = np.array([]).reshape(0, 0)
     y_train_initial = np.array([])
 
-    
-    
     # Đọc dữ liệu
     X, y = load_mnist_data()
     total_samples = X.shape[0] 
     
-    # Thanh kéo chọn số lượng ảnh để train
+    # Thanh kéo chọn số lượng ảnh để huấn luyện
     num_samples = st.number_input("Chọn số lượng ảnh để huấn luyện:", 100, total_samples, 20000)
     
-    # if num_samples == total_samples:
-    #     num_samples = num_samples - 10
-    # else:
-    #     num_samples = num_samples
-
-    # Thanh kéo chọn tỷ lệ Train/Test
+    # Thanh kéo chọn tỷ lệ Train/Val/Test/Indices
+    train_size = st.slider("Tỷ lệ dữ liệu tập train (%):", 1, 5, 1, step=1)
     test_size = st.slider("Chọn % dữ liệu Test", 10, 50, 20)
-    val_size = st.slider("Chọn % tỷ lệ tập Validation (trong phần train)", min_value=10, max_value=50, value=20, step=5)
-    train_size = 100 - test_size - val_size
-
-    st.write(f"**Tỷ lệ phân chia:** Test={test_size}%, Validation = {val_size}%, Indices={train_size - 1}%, Train={1}%")
-    # chia thêm phần dữ liệu tập val
-
+    val_size = st.slider("Chọn % tỷ lệ tập Validation (trong phần còn lại sau Test)", min_value=10, max_value=50, value=20, step=5)
     
+    # Tính tỷ lệ indices (phần còn lại)
+    remaining_percent = 100 - test_size  # Phần còn lại sau khi lấy tập test
+    val_actual_size = (val_size / 100) * remaining_percent  # Tỷ lệ thực tế của tập validation
+    train_actual_size = train_size  # Tỷ lệ tập train (1-5%)
+    indices_size = 100 - test_size - val_actual_size - train_actual_size  # Tỷ lệ tập indices
+
+    # Kiểm tra tổng tỷ lệ
+    total_percent = train_actual_size + val_actual_size + test_size + indices_size
+    if abs(total_percent - 100) > 0.01:  # Kiểm tra tổng tỷ lệ có bằng 100% không
+        st.error(f"⚠️ Tổng tỷ lệ không bằng 100%! Hiện tại: {total_percent:.2f}%")
+        return
+
+    st.write(f"**Tỷ lệ phân chia:** Train={train_actual_size:.2f}%, Validation={val_actual_size:.2f}%, Test={test_size:.2f}%, Indices={indices_size:.2f}%")
+
     # Tạo nút "Lưu Dữ Liệu"
     if st.button("Xác Nhận & Lưu Dữ Liệu"):
-
+        # Chọn số lượng mẫu theo num_samples
         if num_samples == total_samples:
             X_selected = X
             y_selected = y
@@ -87,31 +85,40 @@ def data_preparation():
                 X, y, train_size=num_samples/total_samples, stratify=y, random_state=42
             )
         
-        # Chia thành tập train, val, test
+        # Chia tập test
         X_temp, X_test_data, y_temp, y_test_data = train_test_split(
             X_selected, y_selected, test_size=test_size/100, stratify=y_selected, random_state=42
         )
-        X_train_data, X_val_data, y_train_data, y_val_data = train_test_split(
-            X_temp, y_temp, test_size=val_size/(100 - test_size), stratify=y_temp, random_state=42
-        )
-        
-        # Lấy 1% số lượng ảnh cho mỗi class (0-9) để làm tập dữ liệu train ban đầu
+
+        # Tính số lượng mẫu cho tập train dựa trên train_size
+        remaining_samples = len(X_temp)
+        train_samples = int(remaining_samples * (train_actual_size / (100 - test_size)))
+
+        # Lấy dữ liệu đều cho mỗi class để tạo tập train
         indices = []
         for i in range(10):
-            class_indices = np.where(y_train_data == i)[0]
-            num_samples_per_class = int(0.01 * len(class_indices))
+            class_indices = np.where(y_temp == i)[0]
+            num_samples_per_class = int(train_samples / 10)  # Chia đều cho 10 class
             if num_samples_per_class == 0:  # Đảm bảo ít nhất 1 mẫu mỗi class nếu dữ liệu quá ít
                 num_samples_per_class = 1
+            if num_samples_per_class > len(class_indices):  # Nếu số mẫu yêu cầu lớn hơn số mẫu có sẵn
+                num_samples_per_class = len(class_indices)
             data_indices_random = np.random.choice(class_indices, num_samples_per_class, replace=False)
             indices.extend(data_indices_random)
 
-        X_train_initial = X_train_data[indices]
-        y_train_initial = y_train_data[indices]
+        # Tạo tập train ban đầu
+        X_train_initial = X_temp[indices]
+        y_train_initial = y_temp[indices]
 
-        # Chuyển phần còn lại (không thuộc train_initial) sang tập indices
-        data_indices = np.setdiff1d(np.arange(len(X_train_data)), indices)
-        X_indices_data = X_train_data[data_indices]
-        y_indices_data = y_train_data[data_indices]
+        # Phần còn lại sau khi lấy tập train
+        remaining_indices = np.setdiff1d(np.arange(len(X_temp)), indices)
+        X_remaining = X_temp[remaining_indices]
+        y_remaining = y_temp[remaining_indices]
+
+        # Chia phần còn lại thành tập validation và tập indices
+        X_val_data, X_indices_data, y_val_data, y_indices_data = train_test_split(
+            X_remaining, y_remaining, test_size=indices_size/(100 - test_size - train_actual_size), stratify=y_remaining, random_state=42
+        )
 
         # Lưu dữ liệu vào session_state
         st.session_state["X_train"] = X_train_initial
@@ -130,14 +137,109 @@ def data_preparation():
         })
         st.success("✅ Dữ liệu đã được chia thành công!")
         st.table(summary_df)
+
+# def data_preparation():
+
+#     # Cho phép người dùng chọn tỷ lệ validation và test
+#     st.title("Chia dữ liệu Train/Test")
+    
+#     # Tạo các biến để lưu dữ liệu
+
+#     test_percent = 0
+#     train_percent = 0
+#     indices_percent = 0
+
+#     X_train_initial = np.array([]).reshape(0,0)
+#     X_test_data = np.array([]).reshape(0,0)
+#     X_indices_data = np.array([]).reshape(0,0)
+#     y_train_initial = np.array([])
+
+    
+    
+#     # Đọc dữ liệu
+#     X, y = load_mnist_data()
+#     total_samples = X.shape[0] 
+    
+#     # Thanh kéo chọn số lượng ảnh để train
+#     num_samples = st.number_input("Chọn số lượng ảnh để huấn luyện:", 100, total_samples, 20000)
+    
+#     # if num_samples == total_samples:
+#     #     num_samples = num_samples - 10
+#     # else:
+#     #     num_samples = num_samples
+
+#     # Thanh kéo chọn tỷ lệ Train/Test
+#     test_size = st.slider("Chọn % dữ liệu Test", 10, 50, 20)
+#     val_size = st.slider("Chọn % tỷ lệ tập Validation (trong phần train)", min_value=10, max_value=50, value=20, step=5)
+#     train_size = st.slider("Tỷ lệ dữ liệu tập train (%):", 1, 5, 1, step=1)
+#     indices_size = 100 - test_size - val_size - train_size
+
+#     st.write(f"**Tỷ lệ phân chia:** Test={test_size}%, Validation = {val_size}%, Indices={indices_size}%, Train={train_size}%")
+#     # chia thêm phần dữ liệu tập val
+
+    
+#     # Tạo nút "Lưu Dữ Liệu"
+#     if st.button("Xác Nhận & Lưu Dữ Liệu"):
+
+#         if num_samples == total_samples:
+#             X_selected = X
+#             y_selected = y
+#         else:
+#             X_selected, _, y_selected, _ = train_test_split(
+#                 X, y, train_size=num_samples/total_samples, stratify=y, random_state=42
+#             )
         
-        # # Ghi log cho quá trình phân chia dữ liệu
-        # mlflow.log_param("test_size", test_size)
-        # mlflow.log_metric("test_percent", test_percent)
-        # mlflow.log_metric("train_percent", train_percent)
-        # mlflow.log_metric("val_percent", val_percent)
-        # with result_placeholder:
-        # Hiển thị kết quả
+#         # Chia thành tập train, val, test
+#         X_temp, X_test_data, y_temp, y_test_data = train_test_split(
+#             X_selected, y_selected, test_size=test_size/100, stratify=y_selected, random_state=42
+#         )
+#         X_train_data, X_val_data, y_train_data, y_val_data = train_test_split(
+#             X_temp, y_temp, test_size=val_size/(100 - test_size), stratify=y_temp, random_state=42
+#         )
+        
+#         # Lấy 1% số lượng ảnh cho mỗi class (0-9) để làm tập dữ liệu train ban đầu
+#         indices = []
+#         for i in range(10):
+#             class_indices = np.where(y_train_data == i)[0]
+#             num_samples_per_class = int(0.01 * len(class_indices))
+#             if num_samples_per_class == 0:  # Đảm bảo ít nhất 1 mẫu mỗi class nếu dữ liệu quá ít
+#                 num_samples_per_class = 1
+#             data_indices_random = np.random.choice(class_indices, num_samples_per_class, replace=False)
+#             indices.extend(data_indices_random)
+
+#         X_train_initial = X_train_data[indices]
+#         y_train_initial = y_train_data[indices]
+
+#         # Chuyển phần còn lại (không thuộc train_initial) sang tập indices
+#         data_indices = np.setdiff1d(np.arange(len(X_train_data)), indices)
+#         X_indices_data = X_train_data[data_indices]
+#         y_indices_data = y_train_data[data_indices]
+
+#         # Lưu dữ liệu vào session_state
+#         st.session_state["X_train"] = X_train_initial
+#         st.session_state["y_train"] = y_train_initial
+#         st.session_state["X_val"] = X_val_data
+#         st.session_state["y_val"] = y_val_data
+#         st.session_state["X_test"] = X_test_data
+#         st.session_state["y_test"] = y_test_data
+#         st.session_state["X_indices"] = X_indices_data
+#         st.session_state["y_indices"] = y_indices_data
+
+#         # Hiển thị kết quả
+#         summary_df = pd.DataFrame({
+#             "Tập dữ liệu": ["Train", "Validation", "Test", "Indices"],
+#             "Số lượng mẫu": [X_train_initial.shape[0], X_val_data.shape[0], X_test_data.shape[0], X_indices_data.shape[0]]
+#         })
+#         st.success("✅ Dữ liệu đã được chia thành công!")
+#         st.table(summary_df)
+        
+#         # # Ghi log cho quá trình phân chia dữ liệu
+#         # mlflow.log_param("test_size", test_size)
+#         # mlflow.log_metric("test_percent", test_percent)
+#         # mlflow.log_metric("train_percent", train_percent)
+#         # mlflow.log_metric("val_percent", val_percent)
+#         # with result_placeholder:
+#         # Hiển thị kết quả
         
         
 
@@ -300,7 +402,7 @@ def learning_model():
                     pseudo_labels = np.argmax(predictions, axis=1)
 
                     confident_mask = confidence_scores >= threshold
-                    
+
 
                     if np.sum(confident_mask) > 0:
                         X_confident = X_unlabeled[confident_mask]
