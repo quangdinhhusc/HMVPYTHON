@@ -565,7 +565,7 @@ def learning_model():
                     train_size_before = len(X_train)
 
                     # Sử dụng KFold thay vì StratifiedKFold vì không cần chia val nữa
-                    kf = KFold(n_splits=k_folds, shuffle=True, random_state=42)
+                    kf = StratifiedKFold(n_splits=k_folds, shuffle=True, random_state=42)
                     accuracies, losses = [], []
                     training_progress = st.progress(0)
                     training_status = st.empty()
