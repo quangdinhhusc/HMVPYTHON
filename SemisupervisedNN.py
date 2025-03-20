@@ -60,7 +60,7 @@ def data_preparation():
     total_samples = X.shape[0] 
     
     # Thanh kéo chọn số lượng ảnh để train
-    num_samples = st.slider("Chọn số lượng ảnh để huấn luyện:", 100, total_samples, 20000)
+    num_samples = st.number_input("Chọn số lượng ảnh để huấn luyện:", 100, total_samples, 20000)
     
     # if num_samples == total_samples:
     #     num_samples = num_samples - 10
