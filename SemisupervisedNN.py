@@ -157,7 +157,7 @@ def learning_model():
     X_test = st.session_state["X_test"]
     X_val = st.session_state["X_val"]
     y_train = st.session_state["y_train"]
-    # y_indices = st.session_state["y_indices"]
+    y_indices = st.session_state["y_indices"]
     y_test = st.session_state["y_test"]
     y_val = st.session_state["y_val"]
 
@@ -193,6 +193,7 @@ def learning_model():
             with mlflow.start_run(run_name=run_name):
 
                 X_unlabeled = X_indices.copy()
+                unlabeled_indices = np.arange(len(X_indices))
                 iteration = 0
                 overall_progress = st.progress(0)
                 total_start_time = time.time()
@@ -303,13 +304,42 @@ def learning_model():
                     if np.sum(confident_mask) > 0:
                         X_confident = X_unlabeled[confident_mask]
                         y_confident = pseudo_labels[confident_mask]
+                        # Lấy chỉ số của các mẫu được chọn trong X_unlabeled
+                        selected_unlabeled_indices = unlabeled_indices[confident_mask]
+                        # Lấy nhãn thật từ y_indices dựa trên chỉ số
+                        true_labels = y_indices[selected_unlabeled_indices]
+
                         X_train = np.concatenate([X_train, X_confident])
                         y_train = np.concatenate([y_train, y_confident])
+                        # Cập nhật X_unlabeled và unlabeled_indices
                         X_unlabeled = X_unlabeled[~confident_mask]
-
-                        st.write(f"✅ Độ chính xác trên tập Validation sau vòng lặp {iteration}: {avg_val_accuracy:.4f}")
+                        unlabeled_indices = unlabeled_indices[~confident_mask]
                         st.write(f"✅ Đã thêm {np.sum(confident_mask)} mẫu vào tập huấn luyện")
-                        
+                        st.write(f"Độ Chính Xác (Validation): {avg_val_accuracy:.4f}")
+
+                        # Hiển thị ngẫu nhiên 5 mẫu ảnh vừa được gán nhãn giả
+                        st.markdown("#### Một số mẫu vừa được gán nhãn giả")
+                        if len(X_confident) >= 5:
+                            # Chọn ngẫu nhiên 5 mẫu từ X_confident
+                            indices = np.random.choice(len(X_confident), 5, replace=False)
+                            selected_images = X_confident[indices]
+                            selected_pseudo_labels = y_confident[indices]
+                            selected_true_labels = true_labels[indices]
+                        else:
+                            # Nếu số mẫu ít hơn 5, lấy tất cả mẫu
+                            selected_images = X_confident
+                            selected_pseudo_labels = y_confident
+                            selected_true_labels = true_labels
+
+                        # Chia giao diện thành 5 cột để hiển thị 5 ảnh
+                        cols = st.columns(5)
+                        for i in range(min(5, len(selected_images))):
+                            with cols[i]:
+                                # Đảm bảo ảnh có định dạng đúng (28x28) và giá trị từ 0-255
+                                image = selected_images[i].reshape(28, 28) * 255.0
+                                image = image.astype(np.uint8)
+                                # Hiển thị ảnh với nhãn giả và nhãn thật
+                                st.image(image, caption=f"Nhãn giả: {selected_pseudo_labels[i]} | Nhãn thật: {selected_true_labels[i]}", use_container_width=True)
                     else:
                         st.write(f"⚠️ Không có mẫu nào đạt ngưỡng tin cậy {threshold}. Kết thúc sớm.")
                         break  # Thoát vòng lặp nếu không có mẫu nào được gán nhãn
