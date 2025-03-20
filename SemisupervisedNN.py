@@ -441,7 +441,8 @@ def learning_model():
                         for i in range(min(5, len(selected_images))):
                             with cols[i]:
                                 # Đảm bảo ảnh có định dạng đúng (28x28) và giá trị từ 0-255
-                                image = selected_images[i].reshape(28, 28) * 255.0
+                                image = selected_images[i]
+                                # .reshape(28, 28) * 255.0
                                 # image = image.astype(np.uint8)
                                 # Hiển thị ảnh với nhãn giả và nhãn thật
                                 st.image(image, caption=f"Nhãn giả: {selected_pseudo_labels[i]} | Nhãn thật: {selected_true_labels[i]}", use_container_width=True)
