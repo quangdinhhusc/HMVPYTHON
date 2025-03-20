@@ -263,7 +263,7 @@ def learning_model():
     y_test = st.session_state["y_test"]
     y_val = st.session_state["y_val"]
 
-    run_name = st.text_input("Nhập tên Run:", "Default_Run")
+    run_name = st.text_input("Nhập tên Run:", "")
     # Lựa chọn tham số huấn luyện
     st.markdown("### Lựa chọn tham số huấn luyện")
     
