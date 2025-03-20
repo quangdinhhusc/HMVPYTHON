@@ -300,6 +300,7 @@ def learning_model():
                     pseudo_labels = np.argmax(predictions, axis=1)
 
                     confident_mask = confidence_scores >= threshold
+                    
 
                     if np.sum(confident_mask) > 0:
                         X_confident = X_unlabeled[confident_mask]
